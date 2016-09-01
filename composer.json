@@ -1,0 +1,37 @@
+{
+    "name": "cheppers/robo-eslint",
+    "description": "Robo task wrapper for ESLint",
+    "license": "GPL-2.0+",
+    "config": {
+        "bin-dir": "bin"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "cheppers/asset-jar": "^0.0",
+        "consolidation/robo": "1.0.0-RC2",
+        "symfony/process": "~2.5|~3.0"
+    },
+    "require-dev": {
+        "cheppers/git-hooks": "^0.0.8",
+        "codeception/codeception": "^2.2",
+        "squizlabs/php_codesniffer": "2.6.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Cheppers\\Robo\\ESLint\\": "src/"
+        }
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "@deploy-git-hooks",
+            "@tests-data-npm-install"
+        ],
+        "post-update-cmd": [
+            "@deploy-git-hooks",
+            "@tests-data-npm-install"
+        ],
+        "deploy-git-hooks": "\\Cheppers\\GitHooks\\Main::deploy",
+        "tests-data-npm-install": "cd tests/_data && npm install"
+    }
+}

@@ -1,0 +1,8 @@
+
+/bin/
+/vendor/
+
+/tests/_data/node_modules/
+/tests/_data/reports/
+/tests/_output/
+/tests/_support/_generated/
