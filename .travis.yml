@@ -8,15 +8,21 @@ php:
   - '7.0'
 
 env:
-  - 'COMPOSER_NO_INTERACTION=1 COMPOSER_DISABLE_XDEBUG_WARN=1'
+  - 'COMPOSER_NO_INTERACTION=1 COMPOSER_DISABLE_XDEBUG_WARN=1 NVM_DIR="$HOME/.nvm" NODE_VERSION="$(cat .nvmrc)" PATH="${HOME}/.nvm/versions/node/v${NODE_VERSION}/bin/npm:${PATH}"'
 
 cache:
   directories:
     - '$HOME/.composer/cache'
-    - '$HOME/.nvm/versions/node/v6.2.2'
 
 before_install:
   - 'which phpdbg && phpenv config-rm xdebug.ini || true'
+  - 'nvm list'
+  - 'nvm install "$NODE_VERSION"'
+  - 'nvm use "$NODE_VERSION"'
+  - 'nvm alias default "$NODE_VERSION"'
+  - 'source "$NVM_DIR/nvm.sh"'
+  - 'npm --version'
+  - 'node --version'
 
 install:
   - 'composer install'
