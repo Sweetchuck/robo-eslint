@@ -9,6 +9,7 @@ use Symfony\Component\Process\Process;
 class RoboFile extends \Robo\Tasks
     // @codingStandardsIgnoreEnd
 {
+    use \Cheppers\Robo\Phpcs\Task\LoadTasks;
 
     /**
      * @var array
@@ -59,6 +60,7 @@ class RoboFile extends \Robo\Tasks
         $cb = $this->collectionBuilder();
         $cb->addTaskList([
             'lint.composer.lock' => $this->taskComposerValidate(),
+            'lint.phpcs.psr2' => $this->getTaskPhpcsLint(),
             'codecept' => $this->getTaskCodecept(),
         ]);
 
@@ -90,6 +92,7 @@ class RoboFile extends \Robo\Tasks
         $cb = $this->collectionBuilder();
         $cb->addTaskList([
             'lint.composer.lock' => $this->taskComposerValidate(),
+            'lint.phpcs.psr2' => $this->getTaskPhpcsLint(),
         ]);
 
         return $cb;
@@ -112,6 +115,29 @@ class RoboFile extends \Robo\Tasks
         }
 
         return $this;
+    }
+
+    /**
+     * @return \Cheppers\Robo\Phpcs\Task\TaskPhpcsLint
+     */
+    protected function getTaskPhpcsLint()
+    {
+        return $this->taskPhpcsLint([
+            'colors' => 'always',
+            'standard' => 'PSR2',
+            'reports' => [
+                'full' => null,
+                'checkstyle' => 'tests/_output/checkstyle/phpcs-psr2.xml',
+            ],
+            'files' => [
+                'src/',
+                'tests/_data/RoboFile.php',
+                'tests/_support/Helper/',
+                'tests/acceptance/',
+                'tests/unit/',
+                'RoboFile.php',
+            ],
+        ]);
     }
 
     /**

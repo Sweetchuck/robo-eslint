@@ -49,6 +49,14 @@ class RunTest extends \Codeception\Test\Unit
                 [],
                 [],
             ],
+            'eslintExecutable' => [
+                "something/else --config 'foo'",
+                [
+                    'eslintExecutable' => 'something/else',
+                    'configFile' => 'foo'
+                ],
+                [],
+            ],
             'configFile-empty' => [
                 'node_modules/.bin/eslint',
                 ['configFile' => ''],

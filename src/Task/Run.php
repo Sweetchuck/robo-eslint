@@ -240,6 +240,10 @@ class Run extends BaseTask implements AssetJarAwareInterface, OutputAwareInterfa
     {
         foreach ($options as $name => $value) {
             switch ($name) {
+                case 'eslintExecutable':
+                    $this->eslintExecutable($value);
+                    break;
+
                 case 'assetJarMapping':
                     $this->setAssetJarMapping($value);
                     break;
@@ -317,6 +321,21 @@ class Run extends BaseTask implements AssetJarAwareInterface, OutputAwareInterfa
                     break;
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * Set path to the "eslint" executable.
+     *
+     * @param string $value
+     *   Path to the "eslint" executable.
+     *
+     * @return $this
+     */
+    public function eslintExecutable($value)
+    {
+        $this->eslintExecutable = $value;
 
         return $this;
     }
@@ -572,12 +591,12 @@ class Run extends BaseTask implements AssetJarAwareInterface, OutputAwareInterfa
         if ($this->outputFile) {
             $outputDir = pathinfo($this->outputFile, PATHINFO_DIRNAME);
             $mask = 0777 - umask();
-            //if (!file_exists($outputDir) && !mkdir($outputDir, $mask, true)) {
-            //    return Result::error(
-            //        $this,
-            //        sprintf('Failed to create the output directory: <comment>%s</comment>', $outputDir)
-            //    );
-            //}
+            if (!file_exists($outputDir) && !mkdir($outputDir, $mask, true)) {
+                return Result::error(
+                    $this,
+                    sprintf('Failed to create the output directory: <comment>%s</comment>', $outputDir)
+                );
+            }
         }
 
         $this->startTimer();
@@ -700,8 +719,7 @@ class Run extends BaseTask implements AssetJarAwareInterface, OutputAwareInterfa
 
         if ($this->color) {
             $cmd_pattern .= ' --color';
-        }
-        elseif ($this->color !== null) {
+        } elseif ($this->color !== null) {
             $cmd_pattern .= ' --no-color';
         }
 

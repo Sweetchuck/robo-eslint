@@ -30,8 +30,10 @@ class Cli extends CodeceptionModule
      */
     protected $stdError = null;
 
+    // @codingStandardsIgnoreStart
     public function _cleanup()
     {
+        // @codingStandardsIgnoreEnd
         $this->process = null;
     }
 
