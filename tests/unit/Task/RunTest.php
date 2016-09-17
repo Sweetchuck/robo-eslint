@@ -402,7 +402,6 @@ class RunTest extends \Codeception\Test\Unit
         \Helper\Dummy\Process::$exitCode = $exitCode;
         \Helper\Dummy\Process::$stdOutput = $withJar ? json_encode($stdOutput) : $stdOutput;
 
-        //$task->setConfig(Robo::config());
         $task->setLogger($this->container->get('logger'));
         $task->setOutput($output);
         $asset_jar = null;
