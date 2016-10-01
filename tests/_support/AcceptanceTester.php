@@ -26,7 +26,7 @@ class AcceptanceTester extends \Codeception\Actor
      */
     public function clearTheReportsDir()
     {
-        $reportsDir = "tests/_data/reports";
+        $reportsDir = codecept_data_dir('actual');
         if (is_dir($reportsDir)) {
             $finder = new \Symfony\Component\Finder\Finder();
             $finder->in($reportsDir);
@@ -43,14 +43,30 @@ class AcceptanceTester extends \Codeception\Actor
      *
      * @return $this
      */
-    public function runRoboTask($taskName)
+    public function runRoboTask($taskName, array $args = [], array $options = [])
     {
-        $cmd = sprintf(
-            'cd tests/_data && ../../bin/robo %s',
-            escapeshellarg($taskName)
-        );
+        $cmdPattern = 'cd %s && ../../bin/robo %s';
+        $cmdArgs = [
+            escapeshellarg(codecept_data_dir()),
+            escapeshellarg($taskName),
+        ];
 
-        return $this->runShellCommand($cmd);
+        foreach ($options as $option => $value) {
+            $cmdPattern .= " --$option";
+            if ($value !== null) {
+                $cmdPattern .= '=%s';
+                $cmdArgs[] = escapeshellarg($value);
+            }
+        }
+
+        $cmdPattern .= str_repeat(' %s', count($args));
+        foreach ($args as $arg) {
+            $cmdArgs[] = escapeshellarg($arg);
+        }
+
+        $this->runShellCommand(vsprintf($cmdPattern, $cmdArgs));
+
+        return $this;
     }
 
     /**
@@ -58,18 +74,62 @@ class AcceptanceTester extends \Codeception\Actor
      *
      * @return $this
      */
-    public function seeAValidJsonFile($fileName)
-    {
-        $fileNameFull = "tests/_data/$fileName";
-        Assert::assertTrue(
-            file_exists($fileNameFull),
-            "File exists: '$fileNameFull'"
+    public function haveAFileLikeThis($fileName) {
+        $expectedDir = codecept_data_dir('expected');
+        $actualDir = codecept_data_dir('actual');
+
+        Assert::assertContains(
+            file_get_contents("$expectedDir/$fileName"),
+            file_get_contents("$actualDir/$fileName")
         );
 
-        Assert::assertNotNull(
-            json_decode(file_get_contents($fileNameFull)),
-            "JSON file is valid: '$fileNameFull'"
-        );
+        return $this;
+    }
+
+    public function haveAValidCheckstyleReport($fileName)
+    {
+        $fileName = codecept_data_dir($fileName);
+        $doc = new \DOMDocument();
+        $doc->loadXML(file_get_contents($fileName));
+        $xpath = new DOMXPath($doc);
+        $rootElement = $xpath->query('/checkstyle');
+        Assert::assertEquals(1, $rootElement->length, 'Root element of the Checkstyle XML is exists.');
+
+        return $this;
+    }
+
+    /**
+     * @param string $expected
+     *
+     * @return $this
+     */
+    public function seeThisTextInTheStdOutput($expected)
+    {
+        Assert::assertContains($expected, $this->getStdOutput());
+
+        return $this;
+    }
+
+    /**
+     * @param string $expected
+     *
+     * @return $this
+     */
+    public function seeThisTextInTheStdError($expected)
+    {
+        Assert::assertContains($expected, $this->getStdError());
+
+        return $this;
+    }
+
+    /**
+     * @param int $expected
+     *
+     * @return $this
+     */
+    public function expectTheExitCodeToBe($expected)
+    {
+        Assert::assertEquals($expected, $this->getExitCode());
 
         return $this;
     }
