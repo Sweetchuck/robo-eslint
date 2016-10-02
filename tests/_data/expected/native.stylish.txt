@@ -1,0 +1,5 @@
+samples/invalid-01.js
+  2:1  error  'a' is not defined  no-undef
+  2:6  error  Extra semicolon     semi
+
+✖ 2 problems (2 errors, 0 warnings)

@@ -1,48 +1,79 @@
 <?php
 
+use Cheppers\LintReport\Reporter\BaseReporter;
+use Cheppers\LintReport\Reporter\SummaryReporter;
+use Cheppers\LintReport\Reporter\VerboseReporter;
+use League\Container\ContainerAwareInterface;
+use League\Container\ContainerInterface;
+use Robo\Contract\ConfigAwareInterface;
+
 /**
  * Class RoboFile.
  */
 // @codingStandardsIgnoreStart
-class RoboFile extends \Robo\Tasks
+class RoboFile extends \Robo\Tasks implements ContainerAwareInterface, ConfigAwareInterface
 {
     // @codingStandardsIgnoreEnd
     use \Cheppers\Robo\ESLint\Task\LoadTasks;
+    use \League\Container\ContainerAwareTrait;
+    use \Robo\Common\ConfigAwareTrait;
 
     /**
-     * @return \Robo\Collection\CollectionBuilder
+     * @var string
      */
-    public function lintStylishStdout()
-    {
-        /** @var \Robo\Collection\CollectionBuilder $cb */
-        $cb = $this->collectionBuilder();
-        $cb->addTaskList([
-            'eslint' => $this
-                ->taskESLintRun()
-                ->setOutput($this->output())
-                ->format('stylish')
-                ->paths(['samples/*']),
-        ]);
+    protected $reportsDir = 'actual';
 
-        return $cb;
+    public function setContainer(ContainerInterface $container)
+    {
+        $this->container = $container;
+
+        BaseReporter::lintReportConfigureContainer($this->container);
+
+        return $this;
     }
 
     /**
-     * @return \Robo\Collection\CollectionBuilder
+     * @return \Cheppers\Robo\ESLint\Task\Run
      */
-    public function lintJsonFile()
+    public function lintStylishStdOutput()
     {
-        /** @var \Robo\Collection\CollectionBuilder $cb */
-        $cb = $this->collectionBuilder();
-        $cb->addTaskList([
-            'eslint' => $this
-                ->taskESLintRun()
-                ->setOutput($this->output())
-                ->format('json')
-                ->outputFile('reports/eslint-samples.json')
-                ->paths(['samples/*']),
-        ]);
+        return $this->taskESLintRun()
+            ->paths(['samples/'])
+            ->format('stylish');
+    }
 
-        return $cb;
+    /**
+     * @return \Cheppers\Robo\ESLint\Task\Run
+     */
+    public function lintStylishFile()
+    {
+        return $this->taskESLintRun()
+            ->paths(['samples/'])
+            ->format('stylish')
+            ->outputFile("{$this->reportsDir}/native.stylish.txt");
+    }
+
+    /**
+     * @return \Cheppers\Robo\ESLint\Task\Run
+     */
+    public function lintAllInOne()
+    {
+        $verboseFile = new VerboseReporter();
+        $verboseFile
+            ->setFilePathStyle('relative')
+            ->setDestination("{$this->reportsDir}/extra.verbose.txt");
+
+        $summaryFile = new SummaryReporter();
+        $summaryFile
+            ->setFilePathStyle('relative')
+            ->setDestination("{$this->reportsDir}/extra.summary.txt");
+
+        return $this->taskESLintRun()
+            ->paths(['samples/'])
+            ->format('json')
+            ->addLintReporter('verbose:StdOutput', 'lintVerboseReporter')
+            ->addLintReporter('verbose:file', $verboseFile)
+            ->addLintReporter('summary:StdOutput', 'lintSummaryReporter')
+            ->addLintReporter('summary:file', $summaryFile);
     }
 }
