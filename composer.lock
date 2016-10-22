@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "2d5a1487f0e1966e32dec32a7292ce1a",
-    "content-hash": "c18edbd58365555ff0829221bcd84a4f",
+    "hash": "6692df0313a8acee6452915d7348ddfe",
+    "content-hash": "7c60b21c57403ec66afeab792caadfff",
     "packages": [
         {
             "name": "cheppers/asset-jar",
@@ -1041,21 +1041,21 @@
         },
         {
             "name": "cheppers/git-hooks",
-            "version": "v0.0.8",
+            "version": "v0.0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Cheppers/git-hooks.git",
-                "reference": "020ee34ccabe3083ae7e84ba27fabb52ed99470b"
+                "reference": "a846af41a1ea63d09bb8d49d9b1631e1a8eb63f8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Cheppers/git-hooks/zipball/020ee34ccabe3083ae7e84ba27fabb52ed99470b",
-                "reference": "020ee34ccabe3083ae7e84ba27fabb52ed99470b",
+                "url": "https://api.github.com/repos/Cheppers/git-hooks/zipball/a846af41a1ea63d09bb8d49d9b1631e1a8eb63f8",
+                "reference": "a846af41a1ea63d09bb8d49d9b1631e1a8eb63f8",
                 "shasum": ""
             },
             "require-dev": {
                 "behat/behat": "~3.1",
-                "consolidation/robo": "dev-master#6af485e",
+                "consolidation/robo": "~1.0",
                 "pear/archive_tar": "~1.4",
                 "phpunit/phpunit": "~4.5",
                 "squizlabs/php_codesniffer": "~2.6",
@@ -1078,7 +1078,7 @@
                 "GPL-2.0"
             ],
             "description": "Provide a bridge between Git hooks and scripts under VCS.",
-            "time": "2016-07-10 07:41:08"
+            "time": "2016-10-15 10:06:14"
         },
         {
             "name": "cheppers/lint-report",
@@ -2610,16 +2610,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "2.6.2",
+            "version": "2.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "4edb770cb853def6e60c93abb088ad5ac2010c83"
+                "reference": "571e27b6348e5b3a637b2abc82ac0d01e6d7bbed"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/4edb770cb853def6e60c93abb088ad5ac2010c83",
-                "reference": "4edb770cb853def6e60c93abb088ad5ac2010c83",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/571e27b6348e5b3a637b2abc82ac0d01e6d7bbed",
+                "reference": "571e27b6348e5b3a637b2abc82ac0d01e6d7bbed",
                 "shasum": ""
             },
             "require": {
@@ -2684,7 +2684,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2016-07-13 23:29:13"
+            "time": "2016-09-01 23:53:02"
         },
         {
             "name": "symfony/browser-kit",
