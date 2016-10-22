@@ -1,38 +1,42 @@
 
-sudo: false
-
-language: 'php'
-
-php:
-  - '5.6'
-  - '7.0'
-
-env:
-  - 'COMPOSER_NO_INTERACTION=1 COMPOSER_DISABLE_XDEBUG_WARN=1 NVM_DIR="$HOME/.nvm" NODE_VERSION="$(cat .nvmrc)" PATH="${HOME}/.nvm/versions/node/v${NODE_VERSION}/bin/npm:${PATH}"'
-
 cache:
   directories:
     - '$HOME/.composer/cache'
 
+matrix:
+    fast_finish: true
+    include:
+        -
+            sudo: false
+            language: 'php'
+            php: '5.6'
+            env:
+                - 'COMPOSER_NO_INTERACTION=1 COMPOSER_DISABLE_XDEBUG_WARN=1 NVM_DIR="$HOME/.nvm" NODE_VERSION="$(cat .nvmrc)" PATH="${HOME}/.nvm/versions/node/v${NODE_VERSION}/bin/npm:${PATH}"'
+        -
+            os: 'osx'
+            language: 'generic'
+            env:
+                - 'COMPOSER_NO_INTERACTION=1 COMPOSER_DISABLE_XDEBUG_WARN=1 NVM_DIR="$HOME/.nvm" NODE_VERSION="$(cat .nvmrc)" PATH="${HOME}/.nvm/versions/node/v${NODE_VERSION}/bin/npm:${PATH}" _PHP=php70'
+
 before_install:
-  - 'which phpdbg && phpenv config-rm xdebug.ini || true'
-  - 'nvm list'
-  - 'nvm install "$NODE_VERSION"'
-  - 'nvm use "$NODE_VERSION"'
-  - 'nvm alias default "$NODE_VERSION"'
-  - 'source "$NVM_DIR/nvm.sh"'
-  - 'npm --version'
-  - 'node --version'
+    - 'src-dev/scripts/travis/before_install.sh'
+    - 'nvm list'
+    - 'nvm install "$NODE_VERSION"'
+    - 'nvm use "$NODE_VERSION"'
+    - 'nvm alias default "$NODE_VERSION"'
+    - 'source "$NVM_DIR/nvm.sh"'
+    - 'npm --version'
+    - 'node --version'
 
 install:
-  - 'composer install'
+    - 'composer install'
 
 script:
-  - 'bin/robo --ansi lint'
-  - 'bin/robo --ansi test'
+    - 'bin/robo --ansi lint'
+    - 'bin/robo --ansi test'
 
 after_success:
-  - 'bash <(curl -s https://codecov.io/bash)'
+    - 'bash <(curl -s https://codecov.io/bash)'
 
 notifications:
-  email: false
+    email: false
