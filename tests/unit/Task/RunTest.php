@@ -13,10 +13,6 @@ class RunTest extends \Codeception\Test\Unit
 {
     // @codingStandardsIgnoreEnd
 
-    use \Cheppers\Robo\ESLint\Task\LoadTasks;
-    use \Robo\TaskAccessor;
-    use \Robo\Common\BuilderAwareTrait;
-
     /**
      * @param $name
      *
@@ -29,28 +25,6 @@ class RunTest extends \Codeception\Test\Unit
         $method->setAccessible(true);
 
         return $method;
-    }
-
-    /**
-     * @var \League\Container\Container
-     */
-    protected $container = null;
-
-    // @codingStandardsIgnoreStart
-    protected function _before()
-    {
-        // @codingStandardsIgnoreEnd
-        $this->container = new \League\Container\Container();
-        Robo::setContainer($this->container);
-        Robo::configureContainer($this->container);
-    }
-
-    /**
-     * @return \League\Container\Container
-     */
-    public function getContainer()
-    {
-        return $this->container;
     }
 
     public function testGetSetLintReporters()
@@ -540,6 +514,11 @@ class RunTest extends \Codeception\Test\Unit
      */
     public function testRun($expectedExitCode, array $expectedReport, $withJar)
     {
+        $container = \Robo\Robo::createDefaultContainer();
+        \Robo\Robo::setContainer($container);
+
+        $mainStdOutput = new \Helper\Dummy\Output();
+
         $options = [
             'workingDirectory' => 'my-working-dir',
             'assetJarMapping' => ['report' => ['ESLintRun', 'report']],
@@ -556,12 +535,12 @@ class RunTest extends \Codeception\Test\Unit
             ]
         );
 
-        $output = new \Helper\Dummy\Output();
         \Helper\Dummy\Process::$exitCode = $expectedExitCode;
         \Helper\Dummy\Process::$stdOutput = json_encode($expectedReport);
 
-        $task->setLogger($this->container->get('logger'));
-        $task->setOutput($output);
+        $task->setLogger($container->get('logger'));
+        $task->setOutput($mainStdOutput);
+
         $assetJar = null;
         if ($withJar) {
             $assetJar = new \Cheppers\AssetJar\AssetJar();
@@ -588,7 +567,7 @@ class RunTest extends \Codeception\Test\Unit
         } else {
             static::assertEquals(
                 $expectedReport,
-                json_decode($output->output, true),
+                json_decode($mainStdOutput->output, true),
                 'Output equals without jar'
             );
         }
@@ -596,6 +575,9 @@ class RunTest extends \Codeception\Test\Unit
 
     public function testRunFailed()
     {
+        $container = \Robo\Robo::createDefaultContainer();
+        \Robo\Robo::setContainer($container);
+
         $exitCode = 1;
         $report = [
             [
@@ -634,8 +616,7 @@ class RunTest extends \Codeception\Test\Unit
         \Helper\Dummy\Process::$exitCode = $exitCode;
         \Helper\Dummy\Process::$stdOutput = $reportJson;
 
-        $task->setConfig(Robo::config());
-        $task->setLogger($this->container->get('logger'));
+        $task->setLogger($container->get('logger'));
         $assetJar = new \Cheppers\AssetJar\AssetJar();
         $task->setAssetJar($assetJar);
 
@@ -654,6 +635,9 @@ class RunTest extends \Codeception\Test\Unit
 
     public function testRunNativeAndExtraReporterConflict()
     {
+        $container = \Robo\Robo::createDefaultContainer();
+        \Robo\Robo::setContainer($container);
+
         $options = [
             'format' => 'stylish',
             'lintReporters' => [
@@ -666,12 +650,11 @@ class RunTest extends \Codeception\Test\Unit
             ESLintTask::class,
             [$options, []],
             [
-                'container' => $this->getContainer(),
+                'container' => $container,
             ]
         );
 
-        $task->setConfig(Robo::config());
-        $task->setLogger($this->container->get('logger'));
+        $task->setLogger($container->get('logger'));
         $assetJar = new \Cheppers\AssetJar\AssetJar();
         $task->setAssetJar($assetJar);
 

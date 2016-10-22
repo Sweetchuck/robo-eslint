@@ -1,6 +1,8 @@
 <?php
 
 // @codingStandardsIgnoreStart
+use Cheppers\LintReport\Reporter\CheckstyleReporter;
+use League\Container\ContainerInterface;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
 
@@ -10,6 +12,7 @@ use Symfony\Component\Yaml\Yaml;
 class RoboFile extends \Robo\Tasks
     // @codingStandardsIgnoreEnd
 {
+    use \Cheppers\Robo\Git\Task\LoadTasks;
     use \Cheppers\Robo\Phpcs\Task\LoadTasks;
 
     /**
@@ -47,6 +50,27 @@ class RoboFile extends \Robo\Tasks
      */
     protected $phpdbgExecutable = 'phpdbg';
 
+    //region Property - environment
+    /**
+     * Allowed values: dev, git-hook, jenkins.
+     *
+     * @var string
+     */
+    protected $environment = '';
+
+    /**
+     * @return string
+     */
+    protected function getEnvironment()
+    {
+        if ($this->environment) {
+            return $this->environment;
+        }
+
+        return getenv('ROBO_PHPCS_ENVIRONMENT') ?: 'dev';
+    }
+    //endregion
+
     /**
      * RoboFile constructor.
      */
@@ -56,12 +80,24 @@ class RoboFile extends \Robo\Tasks
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function setContainer(ContainerInterface $container)
+    {
+        \Cheppers\LintReport\Reporter\BaseReporter::lintReportConfigureContainer($container);
+
+        return parent::setContainer($container);
+    }
+
+    /**
      * Git "pre-commit" hook callback.
      *
      * @return \Robo\Collection\CollectionBuilder
      */
     public function githookPreCommit()
     {
+        $this->environment = 'git-hook';
+
         /** @var \Robo\Collection\CollectionBuilder $cb */
         $cb = $this->collectionBuilder();
 
@@ -143,25 +179,53 @@ class RoboFile extends \Robo\Tasks
     }
 
     /**
-     * @return \Cheppers\Robo\Phpcs\Task\PhpcsLint
+     * @return \Robo\Collection\CollectionBuilder|\Cheppers\Robo\Phpcs\Task\PhpcsLintFiles
      */
     protected function getTaskPhpcsLint()
     {
-        return $this->taskPhpcsLint([
-            'colors' => 'always',
+        $env = $this->getEnvironment();
+
+        $files = [
+            'src/',
+            'tests/_data/RoboFile.php',
+            'tests/_support/Helper/',
+            'tests/acceptance/',
+            'tests/unit/',
+            'RoboFile.php',
+        ];
+
+        $options = [
             'standard' => 'PSR2',
-            'reports' => [
-                'full' => null,
-                'checkstyle' => 'tests/_output/checkstyle/phpcs-psr2.xml',
+            'lintReporters' => [
+                'lintVerboseReporter' => null,
             ],
-            'files' => [
-                'src/',
-                'tests/_data/RoboFile.php',
-                'tests/_support/Helper/',
-                'tests/acceptance/',
-                'tests/unit/',
-                'RoboFile.php',
-            ],
+        ];
+
+        if ($env === 'jenkins') {
+            $options['failOn'] = 'never';
+
+            $options['lintReporters']['lintCheckstyleReporter'] = (new CheckstyleReporter())
+                ->setDestination('tests/_output/checkstyle/phpcs.psr2.xml');
+        }
+
+        if ($env !== 'git-hook') {
+            return $this->taskPhpcsLintFiles($options + ['files' => $files]);
+        }
+
+        /** @var \Robo\Collection\CollectionBuilder $cb */
+        $cb = $this->collectionBuilder();
+        $assetJar = new Cheppers\AssetJar\AssetJar();
+
+        return $cb->addTaskList([
+            'git.readStagedFiles' => $this
+                ->taskGitReadStagedFiles()
+                ->setAssetJar($assetJar)
+                ->setAssetJarMap('files', ['files'])
+                ->setPaths($files),
+            'lint.phpcs.psr2' => $this
+                ->taskPhpcsLintInput($options)
+                ->setAssetJar($assetJar)
+                ->setAssetJarMap('files', ['files']),
         ]);
     }
 

@@ -3,7 +3,6 @@
 use Cheppers\LintReport\Reporter\BaseReporter;
 use Cheppers\LintReport\Reporter\SummaryReporter;
 use Cheppers\LintReport\Reporter\VerboseReporter;
-use League\Container\ContainerAwareInterface;
 use League\Container\ContainerInterface;
 use Robo\Contract\ConfigAwareInterface;
 
@@ -11,11 +10,10 @@ use Robo\Contract\ConfigAwareInterface;
  * Class RoboFile.
  */
 // @codingStandardsIgnoreStart
-class RoboFile extends \Robo\Tasks implements ContainerAwareInterface, ConfigAwareInterface
+class RoboFile extends \Robo\Tasks implements ConfigAwareInterface
 {
     // @codingStandardsIgnoreEnd
     use \Cheppers\Robo\ESLint\Task\LoadTasks;
-    use \League\Container\ContainerAwareTrait;
     use \Robo\Common\ConfigAwareTrait;
 
     /**
@@ -23,6 +21,9 @@ class RoboFile extends \Robo\Tasks implements ContainerAwareInterface, ConfigAwa
      */
     protected $reportsDir = 'actual';
 
+    /**
+     * {@inheritdoc}
+     */
     public function setContainer(ContainerInterface $container)
     {
         $this->container = $container;
@@ -58,13 +59,11 @@ class RoboFile extends \Robo\Tasks implements ContainerAwareInterface, ConfigAwa
      */
     public function lintAllInOne()
     {
-        $verboseFile = new VerboseReporter();
-        $verboseFile
+        $verboseFile = (new VerboseReporter())
             ->setFilePathStyle('relative')
             ->setDestination("{$this->reportsDir}/extra.verbose.txt");
 
-        $summaryFile = new SummaryReporter();
-        $summaryFile
+        $summaryFile = (new SummaryReporter())
             ->setFilePathStyle('relative')
             ->setDestination("{$this->reportsDir}/extra.summary.txt");
 
