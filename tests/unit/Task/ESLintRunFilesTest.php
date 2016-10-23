@@ -1,15 +1,13 @@
 <?php
 
-use Cheppers\LintReport\Reporter\VerboseReporter;
-use Cheppers\Robo\ESLint\Task\Run as ESLintTask;
+use Cheppers\Robo\ESLint\Task\ESLintRunFiles;
 use Codeception\Util\Stub;
-use Robo\Robo;
 
 /**
  * Class RunTest.
  */
 // @codingStandardsIgnoreStart
-class RunTest extends \Codeception\Test\Unit
+class ESLintRunFilesTest extends \Codeception\Test\Unit
 {
     // @codingStandardsIgnoreEnd
 
@@ -20,16 +18,90 @@ class RunTest extends \Codeception\Test\Unit
      */
     protected static function getMethod($name)
     {
-        $class = new ReflectionClass(ESLintTask::class);
+        $class = new ReflectionClass(ESLintRunFiles::class);
         $method = $class->getMethod($name);
         $method->setAccessible(true);
 
         return $method;
     }
 
+    /**
+     * @var \UnitTester
+     */
+    protected $tester;
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function setUp()
+    {
+        parent::setUp();
+
+        \Helper\Dummy\Process::reset();
+    }
+
+    /**
+     * @return array
+     */
+    public function casesGetSetOutputFile()
+    {
+        return [
+            'empty' => [
+                '',
+                '',
+                [],
+            ],
+            'wd empty relative' => [
+                'a.js',
+                './a.js',
+                [
+                    'outputFile' => 'a.js',
+                ],
+            ],
+            'wd empty abs' => [
+                '/a.js',
+                '/a.js',
+                [
+                    'outputFile' => '/a.js',
+                ],
+            ],
+            'wd foo relative' => [
+                'a.js',
+                'foo/a.js',
+                [
+                    'outputFile' => 'a.js',
+                    'workingDirectory' => 'foo',
+                ],
+            ],
+            'wd foo abs' => [
+                '/abs.js',
+                '/abs.js',
+                [
+                    'outputFile' => '/abs.js',
+                    'workingDirectory' => 'foo',
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider casesGetSetOutputFile
+     *
+     * @param string $expectedDirect
+     * @param string $expectedReal
+     * @param array $options
+     */
+    public function testGetSetOutputFile($expectedDirect, $expectedReal, array $options)
+    {
+        $task = new ESLintRunFiles($options);
+
+        $this->tester->assertEquals($expectedDirect, $task->getOutputFile());
+        $this->tester->assertEquals($expectedReal, $task->getRealOutputFile());
+    }
+
     public function testGetSetLintReporters()
     {
-        $task = new ESLintTask([
+        $task = new ESLintRunFiles([
             'lintReporters' => [
                 'aKey' => 'aValue',
             ],
@@ -52,7 +124,7 @@ class RunTest extends \Codeception\Test\Unit
     /**
      * @return array
      */
-    public function casesBuildCommand()
+    public function casesGetCommand()
     {
         return [
             'basic' => [
@@ -238,25 +310,25 @@ class RunTest extends \Codeception\Test\Unit
                 ['noInlineConfig' => true],
                 [],
             ],
-            'paths-empty' => [
+            'files-empty' => [
                 "node_modules/.bin/eslint",
-                ['paths' => []],
+                ['files' => []],
                 [],
             ],
-            'paths-string' => [
+            'files-string' => [
                 "node_modules/.bin/eslint -- 'foo'",
-                ['paths' => 'foo'],
+                ['files' => 'foo'],
                 [],
             ],
-            'paths-vector' => [
+            'files-vector' => [
                 "node_modules/.bin/eslint -- 'foo' 'bar' 'baz'",
-                ['paths' => ['foo', 'bar', 'baz']],
+                ['files' => ['foo', 'bar', 'baz']],
                 [],
             ],
-            'paths-assoc' => [
+            'files-assoc' => [
                 "node_modules/.bin/eslint -- 'a' 'd'",
                 [
-                    'paths' => [
+                    'files' => [
                         'a' => true,
                         'b' => null,
                         'c' => false,
@@ -267,13 +339,13 @@ class RunTest extends \Codeception\Test\Unit
                 [],
             ],
             'multiple' => [
-                "node_modules/.bin/eslint --max-warnings '1' --output-file 'of' --color --no-inline-config -- 'a' 'b'",
+                "node_modules/.bin/eslint --color --no-inline-config --max-warnings '1' --output-file 'of' -- 'a' 'b'",
                 [
                     'maxWarnings' => 1,
                     'outputFile' => 'of',
                     'color' => true,
                     'noInlineConfig' => true,
-                    'paths' => ['a', 'b'],
+                    'files' => ['a', 'b'],
                 ],
                 [],
             ],
@@ -281,24 +353,24 @@ class RunTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @dataProvider casesBuildCommand
+     * @dataProvider casesGetCommand
      *
      * @param string $expected
      * @param array $options
      * @param array $paths
      */
-    public function testBuildCommand($expected, array $options, array $paths)
+    public function testGetCommand($expected, array $options, array $paths)
     {
-        $eslint = new ESLintTask($options, $paths);
-        static::assertEquals($expected, $eslint->buildCommand());
+        $eslint = new ESLintRunFiles($options, $paths);
+        static::assertEquals($expected, $eslint->getCommand());
     }
 
     public function testExitCodeConstants()
     {
-        static::assertEquals(0, ESLintTask::EXIT_CODE_OK);
-        static::assertEquals(1, ESLintTask::EXIT_CODE_WARNING);
-        static::assertEquals(2, ESLintTask::EXIT_CODE_ERROR);
-        static::assertEquals(3, ESLintTask::EXIT_CODE_INVALID);
+        static::assertEquals(0, ESLintRunFiles::EXIT_CODE_OK);
+        static::assertEquals(1, ESLintRunFiles::EXIT_CODE_WARNING);
+        static::assertEquals(2, ESLintRunFiles::EXIT_CODE_ERROR);
+        static::assertEquals(3, ESLintRunFiles::EXIT_CODE_INVALID);
     }
 
     /**
@@ -306,9 +378,9 @@ class RunTest extends \Codeception\Test\Unit
      */
     public function casesGetTaskExitCode()
     {
-        $o = ESLintTask::EXIT_CODE_OK;
-        $w = ESLintTask::EXIT_CODE_WARNING;
-        $e = ESLintTask::EXIT_CODE_ERROR;
+        $o = ESLintRunFiles::EXIT_CODE_OK;
+        $w = ESLintRunFiles::EXIT_CODE_WARNING;
+        $e = ESLintRunFiles::EXIT_CODE_ERROR;
         $u = 5;
 
         return [
@@ -381,22 +453,20 @@ class RunTest extends \Codeception\Test\Unit
      * @param string $failOn
      * @param int $numOfErrors
      * @param int $numOfWarnings
-     * @param int $exitCode
+     * @param int $lintExitCode
      */
-    public function testGetTaskExitCode($expected, $failOn, $numOfErrors, $numOfWarnings, $exitCode)
+    public function testGetTaskExitCode($expected, $failOn, $numOfErrors, $numOfWarnings, $lintExitCode)
     {
-        /** @var ESLintTask $eslint */
-        $eslint = Stub::construct(
-            ESLintTask::class,
+        /** @var ESLintRunFiles $task */
+        $task = Stub::construct(
+            ESLintRunFiles::class,
             [['failOn' => $failOn]],
-            ['exitCode' => $exitCode]
+            ['lintExitCode' => $lintExitCode]
         );
-
-        $method = static::getMethod('getTaskExitCode');
 
         static::assertEquals(
             $expected,
-            $method->invokeArgs($eslint, [$numOfErrors, $numOfWarnings])
+            static::getMethod('getTaskExitCode')->invokeArgs($task, [$numOfErrors, $numOfWarnings])
         );
     }
 
@@ -526,17 +596,20 @@ class RunTest extends \Codeception\Test\Unit
             'failOn' => 'warning',
         ];
 
-        /** @var ESLintTask $task */
+        /** @var ESLintRunFiles $task */
         $task = Stub::construct(
-            ESLintTask::class,
+            ESLintRunFiles::class,
             [$options, []],
             [
                 'processClass' => \Helper\Dummy\Process::class,
             ]
         );
 
-        \Helper\Dummy\Process::$exitCode = $expectedExitCode;
-        \Helper\Dummy\Process::$stdOutput = json_encode($expectedReport);
+        $processIndex = count(\Helper\Dummy\Process::$instances);
+        \Helper\Dummy\Process::$prophecy[$processIndex] = [
+            'exitCode' => $expectedExitCode,
+            'stdOutput' => json_encode($expectedReport),
+        ];
 
         $task->setLogger($container->get('logger'));
         $task->setOutput($mainStdOutput);
@@ -552,7 +625,7 @@ class RunTest extends \Codeception\Test\Unit
         static::assertEquals($expectedExitCode, $result->getExitCode(), 'Exit code');
         static::assertEquals(
             $options['workingDirectory'],
-            \Helper\Dummy\Process::$instance->getWorkingDirectory(),
+            \Helper\Dummy\Process::$instances[$processIndex]->getWorkingDirectory(),
             'Working directory'
         );
 
@@ -604,17 +677,20 @@ class RunTest extends \Codeception\Test\Unit
             'failOn' => 'warning',
         ];
 
-        /** @var ESLintTask $task */
+        /** @var ESLintRunFiles $task */
         $task = Stub::construct(
-            ESLintTask::class,
+            ESLintRunFiles::class,
             [$options, []],
             [
                 'processClass' => \Helper\Dummy\Process::class,
             ]
         );
 
-        \Helper\Dummy\Process::$exitCode = $exitCode;
-        \Helper\Dummy\Process::$stdOutput = $reportJson;
+        $processIndex = count(\Helper\Dummy\Process::$instances);
+        \Helper\Dummy\Process::$prophecy[$processIndex] = [
+            'exitCode' => $exitCode,
+            'stdOutput' => $reportJson,
+        ];
 
         $task->setLogger($container->get('logger'));
         $assetJar = new \Cheppers\AssetJar\AssetJar();
@@ -625,45 +701,11 @@ class RunTest extends \Codeception\Test\Unit
         static::assertEquals($exitCode, $result->getExitCode());
         static::assertEquals(
             $options['workingDirectory'],
-            \Helper\Dummy\Process::$instance->getWorkingDirectory()
+            \Helper\Dummy\Process::$instances[$processIndex]->getWorkingDirectory()
         );
 
         /** @var \Cheppers\Robo\ESLint\LintReportWrapper\ReportWrapper $reportWrapper */
         $reportWrapper = $assetJar->getValue(['ESLintRun', 'report']);
         static::assertEquals($report, $reportWrapper->getReport());
-    }
-
-    public function testRunNativeAndExtraReporterConflict()
-    {
-        $container = \Robo\Robo::createDefaultContainer();
-        \Robo\Robo::setContainer($container);
-
-        $options = [
-            'format' => 'stylish',
-            'lintReporters' => [
-                'aKey' => new VerboseReporter(),
-            ],
-        ];
-
-        /** @var ESLintTask $task */
-        $task = Stub::construct(
-            ESLintTask::class,
-            [$options, []],
-            [
-                'container' => $container,
-            ]
-        );
-
-        $task->setLogger($container->get('logger'));
-        $assetJar = new \Cheppers\AssetJar\AssetJar();
-        $task->setAssetJar($assetJar);
-
-        $result = $task->run();
-
-        $this->assertEquals(3, $result->getExitCode());
-        $this->assertEquals(
-            'Extra lint reporters can be used only if the output format is "json".',
-            $result->getMessage()
-        );
     }
 }
