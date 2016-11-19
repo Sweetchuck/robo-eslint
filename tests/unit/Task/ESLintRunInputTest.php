@@ -41,13 +41,13 @@ class ESLintRunInputTest extends \Codeception\Test\Unit
     public function testGetSetStdinFilename()
     {
         $task = new ESLintRunInput();
-        $this->assertEquals(null, $task->getStdinFilename());
+        $this->tester->assertEquals(null, $task->getStdinFilename());
 
         $task = new ESLintRunInput(['stdinFilename' => 'a.js']);
-        $this->assertEquals('a.js', $task->getStdinFilename());
+        $this->tester->assertEquals('a.js', $task->getStdinFilename());
 
         $task->setStdinFilename('b.js');
-        $this->assertEquals('b.js', $task->getStdinFilename());
+        $this->tester->assertEquals('b.js', $task->getStdinFilename());
     }
 
     /**

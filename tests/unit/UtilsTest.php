@@ -26,10 +26,10 @@ class UtilsTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @dataProvider casesIsAbsolutePath
-     *
      * @param bool $expected
      * @param string $path
+     *
+     * @dataProvider casesIsAbsolutePath
      */
     public function testIsAbsolutePath($expected, $path)
     {
@@ -86,10 +86,10 @@ class UtilsTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @dataProvider casesMergeReports
-     *
      * @param array $expected
      * @param array $reports
+     *
+     * @dataProvider casesMergeReports
      */
     public function testMergeReports(array $expected, array $reports)
     {
