@@ -85,11 +85,11 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @dataProvider casesGetSetOutputFile
-     *
      * @param string $expectedDirect
      * @param string $expectedReal
      * @param array $options
+     *
+     * @dataProvider casesGetSetOutputFile
      */
     public function testGetSetOutputFile($expectedDirect, $expectedReal, array $options)
     {
@@ -112,7 +112,7 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
             ->addLintReporter('cKey', 'cValue')
             ->removeLintReporter('bKey');
 
-        $this->assertEquals(
+        $this->tester->assertEquals(
             [
                 'aKey' => 'aValue',
                 'cKey' => 'cValue',
@@ -353,24 +353,24 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @dataProvider casesGetCommand
-     *
      * @param string $expected
      * @param array $options
      * @param array $paths
+     *
+     * @dataProvider casesGetCommand
      */
     public function testGetCommand($expected, array $options, array $paths)
     {
         $eslint = new ESLintRunFiles($options, $paths);
-        static::assertEquals($expected, $eslint->getCommand());
+        $this->tester->assertEquals($expected, $eslint->getCommand());
     }
 
     public function testExitCodeConstants()
     {
-        static::assertEquals(0, ESLintRunFiles::EXIT_CODE_OK);
-        static::assertEquals(1, ESLintRunFiles::EXIT_CODE_WARNING);
-        static::assertEquals(2, ESLintRunFiles::EXIT_CODE_ERROR);
-        static::assertEquals(3, ESLintRunFiles::EXIT_CODE_INVALID);
+        $this->tester->assertEquals(0, ESLintRunFiles::EXIT_CODE_OK);
+        $this->tester->assertEquals(1, ESLintRunFiles::EXIT_CODE_WARNING);
+        $this->tester->assertEquals(2, ESLintRunFiles::EXIT_CODE_ERROR);
+        $this->tester->assertEquals(3, ESLintRunFiles::EXIT_CODE_INVALID);
     }
 
     /**
@@ -447,13 +447,13 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @dataProvider casesGetTaskExitCode
-     *
      * @param int $expected
      * @param string $failOn
      * @param int $numOfErrors
      * @param int $numOfWarnings
      * @param int $lintExitCode
+     *
+     * @dataProvider casesGetTaskExitCode
      */
     public function testGetTaskExitCode($expected, $failOn, $numOfErrors, $numOfWarnings, $lintExitCode)
     {
@@ -464,7 +464,7 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
             ['lintExitCode' => $lintExitCode]
         );
 
-        static::assertEquals(
+        $this->tester->assertEquals(
             $expected,
             static::getMethod('getTaskExitCode')->invokeArgs($task, [$numOfErrors, $numOfWarnings])
         );
@@ -576,11 +576,11 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
     /**
      * This way cannot be tested those cases when the lint process failed.
      *
-     * @dataProvider casesRun
-     *
      * @param int $expectedExitCode
      * @param array $expectedReport
      * @param bool $withJar
+     *
+     * @dataProvider casesRun
      */
     public function testRun($expectedExitCode, array $expectedReport, $withJar)
     {
@@ -622,8 +622,8 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
 
         $result = $task->run();
 
-        static::assertEquals($expectedExitCode, $result->getExitCode(), 'Exit code');
-        static::assertEquals(
+        $this->tester->assertEquals($expectedExitCode, $result->getExitCode(), 'Exit code');
+        $this->tester->assertEquals(
             $options['workingDirectory'],
             \Helper\Dummy\Process::$instances[$processIndex]->getWorkingDirectory(),
             'Working directory'
@@ -632,13 +632,13 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
         if ($withJar) {
             /** @var \Cheppers\Robo\ESLint\LintReportWrapper\ReportWrapper $reportWrapper */
             $reportWrapper = $assetJar->getValue(['ESLintRun', 'report']);
-            static::assertEquals(
+            $this->tester->assertEquals(
                 $expectedReport,
                 $reportWrapper->getReport(),
                 'Output equals with jar'
             );
         } else {
-            static::assertEquals(
+            $this->tester->assertEquals(
                 $expectedReport,
                 json_decode($mainStdOutput->output, true),
                 'Output equals without jar'
@@ -698,14 +698,14 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
 
         $result = $task->run();
 
-        static::assertEquals($exitCode, $result->getExitCode());
-        static::assertEquals(
+        $this->tester->assertEquals($exitCode, $result->getExitCode());
+        $this->tester->assertEquals(
             $options['workingDirectory'],
             \Helper\Dummy\Process::$instances[$processIndex]->getWorkingDirectory()
         );
 
         /** @var \Cheppers\Robo\ESLint\LintReportWrapper\ReportWrapper $reportWrapper */
         $reportWrapper = $assetJar->getValue(['ESLintRun', 'report']);
-        static::assertEquals($report, $reportWrapper->getReport());
+        $this->tester->assertEquals($report, $reportWrapper->getReport());
     }
 }

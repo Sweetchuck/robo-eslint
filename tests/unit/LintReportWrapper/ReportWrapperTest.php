@@ -161,19 +161,19 @@ class ReportWrapperTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @dataProvider casesReports
-     *
      * @param array $expected
      * @param array $report
+     *
+     * @dataProvider casesReports
      */
     public function testAll(array $expected, array $report)
     {
         $rw = new ReportWrapper($report);
 
-        $this->assertEquals($expected['countFiles'], $rw->countFiles());
-        $this->assertEquals($expected['numOfErrors'], $rw->numOfErrors());
-        $this->assertEquals($expected['numOfWarnings'], $rw->numOfWarnings());
-        $this->assertEquals($expected['highestSeverity'], $rw->highestSeverity());
+        $this->tester->assertEquals($expected['countFiles'], $rw->countFiles());
+        $this->tester->assertEquals($expected['numOfErrors'], $rw->numOfErrors());
+        $this->tester->assertEquals($expected['numOfWarnings'], $rw->numOfWarnings());
+        $this->tester->assertEquals($expected['highestSeverity'], $rw->highestSeverity());
 
         $sm = [
             0 => 'ok',
@@ -187,11 +187,11 @@ class ReportWrapperTest extends \Codeception\Test\Unit
          */
         foreach ($rw->yieldFiles() as $filePath => $fw) {
             $file = array_shift($report);
-            $this->assertEquals($file['filePath'], $fw->filePath());
-            $this->assertEquals($file['errorCount'], $fw->numOfErrors());
-            $this->assertEquals($file['warningCount'], $fw->numOfWarnings());
-            $this->assertEquals($file['__highestSeverity'], $fw->highestSeverity());
-            $this->assertEquals($file['__stats'], $fw->stats());
+            $this->tester->assertEquals($file['filePath'], $fw->filePath());
+            $this->tester->assertEquals($file['errorCount'], $fw->numOfErrors());
+            $this->tester->assertEquals($file['warningCount'], $fw->numOfWarnings());
+            $this->tester->assertEquals($file['__highestSeverity'], $fw->highestSeverity());
+            $this->tester->assertEquals($file['__stats'], $fw->stats());
 
             /**
              * @var int $i
@@ -199,11 +199,11 @@ class ReportWrapperTest extends \Codeception\Test\Unit
              */
             foreach ($fw->yieldFailures() as $i => $failureWrapper) {
                 $message = $file['messages'][$i];
-                $this->assertEquals($sm[$message['severity']], $failureWrapper->severity());
-                $this->assertEquals($message['ruleId'], $failureWrapper->source());
-                $this->assertEquals($message['line'], $failureWrapper->line());
-                $this->assertEquals($message['column'], $failureWrapper->column());
-                $this->assertEquals($message['message'], $failureWrapper->message());
+                $this->tester->assertEquals($sm[$message['severity']], $failureWrapper->severity());
+                $this->tester->assertEquals($message['ruleId'], $failureWrapper->source());
+                $this->tester->assertEquals($message['line'], $failureWrapper->line());
+                $this->tester->assertEquals($message['column'], $failureWrapper->column());
+                $this->tester->assertEquals($message['message'], $failureWrapper->message());
             }
         }
     }
