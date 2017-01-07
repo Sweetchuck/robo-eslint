@@ -4,9 +4,6 @@ namespace Cheppers\Robo\ESLint\Task;
 
 use Cheppers\Robo\ESLint\Utils;
 
-/**
- * @package Cheppers\Robo\ESLint\Task
- */
 class ESLintRunInput extends ESLintRun
 {
     //region Properties
@@ -24,28 +21,23 @@ class ESLintRunInput extends ESLintRun
     ];
     //endregion
 
-    //region Option - stdinFilename
+    //region Option - stdinFilename.
     /**
-     * @var string|null
+     * @var string
      */
-    protected $stdinFilename = null;
+    protected $stdinFilename = '';
 
-    /**
-     * @return mixed|null
-     */
-    public function getStdinFilename()
+    public function getStdinFilename(): string
     {
         return $this->stdinFilename;
     }
 
     /**
-     * @param string $value
-     *
      * @return $this
      */
-    public function setStdinFilename($value)
+    public function setStdinFilename(string $path)
     {
-        $this->stdinFilename = $value;
+        $this->stdinFilename = $path;
 
         return $this;
     }
@@ -135,7 +127,7 @@ class ESLintRunInput extends ESLintRun
     /**
      * {@inheritdoc}
      */
-    public function getCommand()
+    public function getCommand(): string
     {
         if ($this->currentFile['content'] === null) {
             // @todo Handle the different working directories.
@@ -150,20 +142,18 @@ class ESLintRunInput extends ESLintRun
     /**
      * {@inheritdoc}
      */
-    protected function buildCommandOptions()
+    protected function getCommandOptions(): array
     {
         return [
             'stdin' => true,
             'stdinFilename' => $this->currentFile['fileName'] ?: $this->getStdinFilename(),
-        ] + parent::buildCommandOptions();
+        ] + parent::getCommandOptions();
     }
 
     /**
-     * @param string $itemName
-     *
-     * @return mixed|null
+     * @return null|mixed
      */
-    protected function getJarValueOrLocal($itemName)
+    protected function getJarValueOrLocal(string $itemName)
     {
         $map = $this->getAssetJarMap($itemName);
         if ($map) {

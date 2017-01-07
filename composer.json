@@ -11,9 +11,10 @@
     "require": {
         "cheppers/asset-jar": "^0.0",
         "consolidation/robo": "^1.0",
-        "symfony/process": "~2.8 || ~3.1"
+        "symfony/process": "^2.8 || ^3.1"
     },
     "require-dev": {
+        "php": ">=7.1",
         "cheppers/git-hooks": "^0.0",
         "cheppers/lint-report": "^0.0",
         "cheppers/robo-git": "^0.0",
@@ -23,6 +24,12 @@
     "autoload": {
         "psr-4": {
             "Cheppers\\Robo\\ESLint\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Cheppers\\Robo\\ESLint\\Test\\Acceptance\\": "tests/acceptance/",
+            "Cheppers\\Robo\\ESLint\\Test\\Unit\\": "tests/unit/"
         }
     },
     "scripts": {

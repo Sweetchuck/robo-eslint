@@ -4,14 +4,8 @@ namespace Cheppers\Robo\ESLint\LintReportWrapper;
 
 use Cheppers\LintReport\ReportWrapperInterface;
 
-/**
- * Class ReportWrapper.
- *
- * @package Cheppers\LintReport\Wrapper\ESLint
- */
 class ReportWrapper implements ReportWrapperInterface
 {
-
     /**
      * @var string[]
      */
@@ -65,7 +59,7 @@ class ReportWrapper implements ReportWrapperInterface
     }
 
     /**
-     * @return array
+     * {@inheritdoc}
      */
     public function getReport()
     {
@@ -73,9 +67,7 @@ class ReportWrapper implements ReportWrapperInterface
     }
 
     /**
-     * @param array $report
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function setReport($report)
     {
@@ -125,7 +117,7 @@ class ReportWrapper implements ReportWrapperInterface
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
     public function highestSeverity()
     {

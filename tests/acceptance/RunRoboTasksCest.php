@@ -1,8 +1,10 @@
 <?php
 
-// @codingStandardsIgnoreStart
+namespace Cheppers\Robo\ESLint\Test\Acceptance;
+
+use AcceptanceTester;
+
 class RunRoboTasksCest
-// @codingStandardsIgnoreEnd
 {
     /**
      * @var string
