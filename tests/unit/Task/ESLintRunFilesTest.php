@@ -1,24 +1,18 @@
 <?php
 
+namespace Cheppers\Robo\ESLint\Test\Unit;
+
 use Cheppers\Robo\ESLint\Task\ESLintRunFiles;
 use Codeception\Util\Stub;
+use Helper\Dummy\Output as DummyOutput;
+use Helper\Dummy\Process as DummyProcess;
+use Robo\Robo;
 
-/**
- * Class RunTest.
- */
-// @codingStandardsIgnoreStart
 class ESLintRunFilesTest extends \Codeception\Test\Unit
 {
-    // @codingStandardsIgnoreEnd
-
-    /**
-     * @param $name
-     *
-     * @return \ReflectionMethod
-     */
-    protected static function getMethod($name)
+    protected static function getMethod(string $name): \ReflectionMethod
     {
-        $class = new ReflectionClass(ESLintRunFiles::class);
+        $class = new \ReflectionClass(ESLintRunFiles::class);
         $method = $class->getMethod($name);
         $method->setAccessible(true);
 
@@ -37,13 +31,10 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
     {
         parent::setUp();
 
-        \Helper\Dummy\Process::reset();
+        DummyProcess::reset();
     }
 
-    /**
-     * @return array
-     */
-    public function casesGetSetOutputFile()
+    public function casesGetSetOutputFile(): array
     {
         return [
             'empty' => [
@@ -85,13 +76,9 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @param string $expectedDirect
-     * @param string $expectedReal
-     * @param array $options
-     *
      * @dataProvider casesGetSetOutputFile
      */
-    public function testGetSetOutputFile($expectedDirect, $expectedReal, array $options)
+    public function testGetSetOutputFile(string $expectedDirect, string $expectedReal, array $options): void
     {
         $task = new ESLintRunFiles($options);
 
@@ -99,7 +86,7 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
         $this->tester->assertEquals($expectedReal, $task->getRealOutputFile());
     }
 
-    public function testGetSetLintReporters()
+    public function testGetSetLintReporters(): void
     {
         $task = new ESLintRunFiles([
             'lintReporters' => [
@@ -121,10 +108,7 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
         );
     }
 
-    /**
-     * @return array
-     */
-    public function casesGetCommand()
+    public function casesGetCommand(): array
     {
         return [
             'basic' => [
@@ -162,12 +146,29 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
             ],
             'ext-empty' => [
                 'node_modules/.bin/eslint',
-                ['ext' => ''],
+                ['ext' => []],
                 [],
             ],
-            'ext-string' => [
-                "node_modules/.bin/eslint --ext 'js'",
-                ['ext' => 'js'],
+            'ext-vector-1' => [
+                "node_modules/.bin/eslint --ext '.a'",
+                ['ext' => ['.a']],
+                [],
+            ],
+            'ext-vector-multi' => [
+                "node_modules/.bin/eslint --ext '.a,.b'",
+                ['ext' => ['.a', '.b']],
+                [],
+            ],
+            'ext-assoc' => [
+                "node_modules/.bin/eslint --ext '.b,.d'",
+                [
+                    'ext' => [
+                        '.a' => false,
+                        '.b' => true,
+                        '.c' => false,
+                        '.d' => true,
+                    ],
+                ],
                 [],
             ],
             'cache-false' => [
@@ -192,12 +193,23 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
             ],
             'rulesDir-empty' => [
                 'node_modules/.bin/eslint',
-                ['rulesDir' => ''],
+                ['rulesDir' => []],
                 [],
             ],
-            'rulesDir-string' => [
-                "node_modules/.bin/eslint --rulesdir 'my-dir'",
-                ['rulesDir' => 'my-dir'],
+            'rulesDir-vector' => [
+                "node_modules/.bin/eslint --rulesdir 'my-dir-1' --rulesdir 'my-dir-2'",
+                ['rulesDir' => ['my-dir-1', 'my-dir-2']],
+                [],
+            ],
+            'rulesDir-assoc' => [
+                "node_modules/.bin/eslint --rulesdir 'my-dir-1' --rulesdir 'my-dir-3'",
+                [
+                    'rulesDir' => [
+                        'my-dir-1' => true,
+                        'my-dir-2' => false,
+                        'my-dir-3' => true,
+                    ],
+                ],
                 [],
             ],
             'ignorePath-empty' => [
@@ -260,11 +272,6 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
                 ['maxWarnings' => null],
                 [],
             ],
-            'maxWarnings-false' => [
-                'node_modules/.bin/eslint',
-                ['maxWarnings' => false],
-                [],
-            ],
             'format-empty' => [
                 "node_modules/.bin/eslint",
                 ['format' => ''],
@@ -315,11 +322,6 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
                 ['files' => []],
                 [],
             ],
-            'files-string' => [
-                "node_modules/.bin/eslint -- 'foo'",
-                ['files' => 'foo'],
-                [],
-            ],
             'files-vector' => [
                 "node_modules/.bin/eslint -- 'foo' 'bar' 'baz'",
                 ['files' => ['foo', 'bar', 'baz']],
@@ -353,19 +355,15 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @param string $expected
-     * @param array $options
-     * @param array $paths
-     *
      * @dataProvider casesGetCommand
      */
-    public function testGetCommand($expected, array $options, array $paths)
+    public function testGetCommand(string $expected, array $options, array $paths): void
     {
         $eslint = new ESLintRunFiles($options, $paths);
         $this->tester->assertEquals($expected, $eslint->getCommand());
     }
 
-    public function testExitCodeConstants()
+    public function testExitCodeConstants(): void
     {
         $this->tester->assertEquals(0, ESLintRunFiles::EXIT_CODE_OK);
         $this->tester->assertEquals(1, ESLintRunFiles::EXIT_CODE_WARNING);
@@ -373,10 +371,7 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
         $this->tester->assertEquals(3, ESLintRunFiles::EXIT_CODE_INVALID);
     }
 
-    /**
-     * @return array
-     */
-    public function casesGetTaskExitCode()
+    public function casesGetTaskExitCode(): array
     {
         $o = ESLintRunFiles::EXIT_CODE_OK;
         $w = ESLintRunFiles::EXIT_CODE_WARNING;
@@ -447,16 +442,15 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @param int $expected
-     * @param string $failOn
-     * @param int $numOfErrors
-     * @param int $numOfWarnings
-     * @param int $lintExitCode
-     *
      * @dataProvider casesGetTaskExitCode
      */
-    public function testGetTaskExitCode($expected, $failOn, $numOfErrors, $numOfWarnings, $lintExitCode)
-    {
+    public function testGetTaskExitCode(
+        int $expected,
+        string $failOn,
+        int $numOfErrors,
+        int $numOfWarnings,
+        int $lintExitCode
+    ): void {
         /** @var ESLintRunFiles $task */
         $task = Stub::construct(
             ESLintRunFiles::class,
@@ -470,10 +464,7 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
         );
     }
 
-    /**
-     * @return array
-     */
-    public function casesRun()
+    public function casesRun(): array
     {
         return [
             'withoutJar - success' => [
@@ -576,18 +567,14 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
     /**
      * This way cannot be tested those cases when the lint process failed.
      *
-     * @param int $expectedExitCode
-     * @param array $expectedReport
-     * @param bool $withJar
-     *
      * @dataProvider casesRun
      */
-    public function testRun($expectedExitCode, array $expectedReport, $withJar)
+    public function testRun(int $expectedExitCode, array $expectedReport, bool $withJar): void
     {
-        $container = \Robo\Robo::createDefaultContainer();
-        \Robo\Robo::setContainer($container);
+        $container = Robo::createDefaultContainer();
+        Robo::setContainer($container);
 
-        $mainStdOutput = new \Helper\Dummy\Output();
+        $mainStdOutput = new DummyOutput();
 
         $options = [
             'workingDirectory' => 'my-working-dir',
@@ -601,12 +588,12 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
             ESLintRunFiles::class,
             [$options, []],
             [
-                'processClass' => \Helper\Dummy\Process::class,
+                'processClass' => DummyProcess::class,
             ]
         );
 
-        $processIndex = count(\Helper\Dummy\Process::$instances);
-        \Helper\Dummy\Process::$prophecy[$processIndex] = [
+        $processIndex = count(DummyProcess::$instances);
+        DummyProcess::$prophecy[$processIndex] = [
             'exitCode' => $expectedExitCode,
             'stdOutput' => json_encode($expectedReport),
         ];
@@ -625,7 +612,7 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
         $this->tester->assertEquals($expectedExitCode, $result->getExitCode(), 'Exit code');
         $this->tester->assertEquals(
             $options['workingDirectory'],
-            \Helper\Dummy\Process::$instances[$processIndex]->getWorkingDirectory(),
+            DummyProcess::$instances[$processIndex]->getWorkingDirectory(),
             'Working directory'
         );
 
@@ -646,10 +633,10 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
         }
     }
 
-    public function testRunFailed()
+    public function testRunFailed(): void
     {
-        $container = \Robo\Robo::createDefaultContainer();
-        \Robo\Robo::setContainer($container);
+        $container = Robo::createDefaultContainer();
+        Robo::setContainer($container);
 
         $exitCode = 1;
         $report = [
@@ -682,12 +669,12 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
             ESLintRunFiles::class,
             [$options, []],
             [
-                'processClass' => \Helper\Dummy\Process::class,
+                'processClass' => DummyProcess::class,
             ]
         );
 
-        $processIndex = count(\Helper\Dummy\Process::$instances);
-        \Helper\Dummy\Process::$prophecy[$processIndex] = [
+        $processIndex = count(DummyProcess::$instances);
+        DummyProcess::$prophecy[$processIndex] = [
             'exitCode' => $exitCode,
             'stdOutput' => $reportJson,
         ];
@@ -701,7 +688,7 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
         $this->tester->assertEquals($exitCode, $result->getExitCode());
         $this->tester->assertEquals(
             $options['workingDirectory'],
-            \Helper\Dummy\Process::$instances[$processIndex]->getWorkingDirectory()
+            DummyProcess::$instances[$processIndex]->getWorkingDirectory()
         );
 
         /** @var \Cheppers\Robo\ESLint\LintReportWrapper\ReportWrapper $reportWrapper */

@@ -7,9 +7,6 @@ use Cheppers\LintReport\Reporter\VerboseReporter;
 use League\Container\ContainerInterface;
 use Robo\Contract\ConfigAwareInterface;
 
-/**
- * Class RoboFile.
- */
 // @codingStandardsIgnoreStart
 class RoboFile extends \Robo\Tasks implements ConfigAwareInterface
 {

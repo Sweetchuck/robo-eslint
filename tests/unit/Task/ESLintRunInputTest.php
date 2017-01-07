@@ -1,22 +1,20 @@
 <?php
 
+namespace Cheppers\Robo\ESLint\Test\Unit;
 
 use Cheppers\AssetJar\AssetJar;
 use Cheppers\Robo\ESLint\Task\ESLintRunInput;
 use Codeception\Util\Stub;
+use Helper\Dummy\Output as DummyOutput;
+use Helper\Dummy\Process as DummyProcess;
+use Robo\Robo;
+use UnitTester;
 
-// @codingStandardsIgnoreStart
 class ESLintRunInputTest extends \Codeception\Test\Unit
-// @codingStandardsIgnoreEnd
 {
-    /**
-     * @param string $name
-     *
-     * @return ReflectionMethod
-     */
-    protected static function getMethod($name)
+    protected static function getMethod(string $name): \ReflectionMethod
     {
-        $class = new ReflectionClass(ESLintRunInput::class);
+        $class = new \ReflectionClass(ESLintRunInput::class);
         $method = $class->getMethod($name);
         $method->setAccessible(true);
 
@@ -24,7 +22,7 @@ class ESLintRunInputTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @var \UnitTester
+     * @var UnitTester
      */
     protected $tester;
 
@@ -35,10 +33,10 @@ class ESLintRunInputTest extends \Codeception\Test\Unit
     {
         parent::setUp();
 
-        \Helper\Dummy\Process::reset();
+        DummyProcess::reset();
     }
 
-    public function testGetSetStdinFilename()
+    public function testGetSetStdinFilename(): void
     {
         $task = new ESLintRunInput();
         $this->tester->assertEquals(null, $task->getStdinFilename());
@@ -50,10 +48,7 @@ class ESLintRunInputTest extends \Codeception\Test\Unit
         $this->tester->assertEquals('b.js', $task->getStdinFilename());
     }
 
-    /**
-     * @return array
-     */
-    public function casesGetCommand()
+    public function casesGetCommand(): array
     {
         return [
             'empty' => [
@@ -92,12 +87,8 @@ class ESLintRunInputTest extends \Codeception\Test\Unit
 
     /**
      * @dataProvider casesGetCommand
-     *
-     * @param string $expected
-     * @param array $options
-     * @param array $properties
      */
-    public function testGetCommand($expected, array $options, array $properties = [])
+    public function testGetCommand(string $expected, array $options, array $properties = []): void
     {
         $options += ['eslintExecutable' => 'eslint'];
         /** @var \Cheppers\Robo\ESLint\Task\ESLintRunInput $task */
@@ -110,10 +101,7 @@ class ESLintRunInputTest extends \Codeception\Test\Unit
         $this->tester->assertEquals($expected, $task->getCommand());
     }
 
-    /**
-     * @return array
-     */
-    public function casesGetJarValueOrLocal()
+    public function casesGetJarValueOrLocal(): array
     {
         return [
             'without jar' => [
@@ -153,14 +141,13 @@ class ESLintRunInputTest extends \Codeception\Test\Unit
 
     /**
      * @dataProvider casesGetJarValueOrLocal
-     *
-     * @param mixed $expected
-     * @param string $itemName
-     * @param array $options
-     * @param array $jarValue
      */
-    public function testGetJarValueOrLocal($expected, $itemName, array $options, array $jarValue)
-    {
+    public function testGetJarValueOrLocal(
+        $expected,
+        string $itemName,
+        array $options,
+        array $jarValue
+    ): void {
         /** @var \Cheppers\Robo\ESLint\Task\ESLintRunInput $task */
         $task = Stub::construct(
             ESLintRunInput::class,
@@ -175,10 +162,7 @@ class ESLintRunInputTest extends \Codeception\Test\Unit
         );
     }
 
-    /**
-     * @return array
-     */
-    public function casesRun()
+    public function casesRun(): array
     {
         $files = [
             'empty.js' => [],
@@ -260,19 +244,15 @@ class ESLintRunInputTest extends \Codeception\Test\Unit
 
     /**
      * @dataProvider casesRun
-     *
-     * @param array $expected
-     * @param array $options
-     * @param array $properties
      */
-    public function testRun(array $expected, array $options, array $files, array $properties = [])
+    public function testRun(array $expected, array $options, array $files, array $properties = []): void
     {
-        $container = \Robo\Robo::createDefaultContainer();
-        \Robo\Robo::setContainer($container);
+        $container = Robo::createDefaultContainer();
+        Robo::setContainer($container);
 
-        $mainStdOutput = new \Helper\Dummy\Output();
+        $mainStdOutput = new DummyOutput();
 
-        $properties += ['processClass' => \Helper\Dummy\Process::class];
+        $properties += ['processClass' => DummyProcess::class];
 
         /** @var \Cheppers\Robo\ESLint\Task\ESLintRunInput $task */
         $task = Stub::construct(
@@ -281,9 +261,9 @@ class ESLintRunInputTest extends \Codeception\Test\Unit
             $properties
         );
 
-        $processIndex = count(\Helper\Dummy\Process::$instances);
+        $processIndex = count(DummyProcess::$instances);
         foreach ($files as $file) {
-            \Helper\Dummy\Process::$prophecy[$processIndex] = [
+            DummyProcess::$prophecy[$processIndex] = [
                 'exitCode' => $file['lintExitCode'],
                 'stdOutput' => $file['lintStdOutput'],
             ];

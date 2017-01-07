@@ -1,8 +1,10 @@
 <?php
 
 // @codingStandardsIgnoreStart
+use Cheppers\LintReport\Reporter\BaseReporter;
 use Cheppers\LintReport\Reporter\CheckstyleReporter;
 use League\Container\ContainerInterface;
+use Robo\Collection\CollectionBuilder;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
 
@@ -12,8 +14,8 @@ use Symfony\Component\Yaml\Yaml;
 class RoboFile extends \Robo\Tasks
     // @codingStandardsIgnoreEnd
 {
-    use \Cheppers\Robo\Git\Task\LoadTasks;
-    use \Cheppers\Robo\Phpcs\LoadPhpcsTasks;
+    use \Cheppers\Robo\Git\GitTaskLoader;
+    use \Cheppers\Robo\Phpcs\PhpcsTaskLoader;
 
     /**
      * @var array
@@ -50,7 +52,11 @@ class RoboFile extends \Robo\Tasks
      */
     protected $phpdbgExecutable = 'phpdbg';
 
-    //region Property - environment
+    /**
+     * @var string
+     */
+    protected $envNamePrefix = '';
+
     /**
      * Allowed values: dev, git-hook, jenkins.
      *
@@ -59,24 +65,14 @@ class RoboFile extends \Robo\Tasks
     protected $environment = '';
 
     /**
-     * @return string
-     */
-    protected function getEnvironment()
-    {
-        if ($this->environment) {
-            return $this->environment;
-        }
-
-        return getenv('ROBO_PHPCS_ENVIRONMENT') ?: 'dev';
-    }
-    //endregion
-
-    /**
      * RoboFile constructor.
      */
     public function __construct()
     {
-        $this->initComposerInfo();
+        putenv('COMPOSER_DISABLE_XDEBUG_WARN=1');
+        $this
+            ->initComposerInfo()
+            ->initEnvNamePrefix();
     }
 
     /**
@@ -84,17 +80,15 @@ class RoboFile extends \Robo\Tasks
      */
     public function setContainer(ContainerInterface $container)
     {
-        \Cheppers\LintReport\Reporter\BaseReporter::lintReportConfigureContainer($container);
+        BaseReporter::lintReportConfigureContainer($container);
 
         return parent::setContainer($container);
     }
 
     /**
      * Git "pre-commit" hook callback.
-     *
-     * @return \Robo\Collection\CollectionBuilder
      */
-    public function githookPreCommit()
+    public function githookPreCommit(): CollectionBuilder
     {
         $this->environment = 'git-hook';
 
@@ -110,21 +104,15 @@ class RoboFile extends \Robo\Tasks
     /**
      * Run the Robo unit tests.
      */
-    public function test()
+    public function test(): CollectionBuilder
     {
-        return $this
-            ->collectionBuilder()
-            ->addTaskList([
-                'codecept' => $this->getTaskCodecept(),
-            ]);
+        return $this->getTaskCodecept();
     }
 
     /**
      * Run code style checkers.
-     *
-     * @return \Robo\Collection\CollectionBuilder
      */
-    public function lint()
+    public function lint(): CollectionBuilder
     {
         return $this
             ->collectionBuilder()
@@ -156,6 +144,30 @@ class RoboFile extends \Robo\Tasks
     /**
      * @return $this
      */
+    protected function initEnvNamePrefix()
+    {
+        $this->envNamePrefix = strtoupper(str_replace('-', '_', $this->packageName));
+
+        return $this;
+    }
+
+    protected function getEnvName(string $name): string
+    {
+        return "{$this->envNamePrefix}_" . strtoupper($name);
+    }
+
+    protected function getEnvironment(): string
+    {
+        if ($this->environment) {
+            return $this->environment;
+        }
+
+        return getenv($this->getEnvName('environment')) ?: 'dev';
+    }
+
+    /**
+     * @return $this
+     */
     protected function initCodeceptionInfo()
     {
         if ($this->codeceptionInfo) {
@@ -175,61 +187,7 @@ class RoboFile extends \Robo\Tasks
         return $this;
     }
 
-    /**
-     * @return \Robo\Collection\CollectionBuilder|\Cheppers\Robo\Phpcs\Task\PhpcsLintFiles
-     */
-    protected function getTaskPhpcsLint()
-    {
-        $env = $this->getEnvironment();
-
-        $files = [
-            'src/',
-            'tests/_data/RoboFile.php',
-            'tests/_support/Helper/',
-            'tests/acceptance/',
-            'tests/unit/',
-            'RoboFile.php',
-        ];
-
-        $options = [
-            'standard' => 'PSR2',
-            'lintReporters' => [
-                'lintVerboseReporter' => null,
-            ],
-        ];
-
-        if ($env === 'jenkins') {
-            $options['failOn'] = 'never';
-
-            $options['lintReporters']['lintCheckstyleReporter'] = (new CheckstyleReporter())
-                ->setDestination('tests/_output/checkstyle/phpcs.psr2.xml');
-        }
-
-        if ($env !== 'git-hook') {
-            return $this->taskPhpcsLintFiles($options + ['files' => $files]);
-        }
-
-        $assetJar = new Cheppers\AssetJar\AssetJar();
-
-        return $this
-            ->collectionBuilder()
-            ->addTaskList([
-                'git.readStagedFiles' => $this
-                    ->taskGitReadStagedFiles()
-                    ->setAssetJar($assetJar)
-                    ->setAssetJarMap('files', ['files'])
-                    ->setPaths($files),
-                'lint.phpcs.psr2' => $this
-                    ->taskPhpcsLintInput($options)
-                    ->setAssetJar($assetJar)
-                    ->setAssetJarMap('files', ['files']),
-            ]);
-    }
-
-    /**
-     * @return \Robo\Collection\CollectionBuilder
-     */
-    protected function getTaskCodecept()
+    protected function getTaskCodecept(): CollectionBuilder
     {
         $environment = $this->getEnvironment();
         $withCoverage = $environment !== 'git-hook';
@@ -292,11 +250,59 @@ class RoboFile extends \Robo\Tasks
     }
 
     /**
-     * @param string $extension
-     *
-     * @return bool
+     * @return \Cheppers\Robo\Phpcs\Task\PhpcsLintFiles|\Robo\Collection\CollectionBuilder
      */
-    protected function isPhpExtensionAvailable($extension)
+    protected function getTaskPhpcsLint(): CollectionBuilder
+    {
+        $env = $this->getEnvironment();
+
+        $files = [
+            'src/',
+            'tests/_data/RoboFile.php',
+            'tests/_support/Helper/',
+            'tests/acceptance/',
+            'tests/unit/',
+            'RoboFile.php',
+        ];
+
+        $options = [
+            'failOn' => 'warning',
+            'standard' => 'PSR2',
+            'lintReporters' => [
+                'lintVerboseReporter' => null,
+            ],
+        ];
+
+        if ($env === 'jenkins') {
+            $options['failOn'] = 'never';
+
+            $options['lintReporters']['lintCheckstyleReporter'] = (new CheckstyleReporter())
+                ->setDestination('tests/_output/checkstyle/phpcs.psr2.xml');
+        }
+
+        if ($env !== 'git-hook') {
+            return $this->taskPhpcsLintFiles($options + ['files' => $files]);
+        }
+
+        $assetJar = new Cheppers\AssetJar\AssetJar();
+
+        return $this
+            ->collectionBuilder()
+            ->addTaskList([
+                'git.readStagedFiles' => $this
+                    ->taskGitReadStagedFiles()
+                    ->setCommandOnly(true)
+                    ->setAssetJar($assetJar)
+                    ->setAssetJarMap('files', ['files'])
+                    ->setPaths($files),
+                'lint.phpcs.psr2' => $this
+                    ->taskPhpcsLintInput($options)
+                    ->setAssetJar($assetJar)
+                    ->setAssetJarMap('files', ['files']),
+            ]);
+    }
+
+    protected function isPhpExtensionAvailable(string $extension): bool
     {
         $command = sprintf('%s -m', escapeshellcmd($this->phpExecutable));
 
@@ -309,10 +315,7 @@ class RoboFile extends \Robo\Tasks
         return in_array($extension, explode("\n", $process->getOutput()));
     }
 
-    /**
-     * @return bool
-     */
-    protected function isPhpDbgAvailable()
+    protected function isPhpDbgAvailable(): bool
     {
         $command = sprintf(
             '%s -i | grep -- %s',
@@ -323,10 +326,7 @@ class RoboFile extends \Robo\Tasks
         return (new Process($command))->run() === 0;
     }
 
-    /**
-     * @return string
-     */
-    protected function getLogDir()
+    protected function getLogDir(): string
     {
         $this->initCodeceptionInfo();
 

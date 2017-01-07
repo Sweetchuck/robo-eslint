@@ -5,11 +5,6 @@ namespace Cheppers\Robo\ESLint\LintReportWrapper;
 use Cheppers\LintReport\FileWrapperInterface;
 use Cheppers\LintReport\ReportWrapperInterface;
 
-/**
- * Class FileWrapper.
- *
- * @package Cheppers\LintReport\Wrapper\ESLint
- */
 class FileWrapper implements FileWrapperInterface
 {
     /**

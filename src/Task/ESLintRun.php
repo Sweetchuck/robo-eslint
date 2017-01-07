@@ -15,9 +15,6 @@ use Robo\Result;
 use Robo\Task\BaseTask;
 use Symfony\Component\Process\Process;
 
-/**
- * @package Cheppers\Robo\ESLint\Task
- */
 abstract class ESLintRun extends BaseTask implements
     AssetJarAwareInterface,
     ContainerAwareInterface,
@@ -98,6 +95,11 @@ abstract class ESLintRun extends BaseTask implements
     /**
      * @var string
      */
+    protected $machineReadableFormat = 'json';
+
+    /**
+     * @var string
+     */
     protected $lintOutput = '';
 
     /**
@@ -125,18 +127,22 @@ abstract class ESLintRun extends BaseTask implements
     protected $simpleOptions = [
         'cacheLocation' => 'cache-location',
         'configFile' => 'config',
-        'ext' => 'ext',
         'format' => 'format',
         'ignorePath' => 'ignore-path',
         'ignorePattern' => 'ignore-pattern',
         'maxWarnings' => 'max-warnings',
         'outputFile' => 'output-file',
+    ];
+
+    protected $listOptions = [
+        'ext' => 'ext',
+    ];
+
+    protected $multiOptions = [
         'rulesDir' => 'rulesdir',
     ];
 
-    protected $listOptions = [];
-
-    //region Options - Not supported
+    //region Options - Not supported.
     /**
      * @todo
      *
@@ -180,9 +186,9 @@ abstract class ESLintRun extends BaseTask implements
     protected $rule = null;
     //endregion
 
-    //region Options
+    //region Options.
 
-    //region Option - cache
+    //region Option - cache.
     /**
      * Only check changed files - default: false.
      *
@@ -190,20 +196,15 @@ abstract class ESLintRun extends BaseTask implements
      */
     protected $cache = false;
 
-    /**
-     * @return bool
-     */
-    public function getCache()
+    public function getCache(): bool
     {
         return $this->cache;
     }
 
     /**
-     * @param bool $value
-     *
      * @return $this
      */
-    public function setCache($value)
+    public function setCache(bool $value)
     {
         $this->cache = $value;
 
@@ -211,7 +212,7 @@ abstract class ESLintRun extends BaseTask implements
     }
     //endregion
 
-    //region Option - cacheLocation
+    //region Option - cacheLocation.
     /**
      * Path to the cache file or directory.
      *
@@ -219,20 +220,15 @@ abstract class ESLintRun extends BaseTask implements
      */
     protected $cacheLocation = '';
 
-    /**
-     * @return string
-     */
-    public function getCacheLocation()
+    public function getCacheLocation(): string
     {
         return $this->cacheLocation;
     }
 
     /**
-     * @param string $value
-     *
      * @return $this
      */
-    public function setCacheLocation($value)
+    public function setCacheLocation(string $value)
     {
         $this->cacheLocation = $value;
 
@@ -240,7 +236,7 @@ abstract class ESLintRun extends BaseTask implements
     }
     //endregion
 
-    //region Option - color
+    //region Option - color.
     /**
      * @var bool|null
      */
@@ -249,17 +245,15 @@ abstract class ESLintRun extends BaseTask implements
     /**
      * @return bool|null
      */
-    public function getColor()
+    public function getColor(): ?bool
     {
         return $this->color;
     }
 
     /**
-     * @param bool|null $value
-     *
      * @return $this
      */
-    public function setColor($value)
+    public function setColor(?bool $value)
     {
         $this->color = $value;
 
@@ -267,18 +261,16 @@ abstract class ESLintRun extends BaseTask implements
     }
     //endregion
 
-    //region Option - configFile
+    //region Option - configFile.
     /**
-     * The location of the configuration file.
-     *
      * @var string
      */
-    protected $configFile = null;
+    protected $configFile = '';
 
     /**
-     * @return string
+     * The location of the configuration file.
      */
-    public function getConfigFile()
+    public function getConfigFile(): string
     {
         return $this->configFile;
     }
@@ -286,12 +278,9 @@ abstract class ESLintRun extends BaseTask implements
     /**
      * Specify which configuration file you want to use.
      *
-     * @param string $path
-     *   File path.
-     *
      * @return $this
      */
-    public function setConfigFile($path)
+    public function setConfigFile(string $path)
     {
         $this->configFile = $path;
 
@@ -299,16 +288,13 @@ abstract class ESLintRun extends BaseTask implements
     }
     //endregion
 
-    //region Option - eslintExecutable
+    //region Option - eslintExecutable.
     /**
      * @var string
      */
     protected $eslintExecutable = 'node_modules/.bin/eslint';
 
-    /**
-     * @return string
-     */
-    public function getEslintExecutable()
+    public function getEslintExecutable(): string
     {
         return $this->eslintExecutable;
     }
@@ -316,49 +302,61 @@ abstract class ESLintRun extends BaseTask implements
     /**
      * Set path to the "eslint" executable.
      *
-     * @param string $value
-     *   Path to the "eslint" executable.
-     *
      * @return $this
      */
-    public function setEslintExecutable($value)
+    public function setEslintExecutable(string $path)
     {
-        $this->eslintExecutable = $value;
+        $this->eslintExecutable = $path;
 
         return $this;
     }
     //endregion
 
-    //region Option - ext
+    //region Option - ext.
     /**
      * Specify JavaScript file extensions.
      *
-     * @var string
+     * @var array
      */
-    protected $ext = '';
+    protected $ext = [];
 
-    /**
-     * @return string
-     */
-    public function getExt()
+    public function getExt(): array
     {
         return $this->ext;
     }
 
     /**
-     * @param string $value
-     *
      * @return $this
      */
-    public function setExt($value)
+    public function setExt(array $extensions, bool $include = true)
     {
-        $this->ext = $value;
+        $this->ext = $this->createIncludeList($extensions, $include);
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function addExt(string $extension)
+    {
+        $this->ext[$extension] = true;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function removeExt(string $extension)
+    {
+        unset($this->ext[$extension]);
 
         return $this;
     }
     //endregion
 
-    //region Option - failOn
+    //region Option - failOn.
     /**
      * Severity level.
      *
@@ -366,10 +364,7 @@ abstract class ESLintRun extends BaseTask implements
      */
     protected $failOn = 'error';
 
-    /**
-     * @return string
-     */
-    public function getFailOn()
+    public function getFailOn(): string
     {
         return $this->failOn;
     }
@@ -377,14 +372,14 @@ abstract class ESLintRun extends BaseTask implements
     /**
      * Fail if there is a lint with warning severity.
      *
-     * @param string $value
+     * @param string $severity
      *   Allowed values are: never, warning, error.
      *
      * @return $this
      */
-    public function setFailOn($value)
+    public function setFailOn($severity)
     {
-        $this->failOn = $value;
+        $this->failOn = $severity;
 
         return $this;
     }
@@ -396,19 +391,13 @@ abstract class ESLintRun extends BaseTask implements
      */
     protected $format = '';
 
-    /**
-     * @return string
-     */
-    public function getFormat()
+    public function getFormat(): string
     {
         return $this->format;
     }
 
     /**
      * Specify how to display lints.
-     *
-     * @param string $value
-     *   Formatter identifier.
      *
      * @return $this
      */
@@ -420,26 +409,21 @@ abstract class ESLintRun extends BaseTask implements
     }
     //endregion
 
-    //region Option - ignorePath
+    //region Option - ignorePath.
     /**
      * @var string
      */
     protected $ignorePath = '';
 
-    /**
-     * @return string
-     */
-    public function getIgnorePath()
+    public function getIgnorePath(): string
     {
         return $this->ignorePath;
     }
 
     /**
-     * @param string $value
-     *
      * @return $this
      */
-    public function setIgnorePath($value)
+    public function setIgnorePath(string $value)
     {
         $this->ignorePath = $value;
 
@@ -447,28 +431,21 @@ abstract class ESLintRun extends BaseTask implements
     }
     //endregion
 
-    //region Option - ignorePattern
+    //region Option - ignorePattern.
     /**
-     * @var string|null
+     * @var null|string
      */
     protected $ignorePattern = null;
 
-    /**
-     *
-     *
-     * @return bool
-     */
-    public function getIgnorePattern()
+    public function getIgnorePattern(): ?string
     {
         return $this->ignorePattern;
     }
 
     /**
-     * @param string $value
-     *
      * @return $this
      */
-    public function setIgnorePattern($value)
+    public function setIgnorePattern(?string $value)
     {
         $this->ignorePattern = $value;
 
@@ -476,22 +453,22 @@ abstract class ESLintRun extends BaseTask implements
     }
     //endregion
 
-    //region Option - lintReporters
+    //region Option - lintReporters.
     /**
-     * @var ReporterInterface[]
+     * @var \Cheppers\LintReport\ReporterInterface[]
      */
     protected $lintReporters = [];
 
     /**
-     * @return ReporterInterface[]
+     * @return \Cheppers\LintReport\ReporterInterface[]
      */
-    public function getLintReporters()
+    public function getLintReporters(): array
     {
         return $this->lintReporters;
     }
 
     /**
-     * @param array $lintReporters
+     * @param $lintReporters \Cheppers\LintReport\ReporterInterface[]
      *
      * @return $this
      */
@@ -504,11 +481,11 @@ abstract class ESLintRun extends BaseTask implements
 
     /**
      * @param string $id
-     * @param string|ReporterInterface $lintReporter
+     * @param null|string|ReporterInterface $lintReporter
      *
      * @return $this
      */
-    public function addLintReporter($id, $lintReporter = null)
+    public function addLintReporter(string $id, $lintReporter = null)
     {
         $this->lintReporters[$id] = $lintReporter;
 
@@ -516,11 +493,9 @@ abstract class ESLintRun extends BaseTask implements
     }
 
     /**
-     * @param string $id
-     *
      * @return $this
      */
-    public function removeLintReporter($id)
+    public function removeLintReporter(string $id)
     {
         unset($this->lintReporters[$id]);
 
@@ -528,26 +503,21 @@ abstract class ESLintRun extends BaseTask implements
     }
     //endregion
 
-    //region Option - maxWarnings
+    //region Option - maxWarnings.
     /**
-     * @var int|null
+     * @var null|int
      */
     protected $maxWarnings = null;
 
-    /**
-     * @return int|null
-     */
-    public function getMaxWarnings()
+    public function getMaxWarnings(): ?int
     {
         return $this->maxWarnings;
     }
 
     /**
-     * @param int|null $value
-     *
      * @return $this
      */
-    public function setMaxWarnings($value)
+    public function setMaxWarnings(?int $value)
     {
         $this->maxWarnings = $value;
 
@@ -555,26 +525,21 @@ abstract class ESLintRun extends BaseTask implements
     }
     //endregion
 
-    //region Option - noEslintRc
+    //region Option - noEslintRc.
     /**
      * @var bool
      */
     protected $noESLintRc = false;
 
-    /**
-     * @return bool
-     */
-    public function isEslintRcDisabled()
+    public function isEslintRcDisabled(): bool
     {
         return $this->noESLintRc;
     }
 
     /**
-     * @param bool $value
-     *
      * @return $this
      */
-    public function setNoESLintRc($value)
+    public function setNoESLintRc(bool $value)
     {
         $this->noESLintRc = $value;
 
@@ -582,26 +547,21 @@ abstract class ESLintRun extends BaseTask implements
     }
     //endregion
 
-    //region Option - noIgnore
+    //region Option - noIgnore.
     /**
      * @var bool
      */
     protected $noIgnore = false;
 
-    /**
-     * @return bool
-     */
-    public function getNoIgnore()
+    public function getNoIgnore(): bool
     {
         return $this->noIgnore;
     }
 
     /**
-     * @param bool $value
-     *
      * @return $this
      */
-    public function setNoIgnore($value)
+    public function setNoIgnore(bool $value)
     {
         $this->noIgnore = $value;
 
@@ -609,26 +569,21 @@ abstract class ESLintRun extends BaseTask implements
     }
     //endregion
 
-    //region Option - noInlineConfig
+    //region Option - noInlineConfig.
     /**
      * @var bool
      */
     protected $noInlineConfig = false;
 
-    /**
-     * @return bool
-     */
-    public function getNoInlineConfig()
+    public function getNoInlineConfig(): bool
     {
         return $this->noInlineConfig;
     }
 
     /**
-     * @param bool $value
-     *
      * @return $this
      */
-    public function setNoInlineConfig($value)
+    public function setNoInlineConfig(bool $value)
     {
         $this->noInlineConfig = $value;
 
@@ -636,7 +591,7 @@ abstract class ESLintRun extends BaseTask implements
     }
     //endregion
 
-    //region Option - files
+    //region Option - files.
     /**
      * Files to check.
      *
@@ -649,20 +604,18 @@ abstract class ESLintRun extends BaseTask implements
      */
     public function getFiles()
     {
-        return (array) $this->files;
+        return $this->files;
     }
 
     /**
      * File files to lint.
      *
-     * @param string|string[]|bool[] $files
+     * @param string[]|bool[] $files
      *   Key-value pair of file names and boolean.
-     * @param bool $include
-     *   Exclude or include the files in $files.
      *
      * @return $this
      */
-    public function setFiles($files)
+    public function setFiles(array $files)
     {
         $this->files = $files;
 
@@ -670,24 +623,18 @@ abstract class ESLintRun extends BaseTask implements
     }
     //endregion
 
-    //region Option - outputFile
+    //region Option - outputFile.
     /**
      * @var string
      */
     protected $outputFile = '';
 
-    /**
-     * @return string
-     */
-    public function getOutputFile()
+    public function getOutputFile(): string
     {
         return $this->outputFile;
     }
 
-    /**
-     * @return string
-     */
-    public function getRealOutputFile()
+    public function getRealOutputFile(): string
     {
         $outputFile = $this->getOutputFile();
         if (!$outputFile) {
@@ -704,38 +651,31 @@ abstract class ESLintRun extends BaseTask implements
     }
 
     /**
-     * @param string $value
-     *
      * @return $this
      */
-    public function setOutputFile($value)
+    public function setOutputFile(string $path)
     {
-        $this->outputFile = $value;
+        $this->outputFile = $path;
 
         return $this;
     }
     //endregion
 
-    //region Option - quiet
+    //region Option - quiet.
     /**
      * @var bool
      */
     protected $quiet = false;
 
-    /**
-     * @return bool
-     */
-    public function isQuiet()
+    public function isQuiet(): bool
     {
         return $this->quiet;
     }
 
     /**
-     * @param bool $value
-     *
      * @return $this
      */
-    public function setQuiet($value)
+    public function setQuiet(bool $value)
     {
         $this->quiet = $value;
 
@@ -743,36 +683,51 @@ abstract class ESLintRun extends BaseTask implements
     }
     //endregion
 
-    //region Option - rulesDir
+    //region Option - rulesDir.
     /**
      *  An additional rules directory, for user-created rules.
      *
-     * @var string
+     * @var bool[]
      */
-    protected $rulesDir = '';
+    protected $rulesDir = [];
 
-    /**
-     * @return string
-     */
-    public function getRulesDir()
+    public function getRulesDir(): array
     {
         return $this->rulesDir;
     }
 
     /**
-     * @param string $value
-     *
      * @return $this
      */
-    public function setRulesDir($value)
+    public function setRulesDir(array $paths)
     {
-        $this->rulesDir = $value;
+        $this->rulesDir = $this->createIncludeList($paths, true);
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function addRulesDir(string $path)
+    {
+        $this->rulesDir[$path] = true;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function removeRulesDir(string $path)
+    {
+        unset($this->rulesDir[$path]);
 
         return $this;
     }
     //endregion
 
-    //region Option - workingDirectory
+    //region Option - workingDirectory.
     /**
      * Directory to step in before run the `eslint`.
      *
@@ -780,10 +735,7 @@ abstract class ESLintRun extends BaseTask implements
      */
     protected $workingDirectory = '';
 
-    /**
-     * @return string
-     */
-    public function getWorkingDirectory()
+    public function getWorkingDirectory(): string
     {
         return $this->workingDirectory;
     }
@@ -791,14 +743,11 @@ abstract class ESLintRun extends BaseTask implements
     /**
      * Set the current working directory.
      *
-     * @param string $value
-     *   Directory path.
-     *
      * @return $this
      */
-    public function setWorkingDirectory($value)
+    public function setWorkingDirectory(string $path)
     {
-        $this->workingDirectory = $value;
+        $this->workingDirectory = $path;
 
         return $this;
     }
@@ -822,9 +771,6 @@ abstract class ESLintRun extends BaseTask implements
 
     /**
      * All in one configuration.
-     *
-     * @param array $options
-     *   Options.
      *
      * @return $this
      */
@@ -976,7 +922,7 @@ abstract class ESLintRun extends BaseTask implements
         $this->lintStdOutput = $process->getOutput();
 
         if ($this->isLintSuccess()) {
-            if ($this->getFormat() === 'json') {
+            if ($this->getFormat() === $this->machineReadableFormat) {
                 $outputFile = $this->getRealOutputFile();
                 if ($outputFile) {
                     if (is_readable($outputFile)) {
@@ -989,8 +935,8 @@ abstract class ESLintRun extends BaseTask implements
                 $backupFormat = $this->getFormat();
                 $backupOutputFile = $this->getOutputFile();
 
-                $this->setFormat('json');
-                $this->setOutputFile(null);
+                $this->setFormat($this->machineReadableFormat);
+                $this->setOutputFile('');
                 $process = new $this->processClass($this->getCommand());
                 $process->run();
                 $this->reportRaw = $process->getOutput();
@@ -1021,7 +967,7 @@ abstract class ESLintRun extends BaseTask implements
         }
 
         $lintReporters = $this->initLintReporters();
-        if (!($this->getFormat() === 'json' && $lintReporters)) {
+        if (!($this->getFormat() === $this->machineReadableFormat && $lintReporters)) {
             $this->output()->write($this->lintStdOutput);
         }
 
@@ -1074,7 +1020,7 @@ abstract class ESLintRun extends BaseTask implements
         return new Result(
             $this,
             $exitCode,
-            $this->getExitMessage($exitCode),
+            (string) $this->getExitMessage($exitCode),
             [
                 'report' => $this->reportWrapper,
                 'workingDirectory' => $this->getWorkingDirectory(),
@@ -1088,14 +1034,14 @@ abstract class ESLintRun extends BaseTask implements
      * @return string
      *   CLI command to execute.
      */
-    public function getCommand()
+    public function getCommand(): string
     {
         $cmdPattern = '%s';
         $cmdArgs = [
             escapeshellcmd($this->getEslintExecutable()),
         ];
 
-        $options = $this->buildCommandOptions();
+        $options = $this->getCommandOptions();
 
         foreach ($this->triStateOptions as $optionName => $optionCli) {
             if (isset($options[$optionName])) {
@@ -1128,6 +1074,19 @@ abstract class ESLintRun extends BaseTask implements
             }
         }
 
+        foreach ($this->multiOptions as $optionName => $optionCli) {
+            if (!empty($options[$optionName])) {
+                foreach ($options[$optionName] as $value => $status) {
+                    if (!$status || $value === false || $value === null) {
+                        continue;
+                    }
+
+                    $cmdPattern .= " --{$optionCli} %s";
+                    $cmdArgs[] = escapeshellarg($value);
+                }
+            }
+        }
+
         if ($this->addFilesToCliCommand) {
             $files = $this->filterEnabled($this->getFiles());
             if ($files) {
@@ -1141,7 +1100,7 @@ abstract class ESLintRun extends BaseTask implements
         return vsprintf($cmdPattern, $cmdArgs);
     }
 
-    protected function buildCommandOptions()
+    protected function getCommandOptions(): array
     {
         return [
             'configFile' => $this->getConfigFile(),
@@ -1164,14 +1123,8 @@ abstract class ESLintRun extends BaseTask implements
 
     /**
      * Get the exit code regarding the failOn settings.
-     *
-     * @param int $numOfErrors
-     * @param int $numOfWarnings
-     *
-     * @return int
-     *   Exit code.
      */
-    protected function getTaskExitCode($numOfErrors, $numOfWarnings)
+    protected function getTaskExitCode(int $numOfErrors, int $numOfWarnings): int
     {
         if ($this->isLintSuccess()) {
             switch ($this->getFailOn()) {
@@ -1193,12 +1146,7 @@ abstract class ESLintRun extends BaseTask implements
         return $this->lintExitCode;
     }
 
-    /**
-     * @param array $items
-     *
-     * @return array
-     */
-    protected function filterEnabled(array $items)
+    protected function filterEnabled(array $items): array
     {
         return gettype(reset($items)) === 'boolean' ? array_keys($items, true, true) : $items;
     }
@@ -1207,10 +1155,8 @@ abstract class ESLintRun extends BaseTask implements
      * Returns true if the lint ran successfully.
      *
      * Returns true even if there was any code style error or warning.
-     *
-     * @return bool
      */
-    protected function isLintSuccess()
+    protected function isLintSuccess(): bool
     {
         return in_array($this->lintExitCode, $this->lintSuccessExitCodes());
     }
@@ -1218,7 +1164,7 @@ abstract class ESLintRun extends BaseTask implements
     /**
      * @return int[]
      */
-    protected function lintSuccessExitCodes()
+    protected function lintSuccessExitCodes(): array
     {
         return [
             static::EXIT_CODE_OK,
@@ -1227,24 +1173,19 @@ abstract class ESLintRun extends BaseTask implements
         ];
     }
 
-    /**
-     * @param int $exitCode
-     *
-     * @return string|false
-     */
-    protected function getExitMessage($exitCode)
+    protected function getExitMessage(int $exitCode): ?string
     {
         if (isset($this->exitMessages[$exitCode])) {
             return $this->exitMessages[$exitCode];
         }
 
-        return false;
+        return null;
     }
 
     /**
-     * @return ReporterInterface[]
+     * @return \Cheppers\LintReport\ReporterInterface[]
      */
-    protected function initLintReporters()
+    protected function initLintReporters(): array
     {
         $lintReporters = [];
         $c = $this->getContainer();
@@ -1270,5 +1211,26 @@ abstract class ESLintRun extends BaseTask implements
         }
 
         return $lintReporters;
+    }
+
+    /**
+     * The array key is the relevant value and the array value will be a boolean.
+     *
+     * @param string[]|bool[] $items
+     *   Items.
+     * @param bool $include
+     *   Default value.
+     *
+     * @return bool[]
+     *   Key is the relevant value, the value is a boolean.
+     */
+    protected function createIncludeList(array $items, bool $include): array
+    {
+        $item = reset($items);
+        if (gettype($item) !== 'boolean') {
+            $items = array_fill_keys($items, $include);
+        }
+
+        return $items;
     }
 }
