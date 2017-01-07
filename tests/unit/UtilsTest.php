@@ -1,20 +1,18 @@
 <?php
 
-use Cheppers\Robo\ESLint\Utils;
+namespace Cheppers\Robo\ESLint\Test\Unit;
 
-// @codingStandardsIgnoreStart
-class UtilsTest extends \Codeception\Test\Unit
-// @codingStandardsIgnoreEnd
+use Cheppers\Robo\ESLint\Utils;
+use Codeception\Test\Unit;
+
+class UtilsTest extends Unit
 {
     /**
      * @var \UnitTester
      */
     protected $tester;
 
-    /**
-     * @return array
-     */
-    public function casesIsAbsolutePath()
+    public function casesIsAbsolutePath(): array
     {
         return [
             'empty string' => [false, ''],
@@ -26,20 +24,14 @@ class UtilsTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @param bool $expected
-     * @param string $path
-     *
      * @dataProvider casesIsAbsolutePath
      */
-    public function testIsAbsolutePath($expected, $path)
+    public function testIsAbsolutePath(bool $expected, string $path): void
     {
         $this->tester->assertEquals($expected, Utils::isAbsolutePath($path));
     }
 
-    /**
-     * @return array
-     */
-    public function casesMergeReports()
+    public function casesMergeReports(): array
     {
         $a = [
             [
@@ -86,12 +78,9 @@ class UtilsTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @param array $expected
-     * @param array $reports
-     *
      * @dataProvider casesMergeReports
      */
-    public function testMergeReports(array $expected, array $reports)
+    public function testMergeReports(array $expected, array $reports): void
     {
         $this->tester->assertEquals($expected, Utils::mergeReports($reports));
 
