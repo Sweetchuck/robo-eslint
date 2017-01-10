@@ -8,9 +8,6 @@ use Robo\Collection\CollectionBuilder;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
 
-/**
- * Class RoboFile.
- */
 class RoboFile extends \Robo\Tasks
     // @codingStandardsIgnoreEnd
 {

@@ -1,14 +1,16 @@
 <?php
 
-namespace Cheppers\Robo\ESLint\Test\Unit;
+namespace Cheppers\Robo\ESLint\Tests\Unit;
 
+use Cheppers\AssetJar\AssetJar;
 use Cheppers\Robo\ESLint\Task\ESLintRunFiles;
+use Codeception\Test\Unit;
 use Codeception\Util\Stub;
 use Helper\Dummy\Output as DummyOutput;
 use Helper\Dummy\Process as DummyProcess;
 use Robo\Robo;
 
-class ESLintRunFilesTest extends \Codeception\Test\Unit
+class ESLintRunFilesTest extends Unit
 {
     protected static function getMethod(string $name): \ReflectionMethod
     {
@@ -114,7 +116,12 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
             'basic' => [
                 'node_modules/.bin/eslint',
                 [],
-                [],
+            ],
+            'workingDirectory' => [
+                "cd 'my-dir' && node_modules/.bin/eslint",
+                [
+                    'workingDirectory' => 'my-dir',
+                ],
             ],
             'eslintExecutable' => [
                 "something/else --config 'foo'",
@@ -122,17 +129,14 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
                     'eslintExecutable' => 'something/else',
                     'configFile' => 'foo'
                 ],
-                [],
             ],
             'configFile-empty' => [
                 'node_modules/.bin/eslint',
                 ['configFile' => ''],
-                [],
             ],
             'configFile-string' => [
                 "node_modules/.bin/eslint --config 'foo'",
                 ['configFile' => 'foo'],
-                [],
             ],
             'noESLintRc-false' => [
                 'node_modules/.bin/eslint',
@@ -142,22 +146,18 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
             'noESLintRc-true' => [
                 'node_modules/.bin/eslint --no-eslintrc',
                 ['noESLintRc' => true],
-                [],
             ],
             'ext-empty' => [
                 'node_modules/.bin/eslint',
                 ['ext' => []],
-                [],
             ],
             'ext-vector-1' => [
                 "node_modules/.bin/eslint --ext '.a'",
                 ['ext' => ['.a']],
-                [],
             ],
             'ext-vector-multi' => [
                 "node_modules/.bin/eslint --ext '.a,.b'",
                 ['ext' => ['.a', '.b']],
-                [],
             ],
             'ext-assoc' => [
                 "node_modules/.bin/eslint --ext '.b,.d'",
@@ -169,37 +169,30 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
                         '.d' => true,
                     ],
                 ],
-                [],
             ],
             'cache-false' => [
                 'node_modules/.bin/eslint',
                 ['cache' => false],
-                [],
             ],
             'cache-true' => [
                 'node_modules/.bin/eslint --cache',
                 ['cache' => true],
-                [],
             ],
             'cacheLocation-empty' => [
                 'node_modules/.bin/eslint',
                 ['cacheLocation' => ''],
-                [],
             ],
             'cacheLocation-string' => [
                 "node_modules/.bin/eslint --cache-location 'my-dir'",
                 ['cacheLocation' => 'my-dir'],
-                [],
             ],
             'rulesDir-empty' => [
                 'node_modules/.bin/eslint',
                 ['rulesDir' => []],
-                [],
             ],
             'rulesDir-vector' => [
                 "node_modules/.bin/eslint --rulesdir 'my-dir-1' --rulesdir 'my-dir-2'",
                 ['rulesDir' => ['my-dir-1', 'my-dir-2']],
-                [],
             ],
             'rulesDir-assoc' => [
                 "node_modules/.bin/eslint --rulesdir 'my-dir-1' --rulesdir 'my-dir-3'",
@@ -210,122 +203,98 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
                         'my-dir-3' => true,
                     ],
                 ],
-                [],
             ],
             'ignorePath-empty' => [
                 'node_modules/.bin/eslint',
                 ['ignorePath' => ''],
-                [],
             ],
             'ignorePath-string' => [
                 "node_modules/.bin/eslint --ignore-path 'my-dir'",
                 ['ignorePath' => 'my-dir'],
-                [],
             ],
             'noIgnore-false' => [
                 'node_modules/.bin/eslint',
                 ['noIgnore' => false],
-                [],
             ],
             'notIgnore-true' => [
                 'node_modules/.bin/eslint --no-ignore',
                 ['noIgnore' => true],
-                [],
             ],
             'ignorePattern-empty' => [
                 'node_modules/.bin/eslint',
                 ['ignorePattern' => ''],
-                [],
             ],
             'ignorePattern-string' => [
                 "node_modules/.bin/eslint --ignore-pattern 'my-dir'",
                 ['ignorePattern' => 'my-dir'],
-                [],
             ],
             'quiet-false' => [
                 'node_modules/.bin/eslint',
                 ['quiet' => false],
-                [],
             ],
             'quiet-true' => [
                 'node_modules/.bin/eslint --quiet',
                 ['quiet' => true],
-                [],
             ],
             'maxWarnings-negative' => [
                 "node_modules/.bin/eslint --max-warnings '-1'",
                 ['maxWarnings' => -1],
-                [],
             ],
             'maxWarnings-zero' => [
                 "node_modules/.bin/eslint --max-warnings '0'",
                 ['maxWarnings' => 0],
-                [],
             ],
             'maxWarnings-positive' => [
                 "node_modules/.bin/eslint --max-warnings '1'",
                 ['maxWarnings' => 1],
-                [],
             ],
             'maxWarnings-null' => [
                 'node_modules/.bin/eslint',
                 ['maxWarnings' => null],
-                [],
             ],
             'format-empty' => [
                 "node_modules/.bin/eslint",
                 ['format' => ''],
-                [],
             ],
             'format-string' => [
                 "node_modules/.bin/eslint --format 'foo'",
                 ['format' => 'foo'],
-                [],
             ],
             'outputFile-empty' => [
                 'node_modules/.bin/eslint',
                 ['outputFile' => ''],
-                [],
             ],
             'outputFile-string' => [
                 "node_modules/.bin/eslint --output-file 'my-file'",
                 ['outputFile' => 'my-file'],
-                [],
             ],
             'color-false' => [
                 'node_modules/.bin/eslint --no-color',
                 ['color' => false],
-                [],
             ],
             'color-null' => [
                 'node_modules/.bin/eslint',
                 ['color' => null],
-                [],
             ],
             'color-true' => [
                 'node_modules/.bin/eslint --color',
                 ['color' => true],
-                [],
             ],
             'noInlineConfig-false' => [
                 'node_modules/.bin/eslint',
                 ['noInlineConfig' => false],
-                [],
             ],
             'noInlineConfig-true' => [
                 "node_modules/.bin/eslint --no-inline-config",
                 ['noInlineConfig' => true],
-                [],
             ],
             'files-empty' => [
                 "node_modules/.bin/eslint",
                 ['files' => []],
-                [],
             ],
             'files-vector' => [
                 "node_modules/.bin/eslint -- 'foo' 'bar' 'baz'",
                 ['files' => ['foo', 'bar', 'baz']],
-                [],
             ],
             'files-assoc' => [
                 "node_modules/.bin/eslint -- 'a' 'd'",
@@ -338,7 +307,6 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
                         'e' => false,
                     ],
                 ],
-                [],
             ],
             'multiple' => [
                 "node_modules/.bin/eslint --color --no-inline-config --max-warnings '1' --output-file 'of' -- 'a' 'b'",
@@ -349,7 +317,6 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
                     'noInlineConfig' => true,
                     'files' => ['a', 'b'],
                 ],
-                [],
             ],
         ];
     }
@@ -357,9 +324,9 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
     /**
      * @dataProvider casesGetCommand
      */
-    public function testGetCommand(string $expected, array $options, array $paths): void
+    public function testGetCommand(string $expected, array $options): void
     {
-        $eslint = new ESLintRunFiles($options, $paths);
+        $eslint = new ESLintRunFiles($options);
         $this->tester->assertEquals($expected, $eslint->getCommand());
     }
 
@@ -603,18 +570,13 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
 
         $assetJar = null;
         if ($withJar) {
-            $assetJar = new \Cheppers\AssetJar\AssetJar();
+            $assetJar = new AssetJar();
             $task->setAssetJar($assetJar);
         }
 
         $result = $task->run();
 
         $this->tester->assertEquals($expectedExitCode, $result->getExitCode(), 'Exit code');
-        $this->tester->assertEquals(
-            $options['workingDirectory'],
-            DummyProcess::$instances[$processIndex]->getWorkingDirectory(),
-            'Working directory'
-        );
 
         if ($withJar) {
             /** @var \Cheppers\Robo\ESLint\LintReportWrapper\ReportWrapper $reportWrapper */
@@ -680,16 +642,12 @@ class ESLintRunFilesTest extends \Codeception\Test\Unit
         ];
 
         $task->setLogger($container->get('logger'));
-        $assetJar = new \Cheppers\AssetJar\AssetJar();
+        $assetJar = new AssetJar();
         $task->setAssetJar($assetJar);
 
         $result = $task->run();
 
         $this->tester->assertEquals($exitCode, $result->getExitCode());
-        $this->tester->assertEquals(
-            $options['workingDirectory'],
-            DummyProcess::$instances[$processIndex]->getWorkingDirectory()
-        );
 
         /** @var \Cheppers\Robo\ESLint\LintReportWrapper\ReportWrapper $reportWrapper */
         $reportWrapper = $assetJar->getValue(['ESLintRun', 'report']);

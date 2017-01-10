@@ -1,6 +1,6 @@
 <?php
 
-namespace Cheppers\Robo\ESLint\Test\Unit;
+namespace Cheppers\Robo\ESLint\Tests\Unit;
 
 use Cheppers\AssetJar\AssetJar;
 use Cheppers\Robo\ESLint\Task\ESLintRunInput;

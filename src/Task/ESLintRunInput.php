@@ -46,9 +46,9 @@ class ESLintRunInput extends ESLintRun
     /**
      * {@inheritdoc}
      */
-    public function __construct(array $options = [], array $files = [])
+    public function __construct(array $options = [])
     {
-        parent::__construct($options, $files);
+        parent::__construct($options);
 
         $this->flagOptions['stdin'] = 'stdin';
         $this->simpleOptions['stdinFilename'] = 'stdin-filename';

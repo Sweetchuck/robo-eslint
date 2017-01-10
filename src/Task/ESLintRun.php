@@ -755,18 +755,9 @@ abstract class ESLintRun extends BaseTask implements
 
     //endregion
 
-    /**
-     * @param array $options
-     *   Key-value pairs of options.
-     * @param array $files
-     *   File files.
-     */
-    public function __construct(array $options = [], array $files = [])
+    public function __construct(array $options = [])
     {
         $this->setOptions($options);
-        if ($files) {
-            $this->setFiles($files);
-        }
     }
 
     /**
@@ -914,9 +905,6 @@ abstract class ESLintRun extends BaseTask implements
 
         /** @var \Symfony\Component\Process\Process $process */
         $process = new $this->processClass($command);
-        if ($this->workingDirectory) {
-            $process->setWorkingDirectory($this->workingDirectory);
-        }
 
         $this->lintExitCode = $process->run();
         $this->lintStdOutput = $process->getOutput();
@@ -1036,10 +1024,16 @@ abstract class ESLintRun extends BaseTask implements
      */
     public function getCommand(): string
     {
-        $cmdPattern = '%s';
-        $cmdArgs = [
-            escapeshellcmd($this->getEslintExecutable()),
-        ];
+        $cmdPattern = '';
+        $cmdArgs = [];
+
+        if ($this->getWorkingDirectory()) {
+            $cmdPattern .= 'cd %s && ';
+            $cmdArgs[] = escapeshellarg($this->getWorkingDirectory());
+        }
+
+        $cmdPattern .= '%s';
+        $cmdArgs[] = escapeshellcmd($this->getEslintExecutable());
 
         $options = $this->getCommandOptions();
 

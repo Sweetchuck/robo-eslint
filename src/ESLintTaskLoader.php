@@ -5,12 +5,7 @@ namespace Cheppers\Robo\ESLint;
 use League\Container\ContainerAwareInterface;
 use Robo\Contract\OutputAwareInterface;
 
-/**
- * Class LoadTasks.
- *
- * @package Cheppers\Robo\ESLint\Task
- */
-trait LoadESLintTasks
+trait ESLintTaskLoader
 {
     /**
      * @param array $options

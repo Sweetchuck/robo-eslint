@@ -11,7 +11,7 @@ use Robo\Contract\ConfigAwareInterface;
 class RoboFile extends \Robo\Tasks implements ConfigAwareInterface
 {
     // @codingStandardsIgnoreEnd
-    use \Cheppers\Robo\ESLint\LoadESLintTasks;
+    use \Cheppers\Robo\ESLint\ESLintTaskLoader;
     use \Robo\Common\ConfigAwareTrait;
 
     /**

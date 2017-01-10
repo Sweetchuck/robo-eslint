@@ -1,6 +1,6 @@
 <?php
 
-namespace Cheppers\Robo\ESLint\Test\Unit;
+namespace Cheppers\Robo\ESLint\Tests\Unit;
 
 use Cheppers\Robo\ESLint\Utils;
 use Codeception\Test\Unit;
