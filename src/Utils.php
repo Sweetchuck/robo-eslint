@@ -4,22 +4,12 @@ namespace Cheppers\Robo\ESLint;
 
 class Utils
 {
-    /**
-     * @param string $path
-     *
-     * @return bool
-     */
-    public static function isAbsolutePath($path)
+    public static function isAbsolutePath(string $path): bool
     {
         return strpos($path, DIRECTORY_SEPARATOR) === 0;
     }
 
-    /**
-     * @param array $reports
-     *
-     * @return array
-     */
-    public static function mergeReports(array $reports)
+    public static function mergeReports(array $reports): array
     {
         if (func_num_args() > 1) {
             $reports = func_get_args();

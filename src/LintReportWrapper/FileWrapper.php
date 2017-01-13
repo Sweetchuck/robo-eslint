@@ -98,11 +98,7 @@ class FileWrapper implements FileWrapperInterface
         return $this->stats;
     }
 
-
-    /**
-     * @return string
-     */
-    public function highestSeverity()
+    public function highestSeverity(): string
     {
         if ($this->numOfErrors()) {
             return ReportWrapperInterface::SEVERITY_ERROR;

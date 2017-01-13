@@ -8,16 +8,13 @@ use Robo\Contract\OutputAwareInterface;
 trait ESLintTaskLoader
 {
     /**
-     * @param array $options
-     * @param array $paths
-     *
      * @return \Cheppers\Robo\ESLint\Task\ESLintRunFiles
      *   A lint runner task instance.
      */
-    protected function taskESLintRunFiles(array $options = [], array $paths = [])
+    protected function taskESLintRunFiles(array $options = [])
     {
         /** @var \Cheppers\Robo\ESLint\Task\ESLintRunFiles $task */
-        $task = $this->task(Task\ESLintRunFiles::class, $options, $paths);
+        $task = $this->task(Task\ESLintRunFiles::class, $options);
         if ($this instanceof ContainerAwareInterface) {
             $task->setContainer($this->getContainer());
         }
@@ -30,15 +27,12 @@ trait ESLintTaskLoader
     }
 
     /**
-     * @param array $options
-     * @param array $paths
-     *
      * @return \Cheppers\Robo\ESLint\Task\ESLintRunInput
      */
-    protected function taskESLintRunInput(array $options = [], array $paths = [])
+    protected function taskESLintRunInput(array $options = [])
     {
         /** @var \Cheppers\Robo\ESLint\Task\ESLintRunInput $task */
-        $task = $this->task(Task\ESLintRunInput::class, $options, $paths);
+        $task = $this->task(Task\ESLintRunInput::class, $options);
         if ($this instanceof ContainerAwareInterface) {
             $task->setContainer($this->getContainer());
         }

@@ -39,11 +39,9 @@ class AcceptanceTester extends \Codeception\Actor
     }
 
     /**
-     * @param string $taskName
-     *
      * @return $this
      */
-    public function runRoboTask($taskName, array $args = [], array $options = [])
+    public function runRoboTask(string $taskName, array $args = [], array $options = [])
     {
         $cmdPattern = 'cd %s && ../../bin/robo %s';
         $cmdArgs = [
@@ -70,11 +68,9 @@ class AcceptanceTester extends \Codeception\Actor
     }
 
     /**
-     * @param string $fileName
-     *
      * @return $this
      */
-    public function haveAFileLikeThis($fileName) {
+    public function haveAFileLikeThis(string $fileName) {
         $expectedDir = codecept_data_dir('expected');
         $actualDir = codecept_data_dir('actual');
 
@@ -86,7 +82,10 @@ class AcceptanceTester extends \Codeception\Actor
         return $this;
     }
 
-    public function haveAValidCheckstyleReport($fileName)
+    /**
+     * @return $this
+     */
+    public function haveAValidCheckstyleReport(string $fileName)
     {
         $fileName = codecept_data_dir($fileName);
         $doc = new \DOMDocument();
@@ -99,11 +98,9 @@ class AcceptanceTester extends \Codeception\Actor
     }
 
     /**
-     * @param string $expected
-     *
      * @return $this
      */
-    public function seeThisTextInTheStdOutput($expected)
+    public function seeThisTextInTheStdOutput(string $expected)
     {
         Assert::assertContains($expected, $this->getStdOutput());
 
@@ -111,11 +108,9 @@ class AcceptanceTester extends \Codeception\Actor
     }
 
     /**
-     * @param string $expected
-     *
      * @return $this
      */
-    public function seeThisTextInTheStdError($expected)
+    public function seeThisTextInTheStdError(string $expected)
     {
         Assert::assertContains($expected, $this->getStdError());
 
@@ -123,11 +118,9 @@ class AcceptanceTester extends \Codeception\Actor
     }
 
     /**
-     * @param int $expected
-     *
      * @return $this
      */
-    public function expectTheExitCodeToBe($expected)
+    public function expectTheExitCodeToBe(string $expected)
     {
         Assert::assertEquals($expected, $this->getExitCode());
 

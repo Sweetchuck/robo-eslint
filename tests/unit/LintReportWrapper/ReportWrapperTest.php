@@ -11,10 +11,7 @@ class ReportWrapperTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    /**
-     * @return array
-     */
-    public function casesReports()
+    public function casesReports(): array
     {
         return [
             'ok:no-files' => [
@@ -160,12 +157,9 @@ class ReportWrapperTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @param array $expected
-     * @param array $report
-     *
      * @dataProvider casesReports
      */
-    public function testAll(array $expected, array $report)
+    public function testAll(array $expected, array $report): void
     {
         $rw = new ReportWrapper($report);
 
