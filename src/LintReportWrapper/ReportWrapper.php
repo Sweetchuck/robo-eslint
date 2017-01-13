@@ -18,17 +18,12 @@ class ReportWrapper implements ReportWrapperInterface
     /**
      * @return string[]
      */
-    public static function severityMap()
+    public static function severityMap(): array
     {
         return static::$severityMap;
     }
 
-    /**
-     * @param int $severity
-     *
-     * @return string
-     */
-    public static function severity($severity)
+    public static function severity(int $severity): string
     {
         return static::$severityMap[$severity];
     }

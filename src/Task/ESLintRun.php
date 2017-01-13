@@ -52,7 +52,7 @@ abstract class ESLintRun extends BaseTask implements
     protected $processClass = Process::class;
 
     /**
-     * @var \Robo\Result|null
+     * @var Result|null
      */
     protected $taskResult = null;
 
@@ -377,7 +377,7 @@ abstract class ESLintRun extends BaseTask implements
      *
      * @return $this
      */
-    public function setFailOn($severity)
+    public function setFailOn(string $severity)
     {
         $this->failOn = $severity;
 
@@ -401,7 +401,7 @@ abstract class ESLintRun extends BaseTask implements
      *
      * @return $this
      */
-    public function setFormat($value)
+    public function setFormat(string $value)
     {
         $this->format = $value;
 
@@ -987,10 +987,7 @@ abstract class ESLintRun extends BaseTask implements
         return $this;
     }
 
-    /**
-     * @return \Robo\Result
-     */
-    protected function runReturn()
+    protected function runReturn(): Result
     {
         if ($this->taskResult) {
             return $this->taskResult;
@@ -1017,10 +1014,7 @@ abstract class ESLintRun extends BaseTask implements
     }
 
     /**
-     * Build the CLI command based on the configuration.
-     *
-     * @return string
-     *   CLI command to execute.
+     * {@inheritdoc}
      */
     public function getCommand(): string
     {
