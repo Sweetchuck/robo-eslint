@@ -42,16 +42,6 @@ class RoboFile extends \Robo\Tasks
     /**
      * @var string
      */
-    protected $phpExecutable = 'php';
-
-    /**
-     * @var string
-     */
-    protected $phpdbgExecutable = 'phpdbg';
-
-    /**
-     * @var string
-     */
     protected $envNamePrefix = '';
 
     /**
@@ -122,25 +112,6 @@ class RoboFile extends \Robo\Tasks
     /**
      * @return $this
      */
-    protected function initComposerInfo()
-    {
-        if ($this->composerInfo || !is_readable('composer.json')) {
-            return $this;
-        }
-
-        $this->composerInfo = json_decode(file_get_contents('composer.json'), true);
-        list($this->packageVendor, $this->packageName) = explode('/', $this->composerInfo['name']);
-
-        if (!empty($this->composerInfo['config']['bin-dir'])) {
-            $this->binDir = $this->composerInfo['config']['bin-dir'];
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
     protected function initEnvNamePrefix()
     {
         $this->envNamePrefix = strtoupper(str_replace('-', '_', $this->packageName));
@@ -162,10 +133,33 @@ class RoboFile extends \Robo\Tasks
         return getenv($this->getEnvName('environment')) ?: 'dev';
     }
 
-    /**
-     * @return $this
-     */
-    protected function initCodeceptionInfo()
+    protected function getPhpExecutable(): string
+    {
+        return getenv($this->getEnvName('php_executable')) ?: PHP_BINARY;
+    }
+
+    protected function getPhpdbgExecutable(): string
+    {
+        return getenv($this->getEnvName('phpdbg_executable')) ?: PHP_BINDIR . '/phpdbg';
+    }
+
+    protected function initComposerInfo(): self
+    {
+        if ($this->composerInfo || !is_readable('composer.json')) {
+            return $this;
+        }
+
+        $this->composerInfo = json_decode(file_get_contents('composer.json'), true);
+        list($this->packageVendor, $this->packageName) = explode('/', $this->composerInfo['name']);
+
+        if (!empty($this->composerInfo['config']['bin-dir'])) {
+            $this->binDir = $this->composerInfo['config']['bin-dir'];
+        }
+
+        return $this;
+    }
+
+    protected function initCodeceptionInfo(): self
     {
         if ($this->codeceptionInfo) {
             return $this;
@@ -187,46 +181,63 @@ class RoboFile extends \Robo\Tasks
     protected function getTaskCodecept(): CollectionBuilder
     {
         $environment = $this->getEnvironment();
-        $withCoverage = $environment !== 'git-hook';
-        $withUnitReport = $environment !== 'git-hook';
+
+        $withCoverageHtml = in_array($environment, ['dev', 'git-hook']);
+        $withCoverageSerialized = in_array($environment, ['jenkins', 'travis']);
+        $withCoverageXml = in_array($environment, ['dev', 'jenkins', 'travis']);
+        $withCoverageAny = $withCoverageSerialized || $withCoverageXml || $withCoverageHtml;
+
+        $withUnitReportHtml = in_array($environment, ['dev', 'git-hook']);
+        $withUnitReportXml = in_array($environment, ['travis', 'jenkins']);
+
         $logDir = $this->getLogDir();
 
         $cmdArgs = [];
         if ($this->isPhpDbgAvailable()) {
-            $cmdPattern = '%s -qrr %s';
-            $cmdArgs[] = escapeshellcmd($this->phpdbgExecutable);
-            $cmdArgs[] = escapeshellarg("{$this->binDir}/codecept");
+            $cmdPattern = '%s -qrr';
+            $cmdArgs[] = escapeshellcmd($this->getPhpdbgExecutable());
         } else {
             $cmdPattern = '%s';
-            $cmdArgs[] = escapeshellcmd("{$this->binDir}/codecept");
+            $cmdArgs[] = escapeshellcmd($this->getPhpExecutable());
         }
+
+        $cmdPattern .= ' %s';
+        $cmdArgs[] = escapeshellcmd("{$this->binDir}/codecept");
 
         $cmdPattern .= ' --ansi';
         $cmdPattern .= ' --verbose';
 
         $tasks = [];
-        if ($withCoverage) {
-            $cmdPattern .= ' --coverage=%s';
-            $cmdArgs[] = escapeshellarg('coverage/coverage.serialized');
-
-            $cmdPattern .= ' --coverage-xml=%s';
-            $cmdArgs[] = escapeshellarg('coverage/coverage.xml');
-
+        if ($withCoverageHtml) {
             $cmdPattern .= ' --coverage-html=%s';
             $cmdArgs[] = escapeshellarg('coverage/html');
+        }
+
+        if ($withCoverageXml) {
+            $cmdPattern .= ' --coverage-xml=%s';
+            $cmdArgs[] = escapeshellarg('coverage/coverage.xml');
+        }
+
+        if ($withCoverageAny) {
+            $cmdPattern .= ' --coverage=%s';
+            $cmdArgs[] = escapeshellarg('coverage/coverage.serialized');
 
             $tasks['prepareCoverageDir'] = $this
                 ->taskFilesystemStack()
                 ->mkdir("$logDir/coverage");
         }
 
-        if ($withUnitReport) {
-            $cmdPattern .= ' --xml=%s';
-            $cmdArgs[] = escapeshellarg('junit/junit.xml');
-
+        if ($withUnitReportHtml) {
             $cmdPattern .= ' --html=%s';
             $cmdArgs[] = escapeshellarg('junit/junit.html');
+        }
 
+        if ($withUnitReportXml) {
+            $cmdPattern .= ' --xml=%s';
+            $cmdArgs[] = escapeshellarg('junit/junit.xml');
+        }
+
+        if ($withUnitReportXml || $withUnitReportHtml) {
             $tasks['prepareJUnitDir'] = $this
                 ->taskFilesystemStack()
                 ->mkdir("$logDir/junit");
@@ -249,7 +260,7 @@ class RoboFile extends \Robo\Tasks
     /**
      * @return \Cheppers\Robo\Phpcs\Task\PhpcsLintFiles|\Robo\Collection\CollectionBuilder
      */
-    protected function getTaskPhpcsLint(): CollectionBuilder
+    protected function getTaskPhpcsLint()
     {
         $env = $this->getEnvironment();
 
@@ -271,10 +282,11 @@ class RoboFile extends \Robo\Tasks
         ];
 
         if ($env === 'jenkins') {
-            $options['failOn'] = 'never';
+            $logDir = $this->getLogDir();
 
+            $options['failOn'] = 'never';
             $options['lintReporters']['lintCheckstyleReporter'] = (new CheckstyleReporter())
-                ->setDestination('tests/_output/checkstyle/phpcs.psr2.xml');
+                ->setDestination("$logDir/checkstyle/phpcs.psr2.xml");
         }
 
         if ($env !== 'git-hook') {
@@ -301,7 +313,7 @@ class RoboFile extends \Robo\Tasks
 
     protected function isPhpExtensionAvailable(string $extension): bool
     {
-        $command = sprintf('%s -m', escapeshellcmd($this->phpExecutable));
+        $command = sprintf('%s -m', escapeshellcmd($this->getPhpExecutable()));
 
         $process = new Process($command);
         $exitCode = $process->run();
@@ -314,10 +326,7 @@ class RoboFile extends \Robo\Tasks
 
     protected function isPhpDbgAvailable(): bool
     {
-        $command = sprintf(
-            "%s -qrr ''",
-            escapeshellcmd($this->phpdbgExecutable)
-        );
+        $command = sprintf('%s -qrr', escapeshellcmd($this->getPhpdbgExecutable()));
 
         return (new Process($command))->run() === 0;
     }
