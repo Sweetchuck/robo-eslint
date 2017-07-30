@@ -1,9 +1,9 @@
 <?php
 
-namespace Cheppers\Robo\ESLint\LintReportWrapper;
+namespace Sweetchuck\Robo\ESLint\LintReportWrapper;
 
-use Cheppers\LintReport\FileWrapperInterface;
-use Cheppers\LintReport\ReportWrapperInterface;
+use Sweetchuck\LintReport\FileWrapperInterface;
+use Sweetchuck\LintReport\ReportWrapperInterface;
 
 class FileWrapper implements FileWrapperInterface
 {
@@ -33,7 +33,7 @@ class FileWrapper implements FileWrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function filePath()
+    public function filePath(): string
     {
         return $this->item['filePath'];
     }
@@ -41,7 +41,7 @@ class FileWrapper implements FileWrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function numOfErrors()
+    public function numOfErrors(): int
     {
         return $this->item['errorCount'];
     }
@@ -49,7 +49,7 @@ class FileWrapper implements FileWrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function numOfWarnings()
+    public function numOfWarnings(): int
     {
         return $this->item['warningCount'];
     }
@@ -67,7 +67,7 @@ class FileWrapper implements FileWrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function stats()
+    public function stats(): array
     {
         if (!$this->stats) {
             $this->stats = [

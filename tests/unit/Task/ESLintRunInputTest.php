@@ -1,9 +1,9 @@
 <?php
 
-namespace Cheppers\Robo\ESLint\Tests\Unit;
+namespace Sweetchuck\Robo\ESLint\Tests\Unit;
 
-use Cheppers\AssetJar\AssetJar;
-use Cheppers\Robo\ESLint\Task\ESLintRunInput;
+use Sweetchuck\AssetJar\AssetJar;
+use Sweetchuck\Robo\ESLint\Task\ESLintRunInput;
 use Codeception\Util\Stub;
 use Helper\Dummy\Output as DummyOutput;
 use Helper\Dummy\Process as DummyProcess;
@@ -91,7 +91,7 @@ class ESLintRunInputTest extends \Codeception\Test\Unit
     public function testGetCommand(string $expected, array $options, array $properties = []): void
     {
         $options += ['eslintExecutable' => 'eslint'];
-        /** @var \Cheppers\Robo\ESLint\Task\ESLintRunInput $task */
+        /** @var \Sweetchuck\Robo\ESLint\Task\ESLintRunInput $task */
         $task = Stub::construct(
             ESLintRunInput::class,
             [$options, []],
@@ -148,7 +148,7 @@ class ESLintRunInputTest extends \Codeception\Test\Unit
         array $options,
         array $jarValue
     ): void {
-        /** @var \Cheppers\Robo\ESLint\Task\ESLintRunInput $task */
+        /** @var \Sweetchuck\Robo\ESLint\Task\ESLintRunInput $task */
         $task = Stub::construct(
             ESLintRunInput::class,
             [$options],
@@ -254,7 +254,7 @@ class ESLintRunInputTest extends \Codeception\Test\Unit
 
         $properties += ['processClass' => DummyProcess::class];
 
-        /** @var \Cheppers\Robo\ESLint\Task\ESLintRunInput $task */
+        /** @var \Sweetchuck\Robo\ESLint\Task\ESLintRunInput $task */
         $task = Stub::construct(
             ESLintRunInput::class,
             [$options, []],
@@ -278,7 +278,7 @@ class ESLintRunInputTest extends \Codeception\Test\Unit
 
         $this->tester->assertEquals($expected['exitCode'], $result->getExitCode());
 
-        /** @var \Cheppers\LintReport\ReportWrapperInterface $reportWrapper */
+        /** @var \Sweetchuck\LintReport\ReportWrapperInterface $reportWrapper */
         $reportWrapper = $result['report'];
         $this->tester->assertEquals($expected['report'], $reportWrapper->getReport());
     }

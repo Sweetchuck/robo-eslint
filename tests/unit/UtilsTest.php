@@ -1,8 +1,8 @@
 <?php
 
-namespace Cheppers\Robo\ESLint\Tests\Unit;
+namespace Sweetchuck\Robo\ESLint\Tests\Unit;
 
-use Cheppers\Robo\ESLint\Utils;
+use Sweetchuck\Robo\ESLint\Utils;
 use Codeception\Test\Unit;
 
 class UtilsTest extends Unit

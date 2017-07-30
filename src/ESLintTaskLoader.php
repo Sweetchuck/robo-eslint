@@ -1,6 +1,6 @@
 <?php
 
-namespace Cheppers\Robo\ESLint;
+namespace Sweetchuck\Robo\ESLint;
 
 use League\Container\ContainerAwareInterface;
 use Robo\Contract\OutputAwareInterface;
@@ -8,12 +8,12 @@ use Robo\Contract\OutputAwareInterface;
 trait ESLintTaskLoader
 {
     /**
-     * @return \Cheppers\Robo\ESLint\Task\ESLintRunFiles
+     * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunFiles
      *   A lint runner task instance.
      */
     protected function taskESLintRunFiles(array $options = [])
     {
-        /** @var \Cheppers\Robo\ESLint\Task\ESLintRunFiles $task */
+        /** @var \Sweetchuck\Robo\ESLint\Task\ESLintRunFiles $task */
         $task = $this->task(Task\ESLintRunFiles::class, $options);
         if ($this instanceof ContainerAwareInterface) {
             $task->setContainer($this->getContainer());
@@ -27,11 +27,11 @@ trait ESLintTaskLoader
     }
 
     /**
-     * @return \Cheppers\Robo\ESLint\Task\ESLintRunInput
+     * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunInput
      */
     protected function taskESLintRunInput(array $options = [])
     {
-        /** @var \Cheppers\Robo\ESLint\Task\ESLintRunInput $task */
+        /** @var \Sweetchuck\Robo\ESLint\Task\ESLintRunInput $task */
         $task = $this->task(Task\ESLintRunInput::class, $options);
         if ($this instanceof ContainerAwareInterface) {
             $task->setContainer($this->getContainer());

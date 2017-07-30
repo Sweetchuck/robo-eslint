@@ -1,9 +1,9 @@
 <?php
 
-namespace Cheppers\Robo\ESLint\Tests\Unit;
+namespace Sweetchuck\Robo\ESLint\Tests\Unit;
 
-use Cheppers\AssetJar\AssetJar;
-use Cheppers\Robo\ESLint\Task\ESLintRunFiles;
+use Sweetchuck\AssetJar\AssetJar;
+use Sweetchuck\Robo\ESLint\Task\ESLintRunFiles;
 use Codeception\Test\Unit;
 use Codeception\Util\Stub;
 use Helper\Dummy\Output as DummyOutput;
@@ -579,7 +579,7 @@ class ESLintRunFilesTest extends Unit
         $this->tester->assertEquals($expectedExitCode, $result->getExitCode(), 'Exit code');
 
         if ($withJar) {
-            /** @var \Cheppers\Robo\ESLint\LintReportWrapper\ReportWrapper $reportWrapper */
+            /** @var \Sweetchuck\Robo\ESLint\LintReportWrapper\ReportWrapper $reportWrapper */
             $reportWrapper = $assetJar->getValue(['ESLintRun', 'report']);
             $this->tester->assertEquals(
                 $expectedReport,
@@ -649,7 +649,7 @@ class ESLintRunFilesTest extends Unit
 
         $this->tester->assertEquals($exitCode, $result->getExitCode());
 
-        /** @var \Cheppers\Robo\ESLint\LintReportWrapper\ReportWrapper $reportWrapper */
+        /** @var \Sweetchuck\Robo\ESLint\LintReportWrapper\ReportWrapper $reportWrapper */
         $reportWrapper = $assetJar->getValue(['ESLintRun', 'report']);
         $this->tester->assertEquals($report, $reportWrapper->getReport());
     }

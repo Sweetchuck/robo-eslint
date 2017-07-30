@@ -1,8 +1,8 @@
 <?php
 
-namespace Cheppers\Robo\ESLint\LintReportWrapper;
+namespace Sweetchuck\Robo\ESLint\LintReportWrapper;
 
-use Cheppers\LintReport\FailureWrapperInterface;
+use Sweetchuck\LintReport\FailureWrapperInterface;
 
 class FailureWrapper implements FailureWrapperInterface
 {
@@ -35,7 +35,7 @@ class FailureWrapper implements FailureWrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function severity()
+    public function severity(): string
     {
         return ReportWrapper::severity($this->failure['severity']);
     }
@@ -43,7 +43,7 @@ class FailureWrapper implements FailureWrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function source()
+    public function source(): string
     {
         return $this->failure['ruleId'];
     }
@@ -51,7 +51,7 @@ class FailureWrapper implements FailureWrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function line()
+    public function line(): int
     {
         return $this->failure['line'];
     }
@@ -59,7 +59,7 @@ class FailureWrapper implements FailureWrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function column()
+    public function column(): int
     {
         return $this->failure['column'];
     }
@@ -67,7 +67,7 @@ class FailureWrapper implements FailureWrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function message()
+    public function message(): string
     {
         return $this->failure['message'];
     }

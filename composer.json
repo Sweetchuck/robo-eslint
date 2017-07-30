@@ -1,5 +1,5 @@
 {
-    "name": "cheppers/robo-eslint",
+    "name": "sweetchuck/robo-eslint",
     "description": "Robo task wrapper for ESLint",
     "license": "GPL-2.0+",
     "config": {
@@ -10,38 +10,34 @@
     "prefer-stable": true,
     "require": {
         "php": ">=7.1",
-        "cheppers/asset-jar": "^0.0",
+        "sweetchuck/asset-jar": "^0.0",
         "consolidation/robo": "^1.0",
         "symfony/process": "^2.8 || ^3.1"
     },
     "require-dev": {
-        "cheppers/git-hooks": "^0.0",
-        "cheppers/lint-report": "^0.0",
-        "cheppers/robo-git": "^0.0",
-        "cheppers/robo-phpcs": "^0.0",
+        "sweetchuck/git-hooks": "^0.0",
+        "sweetchuck/lint-report": "^0.0",
+        "sweetchuck/robo-git": "^0.0",
+        "sweetchuck/robo-phpcs": "^0.0",
         "codeception/codeception": "^2.2"
     },
     "autoload": {
         "psr-4": {
-            "Cheppers\\Robo\\ESLint\\": "src/"
+            "Sweetchuck\\Robo\\ESLint\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Cheppers\\Robo\\ESLint\\Tests\\Acceptance\\": "tests/acceptance/",
-            "Cheppers\\Robo\\ESLint\\Tests\\Unit\\": "tests/unit/"
+            "Sweetchuck\\Robo\\ESLint\\Composer\\": "src-dev/Composer/",
+            "Sweetchuck\\Robo\\ESLint\\Test\\": "tests/_support/",
+            "Sweetchuck\\Robo\\ESLint\\Tests\\Unit\\": "tests/unit/",
+            "Sweetchuck\\Robo\\ESLint\\Tests\\Acceptance\\": "tests/acceptance/"
         }
     },
     "scripts": {
-        "post-install-cmd": [
-            "@deploy-git-hooks",
-            "@tests-data-npm-install"
-        ],
-        "post-update-cmd": [
-            "@deploy-git-hooks",
-            "@tests-data-npm-install"
-        ],
-        "deploy-git-hooks": "\\Cheppers\\GitHooks\\Main::deploy",
-        "tests-data-npm-install": "cd tests/_data && npm install"
+        "post-install-cmd": "\\Sweetchuck\\Robo\\ESLint\\Composer\\Scripts::postInstallCmd",
+        "post-update-cmd": "\\Sweetchuck\\Robo\\ESLint\\Composer\\Scripts::postUpdateCmd",
+        "deploy-git-hooks": "\\Sweetchuck\\GitHooks\\Composer\\Scripts::deploy",
+        "npm-install": "\\Sweetchuck\\Robo\\ESLint\\Composer\\Scripts::npmInstall"
     }
 }
