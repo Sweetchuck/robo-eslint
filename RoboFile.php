@@ -354,23 +354,10 @@ class RoboFile extends \Robo\Tasks
         $environmentType = $this->getEnvironmentType();
         $environmentName = $this->getEnvironmentName();
 
-        $files = [
-            'src/',
-            'src-dev/Composer/',
-            'tests/',
-            'RoboFile.php',
-        ];
-
         $options = [
             'failOn' => 'warning',
             'lintReporters' => [
                 'lintVerboseReporter' => null,
-            ],
-            'ignore' => [
-                'tests/_data/',
-                'tests/_output/',
-                'tests/_support/_generated/',
-                '*.yml',
             ],
         ];
 
@@ -386,8 +373,21 @@ class RoboFile extends \Robo\Tasks
         }
 
         if ($this->gitHook !== 'pre-commit') {
-            return $this->taskPhpcsLintFiles($options + ['files' => $files]);
+            return $this->taskPhpcsLintFiles($options);
         }
+
+        $files = [
+            'src/',
+            'src-dev/Composer/',
+            'tests/_support/',
+            'tests/acceptance/',
+            'tests/unit/',
+            'RoboFile.php',
+        ];
+
+        $options['ignore'] = [
+            '*.yml',
+        ];
 
         return $this
             ->collectionBuilder()
