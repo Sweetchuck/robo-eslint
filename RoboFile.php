@@ -1,18 +1,22 @@
 <?php
 
-// @codingStandardsIgnoreStart
 use Sweetchuck\LintReport\Reporter\BaseReporter;
 use Sweetchuck\LintReport\Reporter\CheckstyleReporter;
 use League\Container\ContainerInterface;
 use Robo\Collection\CollectionBuilder;
+use Sweetchuck\Robo\Git\GitTaskLoader;
+use Sweetchuck\Robo\Phpcs\PhpcsTaskLoader;
+use Symfony\Component\Console\Output\ConsoleOutputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
+use Webmozart\PathUtil\Path;
 
 class RoboFile extends \Robo\Tasks
-    // @codingStandardsIgnoreEnd
 {
-    use \Sweetchuck\Robo\Git\GitTaskLoader;
-    use \Sweetchuck\Robo\Phpcs\PhpcsTaskLoader;
+    use GitTaskLoader;
+    use PhpcsTaskLoader;
 
     /**
      * @var array
@@ -23,6 +27,11 @@ class RoboFile extends \Robo\Tasks
      * @var array
      */
     protected $codeceptionInfo = [];
+
+    /**
+     * @var string[]
+     */
+    protected $codeceptionSuiteNames = [];
 
     /**
      * @var string
@@ -39,17 +48,26 @@ class RoboFile extends \Robo\Tasks
      */
     protected $binDir = 'vendor/bin';
 
+    protected $gitHook = '';
+
     /**
      * @var string
      */
-    protected $envNamePrefix = '';
+    protected $envVarNamePrefix = '';
 
     /**
-     * Allowed values: dev, git-hook, jenkins.
+     * Allowed values: dev, ci, prod.
      *
      * @var string
      */
-    protected $environment = '';
+    protected $environmentType = '';
+
+    /**
+     * Allowed values: local, jenkins, travis.
+     *
+     * @var string
+     */
+    protected $environmentName = '';
 
     /**
      * RoboFile constructor.
@@ -59,7 +77,7 @@ class RoboFile extends \Robo\Tasks
         putenv('COMPOSER_DISABLE_XDEBUG_WARN=1');
         $this
             ->initComposerInfo()
-            ->initEnvNamePrefix();
+            ->initEnvVarNamePrefix();
     }
 
     /**
@@ -77,23 +95,25 @@ class RoboFile extends \Robo\Tasks
      */
     public function githookPreCommit(): CollectionBuilder
     {
-        $this->environment = 'git-hook';
+        $this->gitHook = 'pre-commit';
 
         return $this
             ->collectionBuilder()
             ->addTaskList([
                 'lint.composer.lock' => $this->taskComposerValidate(),
                 'lint.phpcs.psr2' => $this->getTaskPhpcsLint(),
-                'codecept' => $this->getTaskCodecept(),
+                'codecept' => $this->getTaskCodeceptRunSuites(),
             ]);
     }
 
     /**
      * Run the Robo unit tests.
      */
-    public function test(): CollectionBuilder
+    public function test(array $suiteNames): CollectionBuilder
     {
-        return $this->getTaskCodecept();
+        $this->validateArgCodeceptionSuiteNames($suiteNames);
+
+        return $this->getTaskCodeceptRunSuites($suiteNames);
     }
 
     /**
@@ -109,41 +129,60 @@ class RoboFile extends \Robo\Tasks
             ]);
     }
 
+    protected function errorOutput(): ?OutputInterface
+    {
+        $output = $this->output();
+
+        return ($output instanceof ConsoleOutputInterface) ? $output->getErrorOutput() : $output;
+    }
+
     /**
      * @return $this
      */
-    protected function initEnvNamePrefix()
+    protected function initEnvVarNamePrefix()
     {
-        $this->envNamePrefix = strtoupper(str_replace('-', '_', $this->packageName));
+        $this->envVarNamePrefix = strtoupper(str_replace('-', '_', $this->packageName));
 
         return $this;
     }
 
-    protected function getEnvName(string $name): string
+    protected function getEnvVarName(string $name): string
     {
-        return "{$this->envNamePrefix}_" . strtoupper($name);
+        return "{$this->envVarNamePrefix}_" . strtoupper($name);
     }
 
-    protected function getEnvironment(): string
+    protected function getEnvironmentType(): string
     {
-        if ($this->environment) {
-            return $this->environment;
+        if ($this->environmentType) {
+            return $this->environmentType;
         }
 
-        return getenv($this->getEnvName('environment')) ?: 'dev';
+        return getenv($this->getEnvVarName('environment_type')) ?: 'dev';
+    }
+
+    protected function getEnvironmentName(): string
+    {
+        if ($this->environmentName) {
+            return $this->environmentName;
+        }
+
+        return getenv($this->getEnvVarName('environment_name')) ?: 'local';
     }
 
     protected function getPhpExecutable(): string
     {
-        return getenv($this->getEnvName('php_executable')) ?: PHP_BINARY;
+        return getenv($this->getEnvVarName('php_executable')) ?: PHP_BINARY;
     }
 
     protected function getPhpdbgExecutable(): string
     {
-        return getenv($this->getEnvName('phpdbg_executable')) ?: PHP_BINDIR . '/phpdbg';
+        return getenv($this->getEnvVarName('phpdbg_executable')) ?: Path::join(PHP_BINDIR, 'phpdbg');
     }
 
-    protected function initComposerInfo(): self
+    /**
+     * @return $this
+     */
+    protected function initComposerInfo()
     {
         if ($this->composerInfo || !is_readable('composer.json')) {
             return $this;
@@ -159,7 +198,10 @@ class RoboFile extends \Robo\Tasks
         return $this;
     }
 
-    protected function initCodeceptionInfo(): self
+    /**
+     * @return $this
+     */
+    protected function initCodeceptionInfo()
     {
         if ($this->codeceptionInfo) {
             return $this;
@@ -170,6 +212,7 @@ class RoboFile extends \Robo\Tasks
         } else {
             $this->codeceptionInfo = [
                 'paths' => [
+                    'tests' => 'tests',
                     'log' => 'tests/_output',
                 ],
             ];
@@ -178,17 +221,30 @@ class RoboFile extends \Robo\Tasks
         return $this;
     }
 
-    protected function getTaskCodecept(): CollectionBuilder
+    protected function getTaskCodeceptRunSuites(array $suiteNames = []): CollectionBuilder
     {
-        $environment = $this->getEnvironment();
+        if (!$suiteNames) {
+            $suiteNames = ['all'];
+        }
 
-        $withCoverageHtml = in_array($environment, ['dev', 'git-hook']);
-        $withCoverageSerialized = in_array($environment, ['jenkins', 'travis']);
-        $withCoverageXml = in_array($environment, ['dev', 'jenkins', 'travis']);
-        $withCoverageAny = $withCoverageSerialized || $withCoverageXml || $withCoverageHtml;
+        $cb = $this->collectionBuilder();
+        foreach ($suiteNames as $suiteName) {
+            $cb->addTask($this->getTaskCodeceptRunSuite($suiteName));
+        }
 
-        $withUnitReportHtml = in_array($environment, ['dev', 'git-hook']);
-        $withUnitReportXml = in_array($environment, ['travis', 'jenkins']);
+        return $cb;
+    }
+
+    protected function getTaskCodeceptRunSuite(string $suite): CollectionBuilder
+    {
+        $this->initCodeceptionInfo();
+        $environmentType = $this->getEnvironmentType();
+
+        $withCoverageHtml = in_array($environmentType, ['dev', 'git-hook']);
+        $withCoverageXml = in_array($environmentType, ['ci']);
+
+        $withUnitReportHtml = in_array($environmentType, ['dev', 'git-hook']);
+        $withUnitReportXml = in_array($environmentType, ['ci']);
 
         $logDir = $this->getLogDir();
 
@@ -210,51 +266,84 @@ class RoboFile extends \Robo\Tasks
         $tasks = [];
         if ($withCoverageHtml) {
             $cmdPattern .= ' --coverage-html=%s';
-            $cmdArgs[] = escapeshellarg('coverage/html');
+            $cmdArgs[] = escapeshellarg("human/coverage/$suite/html");
+
+            $tasks['prepareCoverageDir'] = $this
+                ->taskFilesystemStack()
+                ->mkdir("$logDir/human/coverage/$suite");
         }
 
         if ($withCoverageXml) {
             $cmdPattern .= ' --coverage-xml=%s';
-            $cmdArgs[] = escapeshellarg('coverage/coverage.xml');
+            $cmdArgs[] = escapeshellarg("machine/coverage/$suite/coverage.xml");
         }
 
-        if ($withCoverageAny) {
+        if ($withCoverageHtml || $withCoverageXml) {
             $cmdPattern .= ' --coverage=%s';
-            $cmdArgs[] = escapeshellarg('coverage/coverage.serialized');
+            $cmdArgs[] = escapeshellarg("machine/coverage/$suite/coverage.serialized");
 
             $tasks['prepareCoverageDir'] = $this
                 ->taskFilesystemStack()
-                ->mkdir("$logDir/coverage");
+                ->mkdir("$logDir/machine/coverage/$suite");
         }
 
         if ($withUnitReportHtml) {
             $cmdPattern .= ' --html=%s';
-            $cmdArgs[] = escapeshellarg('junit/junit.html');
+            $cmdArgs[] = escapeshellarg("human/junit/junit.$suite.html");
+
+            $tasks['prepareJUnitDir'] = $this
+                ->taskFilesystemStack()
+                ->mkdir("$logDir/human/junit");
         }
 
         if ($withUnitReportXml) {
             $cmdPattern .= ' --xml=%s';
-            $cmdArgs[] = escapeshellarg('junit/junit.xml');
-        }
+            $cmdArgs[] = escapeshellarg("machine/junit/junit.$suite.xml");
 
-        if ($withUnitReportXml || $withUnitReportHtml) {
             $tasks['prepareJUnitDir'] = $this
                 ->taskFilesystemStack()
-                ->mkdir("$logDir/junit");
+                ->mkdir("$logDir/machine/junit");
         }
 
         $cmdPattern .= ' run';
+        if ($suite !== 'all') {
+            $cmdPattern .= ' %s';
+            $cmdArgs[] = escapeshellarg($suite);
+        }
 
-        if ($environment === 'jenkins') {
+        if ($environmentType === 'ci') {
             // Jenkins has to use a post-build action to mark the build "unstable".
             $cmdPattern .= ' || [[ "${?}" == "1" ]]';
         }
 
-        $tasks['runCodeception'] = $this->taskExec(vsprintf($cmdPattern, $cmdArgs));
+        $command = vsprintf($cmdPattern, $cmdArgs);
 
         return $this
             ->collectionBuilder()
-            ->addTaskList($tasks);
+            ->addTaskList($tasks)
+            ->addCode(function () use ($command) {
+                $this->output()->writeln(strtr(
+                    '<question>[{name}]</question> runs <info>{command}</info>',
+                    [
+                        '{name}' => 'Codeception',
+                        '{command}' => $command,
+                    ]
+                ));
+                $process = new Process($command, null, null, null, null);
+                $exitCode = $process->run(function ($type, $data) {
+                    switch ($type) {
+                        case Process::OUT:
+                            $this->output()->write($data);
+                            break;
+
+                        case Process::ERR:
+                            $this->errorOutput()->write($data);
+                            break;
+                    }
+                });
+
+                return $exitCode;
+            });
     }
 
     /**
@@ -262,36 +351,43 @@ class RoboFile extends \Robo\Tasks
      */
     protected function getTaskPhpcsLint()
     {
-        $env = $this->getEnvironment();
-
-        $files = [
-            'src/',
-            'tests/_data/RoboFile.php',
-            'tests/_support/Helper/',
-            'tests/acceptance/',
-            'tests/unit/',
-            'RoboFile.php',
-        ];
+        $environmentType = $this->getEnvironmentType();
+        $environmentName = $this->getEnvironmentName();
 
         $options = [
             'failOn' => 'warning',
-            'standards' => ['PSR2'],
             'lintReporters' => [
                 'lintVerboseReporter' => null,
             ],
         ];
 
-        if ($env === 'jenkins') {
+        if ($environmentType === 'ci') {
             $logDir = $this->getLogDir();
 
-            $options['failOn'] = 'never';
+            if ($environmentName === 'jenkins') {
+                $options['failOn'] = 'never';
+            }
+
             $options['lintReporters']['lintCheckstyleReporter'] = (new CheckstyleReporter())
-                ->setDestination("$logDir/checkstyle/phpcs.psr2.xml");
+                ->setDestination("$logDir/machine/checkstyle/phpcs.psr2.xml");
         }
 
-        if ($env !== 'git-hook') {
-            return $this->taskPhpcsLintFiles($options + ['files' => $files]);
+        if ($this->gitHook !== 'pre-commit') {
+            return $this->taskPhpcsLintFiles($options);
         }
+
+        $files = [
+            'src/',
+            'src-dev/Composer/',
+            'tests/_support/',
+            'tests/acceptance/',
+            'tests/unit/',
+            'RoboFile.php',
+        ];
+
+        $options['ignore'] = [
+            '*.yml',
+        ];
 
         return $this
             ->collectionBuilder()
@@ -331,5 +427,40 @@ class RoboFile extends \Robo\Tasks
         return !empty($this->codeceptionInfo['paths']['log']) ?
             $this->codeceptionInfo['paths']['log']
             : 'tests/_output';
+    }
+
+    protected function getCodeceptionSuiteNames(): array
+    {
+        if (!$this->codeceptionSuiteNames) {
+            $this->initCodeceptionInfo();
+
+            /** @var \Symfony\Component\Finder\Finder $suiteFiles */
+            $suiteFiles = Finder::create()
+                ->in($this->codeceptionInfo['paths']['tests'])
+                ->files()
+                ->name('*.suite.yml')
+                ->depth(0);
+
+            foreach ($suiteFiles as $suiteFile) {
+                $this->codeceptionSuiteNames[] = $suiteFile->getBasename('.suite.yml');
+            }
+        }
+
+        return $this->codeceptionSuiteNames;
+    }
+
+    protected function validateArgCodeceptionSuiteNames(array $suiteNames): void
+    {
+        if (!$suiteNames) {
+            return;
+        }
+
+        $invalidSuiteNames = array_diff($suiteNames, $this->getCodeceptionSuiteNames());
+        if ($invalidSuiteNames) {
+            throw new \InvalidArgumentException(
+                'The following Codeception suite names are invalid: ' . implode(', ', $invalidSuiteNames),
+                1
+            );
+        }
     }
 }

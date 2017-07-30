@@ -2,14 +2,15 @@
 
 namespace Sweetchuck\Robo\ESLint\Tests\Unit;
 
-use Sweetchuck\Robo\ESLint\Task\ESLintRunInput;
+use Codeception\Test\Unit;
 use Codeception\Util\Stub;
-use Helper\Dummy\Output as DummyOutput;
-use Helper\Dummy\Process as DummyProcess;
+use Sweetchuck\Robo\ESLint\Task\ESLintRunInput;
+use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyOutput;
+use Sweetchuck\Robo\ESLint\Test\Helper\Dummy\DummyProcess;
 use Robo\Robo;
-use UnitTester;
+use Symfony\Component\Console\Output\OutputInterface;
 
-class ESLintRunInputTest extends \Codeception\Test\Unit
+class ESLintRunInputTest extends Unit
 {
     protected static function getMethod(string $name): \ReflectionMethod
     {
@@ -21,7 +22,7 @@ class ESLintRunInputTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @var UnitTester
+     * @var \Sweetchuck\Robo\ESLint\Test\UnitTester
      */
     protected $tester;
 
@@ -224,7 +225,11 @@ class ESLintRunInputTest extends \Codeception\Test\Unit
         $container = Robo::createDefaultContainer();
         Robo::setContainer($container);
 
-        $mainStdOutput = new DummyOutput();
+        $outputConfig = [
+            'verbosity' => OutputInterface::VERBOSITY_DEBUG,
+            'colors' => false,
+        ];
+        $mainStdOutput = new DummyOutput($outputConfig);
 
         $properties += ['processClass' => DummyProcess::class];
 

@@ -2,12 +2,13 @@
 
 namespace Sweetchuck\Robo\ESLint\Tests\Unit;
 
-use Sweetchuck\Robo\ESLint\Task\ESLintRunFiles;
 use Codeception\Test\Unit;
 use Codeception\Util\Stub;
-use Helper\Dummy\Output as DummyOutput;
-use Helper\Dummy\Process as DummyProcess;
 use Robo\Robo;
+use Sweetchuck\Robo\ESLint\Task\ESLintRunFiles;
+use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyOutput;
+use Sweetchuck\Robo\ESLint\Test\Helper\Dummy\DummyProcess;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class ESLintRunFilesTest extends Unit
 {
@@ -21,7 +22,7 @@ class ESLintRunFilesTest extends Unit
     }
 
     /**
-     * @var \UnitTester
+     * @var \Sweetchuck\Robo\ESLint\Test\UnitTester
      */
     protected $tester;
 
@@ -490,7 +491,11 @@ class ESLintRunFilesTest extends Unit
         $container = Robo::createDefaultContainer();
         Robo::setContainer($container);
 
-        $mainStdOutput = new DummyOutput();
+        $outputConfig = [
+            'verbosity' => OutputInterface::VERBOSITY_DEBUG,
+            'colors' => false,
+        ];
+        $mainStdOutput = new DummyOutput($outputConfig);
 
         $options = [
             'workingDirectory' => 'my-working-dir',

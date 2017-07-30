@@ -1,6 +1,9 @@
 <?php
 
-use \PHPUnit_Framework_Assert as Assert;
+namespace Sweetchuck\Robo\ESLint\Test;
+
+use \PHPUnit\Framework\Assert;
+use Symfony\Component\Finder\Finder;
 
 /**
  * Inherited Methods
@@ -28,9 +31,12 @@ class AcceptanceTester extends \Codeception\Actor
     {
         $reportsDir = codecept_data_dir('actual');
         if (is_dir($reportsDir)) {
-            $finder = new \Symfony\Component\Finder\Finder();
-            $finder->in($reportsDir);
-            foreach ($finder->files() as $file) {
+            $finder = (new Finder())
+                ->in($reportsDir)
+                ->files();
+
+            /** @var \Symfony\Component\Finder\SplFileInfo $file */
+            foreach ($finder as $file) {
                 unlink($file->getPathname());
             }
         }
@@ -41,36 +47,8 @@ class AcceptanceTester extends \Codeception\Actor
     /**
      * @return $this
      */
-    public function runRoboTask(string $taskName, array $args = [], array $options = [])
+    public function haveAFileLikeThis(string $fileName)
     {
-        $cmdPattern = 'cd %s && ../../bin/robo %s';
-        $cmdArgs = [
-            escapeshellarg(codecept_data_dir()),
-            escapeshellarg($taskName),
-        ];
-
-        foreach ($options as $option => $value) {
-            $cmdPattern .= " --$option";
-            if ($value !== null) {
-                $cmdPattern .= '=%s';
-                $cmdArgs[] = escapeshellarg($value);
-            }
-        }
-
-        $cmdPattern .= str_repeat(' %s', count($args));
-        foreach ($args as $arg) {
-            $cmdArgs[] = escapeshellarg($arg);
-        }
-
-        $this->runShellCommand(vsprintf($cmdPattern, $cmdArgs));
-
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
-    public function haveAFileLikeThis(string $fileName) {
         $expectedDir = codecept_data_dir('expected');
         $actualDir = codecept_data_dir('actual');
 
@@ -90,39 +68,9 @@ class AcceptanceTester extends \Codeception\Actor
         $fileName = codecept_data_dir($fileName);
         $doc = new \DOMDocument();
         $doc->loadXML(file_get_contents($fileName));
-        $xpath = new DOMXPath($doc);
+        $xpath = new \DOMXPath($doc);
         $rootElement = $xpath->query('/checkstyle');
         Assert::assertEquals(1, $rootElement->length, 'Root element of the Checkstyle XML is exists.');
-
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
-    public function seeThisTextInTheStdOutput(string $expected)
-    {
-        Assert::assertContains($expected, $this->getStdOutput());
-
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
-    public function seeThisTextInTheStdError(string $expected)
-    {
-        Assert::assertContains($expected, $this->getStdError());
-
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
-    public function expectTheExitCodeToBe(string $expected)
-    {
-        Assert::assertEquals($expected, $this->getExitCode());
 
         return $this;
     }

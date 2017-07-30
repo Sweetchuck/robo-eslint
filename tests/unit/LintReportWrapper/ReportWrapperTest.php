@@ -1,13 +1,13 @@
 <?php
 
-namespace Sweetchuck\Robo\ESLint\Tests\Unit;
+namespace Sweetchuck\Robo\ESLint\Tests\Unit\LintReportWrapper;
 
 use Sweetchuck\Robo\ESLint\LintReportWrapper\ReportWrapper;
 
 class ReportWrapperTest extends \Codeception\Test\Unit
 {
     /**
-     * @var \UnitTester
+     * @var \Sweetchuck\Robo\ESLint\Test\UnitTester
      */
     protected $tester;
 

@@ -2,5 +2,6 @@
 class_name: AcceptanceTester
 modules:
     enabled:
-        - \Helper\Module\Cli
-        - \Helper\Acceptance
+        - Asserts
+        - \Sweetchuck\Codeception\Module\RoboTaskRunner\RoboTaskRunner
+        - \Sweetchuck\Robo\ESLint\Test\Helper\Acceptance

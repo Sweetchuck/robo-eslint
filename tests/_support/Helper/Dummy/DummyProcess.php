@@ -1,8 +1,10 @@
 <?php
 
-namespace Helper\Dummy;
+namespace Sweetchuck\Robo\ESLint\Test\Helper\Dummy;
 
-class Process extends \Symfony\Component\Process\Process
+use Symfony\Component\Process\Process;
+
+class DummyProcess extends Process
 {
 
     /**
@@ -11,7 +13,7 @@ class Process extends \Symfony\Component\Process\Process
     public static $prophecy = [];
 
     /**
-     * @var \Helper\Dummy\Process[]
+     * @var static[]
      */
     public static $instances = null;
 

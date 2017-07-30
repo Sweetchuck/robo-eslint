@@ -1,15 +1,9 @@
 <?php
 
-namespace Helper;
+namespace Sweetchuck\Robo\ESLint\Test\Helper;
 
 use Codeception\Module;
 
-/**
- * Class Unit.
- *
- * @package Helper
- */
 class Acceptance extends Module
 {
-
 }
