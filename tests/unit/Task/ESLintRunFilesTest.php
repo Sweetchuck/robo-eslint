@@ -2,12 +2,12 @@
 
 namespace Sweetchuck\Robo\ESLint\Tests\Unit;
 
-use Sweetchuck\Robo\ESLint\Task\ESLintRunFiles;
 use Codeception\Test\Unit;
 use Codeception\Util\Stub;
-use Helper\Dummy\Output as DummyOutput;
-use Helper\Dummy\Process as DummyProcess;
 use Robo\Robo;
+use Sweetchuck\Robo\ESLint\Task\ESLintRunFiles;
+use Sweetchuck\Robo\ESLint\Test\Helper\Dummy\DummyOutput;
+use Sweetchuck\Robo\ESLint\Test\Helper\Dummy\DummyProcess;
 
 class ESLintRunFilesTest extends Unit
 {
@@ -21,7 +21,7 @@ class ESLintRunFilesTest extends Unit
     }
 
     /**
-     * @var \UnitTester
+     * @var \Sweetchuck\Robo\ESLint\Test\UnitTester
      */
     protected $tester;
 

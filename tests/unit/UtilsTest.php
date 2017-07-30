@@ -8,7 +8,7 @@ use Codeception\Test\Unit;
 class UtilsTest extends Unit
 {
     /**
-     * @var \UnitTester
+     * @var \Sweetchuck\Robo\ESLint\Test\UnitTester
      */
     protected $tester;
 

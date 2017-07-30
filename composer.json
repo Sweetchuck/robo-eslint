@@ -14,11 +14,12 @@
         "symfony/process": "^2.8 || ^3.1"
     },
     "require-dev": {
+        "codeception/codeception": "^2.2",
         "sweetchuck/git-hooks": "^0.0",
         "sweetchuck/lint-report": "^0.0",
         "sweetchuck/robo-git": "^0.0",
         "sweetchuck/robo-phpcs": "^0.0",
-        "codeception/codeception": "^2.2"
+        "webmozart/path-util": "^2.3"
     },
     "autoload": {
         "psr-4": {

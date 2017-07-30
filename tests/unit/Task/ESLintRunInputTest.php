@@ -2,14 +2,14 @@
 
 namespace Sweetchuck\Robo\ESLint\Tests\Unit;
 
-use Sweetchuck\Robo\ESLint\Task\ESLintRunInput;
+use Codeception\Test\Unit;
 use Codeception\Util\Stub;
-use Helper\Dummy\Output as DummyOutput;
-use Helper\Dummy\Process as DummyProcess;
+use Sweetchuck\Robo\ESLint\Task\ESLintRunInput;
+use Sweetchuck\Robo\ESLint\Test\Helper\Dummy\DummyOutput as DummyOutput;
+use Sweetchuck\Robo\ESLint\Test\Helper\Dummy\DummyProcess as DummyProcess;
 use Robo\Robo;
-use UnitTester;
 
-class ESLintRunInputTest extends \Codeception\Test\Unit
+class ESLintRunInputTest extends Unit
 {
     protected static function getMethod(string $name): \ReflectionMethod
     {
@@ -21,7 +21,7 @@ class ESLintRunInputTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @var UnitTester
+     * @var \Sweetchuck\Robo\ESLint\Test\UnitTester
      */
     protected $tester;
 

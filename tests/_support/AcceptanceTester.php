@@ -1,6 +1,8 @@
 <?php
 
-use \PHPUnit_Framework_Assert as Assert;
+namespace Sweetchuck\Robo\ESLint\Test;
+
+use \PHPUnit\Framework\Assert;
 
 /**
  * Inherited Methods
@@ -70,7 +72,8 @@ class AcceptanceTester extends \Codeception\Actor
     /**
      * @return $this
      */
-    public function haveAFileLikeThis(string $fileName) {
+    public function haveAFileLikeThis(string $fileName)
+    {
         $expectedDir = codecept_data_dir('expected');
         $actualDir = codecept_data_dir('actual');
 
@@ -90,7 +93,7 @@ class AcceptanceTester extends \Codeception\Actor
         $fileName = codecept_data_dir($fileName);
         $doc = new \DOMDocument();
         $doc->loadXML(file_get_contents($fileName));
-        $xpath = new DOMXPath($doc);
+        $xpath = new \DOMXPath($doc);
         $rootElement = $xpath->query('/checkstyle');
         Assert::assertEquals(1, $rootElement->length, 'Root element of the Checkstyle XML is exists.');
 

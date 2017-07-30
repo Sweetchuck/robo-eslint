@@ -145,7 +145,7 @@ abstract class ESLintRun extends BaseTask implements
         'rulesDir' => 'rulesdir',
     ];
 
-    //region Options - Not supported.
+    // region Options - Not supported.
     /**
      * @todo
      *
@@ -187,11 +187,11 @@ abstract class ESLintRun extends BaseTask implements
      * @var mixed
      */
     protected $rule = null;
-    //endregion
+    // endregion
 
-    //region Options.
+    // region Options.
 
-    //region Option - cache.
+    // region Option - cache.
     /**
      * Only check changed files - default: false.
      *
@@ -213,9 +213,9 @@ abstract class ESLintRun extends BaseTask implements
 
         return $this;
     }
-    //endregion
+    // endregion
 
-    //region Option - cacheLocation.
+    // region Option - cacheLocation.
     /**
      * Path to the cache file or directory.
      *
@@ -237,9 +237,9 @@ abstract class ESLintRun extends BaseTask implements
 
         return $this;
     }
-    //endregion
+    // endregion
 
-    //region Option - color.
+    // region Option - color.
     /**
      * @var bool|null
      */
@@ -262,9 +262,9 @@ abstract class ESLintRun extends BaseTask implements
 
         return $this;
     }
-    //endregion
+    // endregion
 
-    //region Option - configFile.
+    // region Option - configFile.
     /**
      * @var string
      */
@@ -289,7 +289,7 @@ abstract class ESLintRun extends BaseTask implements
 
         return $this;
     }
-    //endregion
+    // endregion
 
     // region Option - assetNamePrefix.
     /**
@@ -313,7 +313,7 @@ abstract class ESLintRun extends BaseTask implements
     }
     // endregion
 
-    //region Option - eslintExecutable.
+    // region Option - eslintExecutable.
     /**
      * @var string
      */
@@ -335,9 +335,9 @@ abstract class ESLintRun extends BaseTask implements
 
         return $this;
     }
-    //endregion
+    // endregion
 
-    //region Option - ext.
+    // region Option - ext.
     /**
      * Specify JavaScript file extensions.
      *
@@ -379,9 +379,9 @@ abstract class ESLintRun extends BaseTask implements
 
         return $this;
     }
-    //endregion
+    // endregion
 
-    //region Option - failOn.
+    // region Option - failOn.
     /**
      * Severity level.
      *
@@ -408,9 +408,9 @@ abstract class ESLintRun extends BaseTask implements
 
         return $this;
     }
-    //endregion
+    // endregion
 
-    //region Option - format
+    // region Option - format
     /**
      * @var string
      */
@@ -432,9 +432,9 @@ abstract class ESLintRun extends BaseTask implements
 
         return $this;
     }
-    //endregion
+    // endregion
 
-    //region Option - ignorePath.
+    // region Option - ignorePath.
     /**
      * @var string
      */
@@ -454,9 +454,9 @@ abstract class ESLintRun extends BaseTask implements
 
         return $this;
     }
-    //endregion
+    // endregion
 
-    //region Option - ignorePattern.
+    // region Option - ignorePattern.
     /**
      * @var null|string
      */
@@ -476,9 +476,9 @@ abstract class ESLintRun extends BaseTask implements
 
         return $this;
     }
-    //endregion
+    // endregion
 
-    //region Option - lintReporters.
+    // region Option - lintReporters.
     /**
      * @var \Sweetchuck\LintReport\ReporterInterface[]
      */
@@ -526,9 +526,9 @@ abstract class ESLintRun extends BaseTask implements
 
         return $this;
     }
-    //endregion
+    // endregion
 
-    //region Option - maxWarnings.
+    // region Option - maxWarnings.
     /**
      * @var null|int
      */
@@ -548,9 +548,9 @@ abstract class ESLintRun extends BaseTask implements
 
         return $this;
     }
-    //endregion
+    // endregion
 
-    //region Option - noEslintRc.
+    // region Option - noEslintRc.
     /**
      * @var bool
      */
@@ -570,9 +570,9 @@ abstract class ESLintRun extends BaseTask implements
 
         return $this;
     }
-    //endregion
+    // endregion
 
-    //region Option - noIgnore.
+    // region Option - noIgnore.
     /**
      * @var bool
      */
@@ -592,9 +592,9 @@ abstract class ESLintRun extends BaseTask implements
 
         return $this;
     }
-    //endregion
+    // endregion
 
-    //region Option - noInlineConfig.
+    // region Option - noInlineConfig.
     /**
      * @var bool
      */
@@ -614,9 +614,9 @@ abstract class ESLintRun extends BaseTask implements
 
         return $this;
     }
-    //endregion
+    // endregion
 
-    //region Option - files.
+    // region Option - files.
     /**
      * Files to check.
      *
@@ -646,9 +646,9 @@ abstract class ESLintRun extends BaseTask implements
 
         return $this;
     }
-    //endregion
+    // endregion
 
-    //region Option - outputFile.
+    // region Option - outputFile.
     /**
      * @var string
      */
@@ -684,9 +684,9 @@ abstract class ESLintRun extends BaseTask implements
 
         return $this;
     }
-    //endregion
+    // endregion
 
-    //region Option - quiet.
+    // region Option - quiet.
     /**
      * @var bool
      */
@@ -706,9 +706,9 @@ abstract class ESLintRun extends BaseTask implements
 
         return $this;
     }
-    //endregion
+    // endregion
 
-    //region Option - rulesDir.
+    // region Option - rulesDir.
     /**
      *  An additional rules directory, for user-created rules.
      *
@@ -750,9 +750,9 @@ abstract class ESLintRun extends BaseTask implements
 
         return $this;
     }
-    //endregion
+    // endregion
 
-    //region Option - workingDirectory.
+    // region Option - workingDirectory.
     /**
      * Directory to step in before run the `eslint`.
      *
@@ -776,9 +776,9 @@ abstract class ESLintRun extends BaseTask implements
 
         return $this;
     }
-    //endregion
+    // endregion
 
-    //endregion
+    // endregion
 
     public function __construct(array $options = [])
     {

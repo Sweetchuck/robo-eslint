@@ -6,7 +6,7 @@ use Sweetchuck\Robo\ESLint\Utils;
 
 class ESLintRunInput extends ESLintRun
 {
-    //region Properties
+    // region Properties
     /**
      * {@inheritdoc}
      */
@@ -19,9 +19,9 @@ class ESLintRunInput extends ESLintRun
         'fileName' => '',
         'content' => '',
     ];
-    //endregion
+    // endregion
 
-    //region Option - stdinFilename.
+    // region Option - stdinFilename.
     /**
      * @var string
      */
@@ -41,7 +41,7 @@ class ESLintRunInput extends ESLintRun
 
         return $this;
     }
-    //endregion
+    // endregion
 
     /**
      * {@inheritdoc}
