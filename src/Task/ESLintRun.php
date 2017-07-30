@@ -2,8 +2,6 @@
 
 namespace Sweetchuck\Robo\ESLint\Task;
 
-use Sweetchuck\AssetJar\AssetJarAware;
-use Sweetchuck\AssetJar\AssetJarAwareInterface;
 use Sweetchuck\LintReport\ReporterInterface;
 use Sweetchuck\Robo\ESLint\LintReportWrapper\ReportWrapper;
 use Sweetchuck\Robo\ESLint\Utils;
@@ -16,12 +14,10 @@ use Robo\Task\BaseTask;
 use Symfony\Component\Process\Process;
 
 abstract class ESLintRun extends BaseTask implements
-    AssetJarAwareInterface,
     ContainerAwareInterface,
     OutputAwareInterface
 {
 
-    use AssetJarAware;
     use ContainerAwareTrait;
     use IO;
 
@@ -111,6 +107,13 @@ abstract class ESLintRun extends BaseTask implements
      * @var \Sweetchuck\LintReport\ReportWrapperInterface
      */
     protected $reportWrapper = null;
+
+    /**
+     * @var array
+     */
+    protected $assets = [
+        'report' => null,
+    ];
 
     protected $triStateOptions = [
         'color' => 'color',
@@ -287,6 +290,28 @@ abstract class ESLintRun extends BaseTask implements
         return $this;
     }
     //endregion
+
+    // region Option - assetNamePrefix.
+    /**
+     * @var string
+     */
+    protected $assetNamePrefix = '';
+
+    public function getAssetNamePrefix(): string
+    {
+        return $this->assetNamePrefix;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setAssetNamePrefix(string $value)
+    {
+        $this->assetNamePrefix = $value;
+
+        return $this;
+    }
+    // endregion
 
     //region Option - eslintExecutable.
     /**
@@ -773,12 +798,8 @@ abstract class ESLintRun extends BaseTask implements
                     $this->setEslintExecutable($value);
                     break;
 
-                case 'assetJar':
-                    $this->setAssetJar($value);
-                    break;
-
-                case 'assetJarMapping':
-                    $this->setAssetJarMapping($value);
+                case 'assetNamePrefix':
+                    $this->setAssetNamePrefix($value);
                     break;
 
                 case 'workingDirectory':
@@ -974,14 +995,8 @@ abstract class ESLintRun extends BaseTask implements
      */
     protected function runReleaseAssets()
     {
-        if ($this->hasAssetJar() && $this->isLintSuccess()) {
-            if ($this->getAssetJarMap('report')) {
-                $this->setAssetJarValue('report', $this->reportWrapper);
-            }
-
-            if ($this->getAssetJarMap('workingDirectory')) {
-                $this->setAssetJarValue('workingDirectory', $this->getWorkingDirectory());
-            }
+        if ($this->isLintSuccess()) {
+            $this->assets['report'] = $this->reportWrapper;
         }
 
         return $this;
@@ -1006,11 +1021,23 @@ abstract class ESLintRun extends BaseTask implements
             $this,
             $exitCode,
             (string) $this->getExitMessage($exitCode),
-            [
-                'report' => $this->reportWrapper,
-                'workingDirectory' => $this->getWorkingDirectory(),
-            ]
+            $this->getAssetsWithPrefixedNames()
         );
+    }
+
+    protected function getAssetsWithPrefixedNames(): array
+    {
+        $prefix = $this->getAssetNamePrefix();
+        if (!$prefix) {
+            return $this->assets;
+        }
+
+        $data = [];
+        foreach ($this->assets as $key => $value) {
+            $data["{$prefix}{$key}"] = $value;
+        }
+
+        return $data;
     }
 
     /**

@@ -65,29 +65,14 @@ class RunRoboTasksCest
      *
      * @link https://github.com/Sweetchuck/robo-eslint/issues/6
      */
-    protected function lintInputWithoutJarTaskCommandOnlyFalse(AcceptanceTester $i): void
+    protected function lintInputTaskCommandOnlyFalse(AcceptanceTester $i): void
     {
-        $this->runLintInput($i, 'lint:input-without-jar');
+        $this->runLintInput($i, 'lint:input');
     }
 
-    public function runLintInputWithoutJarTaskCommandOnlyTrue(AcceptanceTester $i): void
+    public function runLintInputTaskCommandOnlyTrue(AcceptanceTester $i): void
     {
-        $this->runLintInput($i, 'lint:input-without-jar', [], ['command-only' => null]);
-    }
-
-    /**
-     * This test is ignored.
-     *
-     * @link https://github.com/Sweetchuck/robo-eslint/issues/6
-     */
-    protected function lintInputWithJarTaskCommandOnlyFalse(AcceptanceTester $i): void
-    {
-        $this->runLintInput($i, 'lint:input-with-jar');
-    }
-
-    public function runLintInputWithJarTaskCommandOnlyTrue(AcceptanceTester $i): void
-    {
-        $this->runLintInput($i, 'lint:input-with-jar', [], ['command-only' => null]);
+        $this->runLintInput($i, 'lint:input', [], ['command-only' => null]);
     }
 
     protected function runLintInput(AcceptanceTester $i, string $roboTaskName, array $args = [], array $options = [])

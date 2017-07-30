@@ -1,6 +1,5 @@
 <?php
 
-use Sweetchuck\AssetJar\AssetJar;
 use Sweetchuck\LintReport\Reporter\BaseReporter;
 use Sweetchuck\LintReport\Reporter\SummaryReporter;
 use Sweetchuck\LintReport\Reporter\VerboseReporter;
@@ -32,7 +31,7 @@ class RoboFile extends \Robo\Tasks implements ConfigAwareInterface
     }
 
     /**
-     * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunFiles
+     * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunFiles|\Robo\Collection\CollectionBuilder
      */
     public function lintStylishStdOutput()
     {
@@ -42,7 +41,7 @@ class RoboFile extends \Robo\Tasks implements ConfigAwareInterface
     }
 
     /**
-     * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunFiles
+     * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunFiles|\Robo\Collection\CollectionBuilder
      */
     public function lintStylishFile()
     {
@@ -53,7 +52,7 @@ class RoboFile extends \Robo\Tasks implements ConfigAwareInterface
     }
 
     /**
-     * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunFiles
+     * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunFiles|\Robo\Collection\CollectionBuilder
      */
     public function lintAllInOne()
     {
@@ -75,9 +74,9 @@ class RoboFile extends \Robo\Tasks implements ConfigAwareInterface
     }
 
     /**
-     * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunInput
+     * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunInput|\Robo\Collection\CollectionBuilder
      */
-    public function lintInputWithoutJar(
+    public function lintInput(
         $options = [
             'command-only' => false,
         ]
@@ -112,26 +111,5 @@ class RoboFile extends \Robo\Tasks implements ConfigAwareInterface
             ->addLintReporter('verbose:file', $verboseFile)
             ->addLintReporter('summary:StdOutput', 'lintSummaryReporter')
             ->addLintReporter('summary:file', $summaryFile);
-    }
-
-    /**
-     * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunInput
-     */
-    public function lintInputWithJar(
-        $options = [
-            'command-only' => false,
-        ]
-    ) {
-        $task = $this->lintInputWithoutJar($options);
-        $assetJar = new AssetJar([
-            'l1' => [
-                'l2' => $task->getFiles(),
-            ],
-        ]);
-
-        return $task
-            ->setFiles([])
-            ->setAssetJar($assetJar)
-            ->setAssetJarMap('files', ['l1', 'l2']);
     }
 }

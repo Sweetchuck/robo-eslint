@@ -10,7 +10,6 @@
     "prefer-stable": true,
     "require": {
         "php": ">=7.1",
-        "sweetchuck/asset-jar": "^0.0",
         "consolidation/robo": "^1.0",
         "symfony/process": "^2.8 || ^3.1"
     },

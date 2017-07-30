@@ -8,8 +8,7 @@ use Robo\Contract\OutputAwareInterface;
 trait ESLintTaskLoader
 {
     /**
-     * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunFiles
-     *   A lint runner task instance.
+     * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunFiles|\Robo\Collection\CollectionBuilder
      */
     protected function taskESLintRunFiles(array $options = [])
     {
@@ -27,7 +26,7 @@ trait ESLintTaskLoader
     }
 
     /**
-     * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunInput
+     * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunInput|\Robo\Collection\CollectionBuilder
      */
     protected function taskESLintRunInput(array $options = [])
     {
