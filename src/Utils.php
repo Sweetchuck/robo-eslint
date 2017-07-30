@@ -4,6 +4,11 @@ namespace Sweetchuck\Robo\ESLint;
 
 class Utils
 {
+    /**
+     * @todo Use webmozart/path-utils
+     *
+     * @deprecated Use webmozart/path-utils
+     */
     public static function isAbsolutePath(string $path): bool
     {
         return strpos($path, DIRECTORY_SEPARATOR) === 0;

@@ -93,7 +93,7 @@ class ESLintRunInput extends ESLintRun
     protected function runLint()
     {
         $reports = [];
-        $files = $this->getJarValueOrLocal('files');
+        $files = $this->getFiles();
         $backupFailOn = $this->getFailOn();
 
         $this->setFailOn('never');
@@ -148,26 +148,5 @@ class ESLintRunInput extends ESLintRun
             'stdin' => true,
             'stdinFilename' => $this->currentFile['fileName'] ?: $this->getStdinFilename(),
         ] + parent::getCommandOptions();
-    }
-
-    /**
-     * @return null|mixed
-     */
-    protected function getJarValueOrLocal(string $itemName)
-    {
-        $map = $this->getAssetJarMap($itemName);
-        if ($map) {
-            $value = $this->getAssetJarValue($itemName, $keyExists);
-            if ($keyExists) {
-                return $value;
-            }
-        }
-
-        switch ($itemName) {
-            case 'files':
-                return $this->getFiles();
-        }
-
-        return null;
     }
 }

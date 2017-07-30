@@ -2,7 +2,6 @@
 
 namespace Sweetchuck\Robo\ESLint\Tests\Unit;
 
-use Sweetchuck\AssetJar\AssetJar;
 use Sweetchuck\Robo\ESLint\Task\ESLintRunFiles;
 use Codeception\Test\Unit;
 use Codeception\Util\Stub;
@@ -434,12 +433,11 @@ class ESLintRunFilesTest extends Unit
     public function casesRun(): array
     {
         return [
-            'withoutJar - success' => [
+            'success' => [
                 0,
                 [],
-                false,
             ],
-            'withoutJar - warning' => [
+            'warning' => [
                 1,
                 [
                     [
@@ -458,9 +456,8 @@ class ESLintRunFilesTest extends Unit
                         'warningCount' => 1,
                     ]
                 ],
-                false,
             ],
-            'withoutJar - error' => [
+            'error' => [
                 2,
                 [
                     [
@@ -479,54 +476,6 @@ class ESLintRunFilesTest extends Unit
                         'warningCount' => 0,
                     ]
                 ],
-                false,
-            ],
-            'withJar - success' => [
-                0,
-                [],
-                true,
-            ],
-            'withJar - warning' => [
-                1,
-                [
-                    [
-                        'filePath' => 'a.js',
-                        'messages' => [
-                            [
-                                'ruleId' => 'r1',
-                                'severity' => 1,
-                                'message' => 'm1',
-                                'column' => 'c1',
-                                'nodeType' => 'nt1',
-                                'source' => 's1',
-                            ],
-                        ],
-                        'errorCount' => 0,
-                        'warningCount' => 1,
-                    ]
-                ],
-                true,
-            ],
-            'withJar - error' => [
-                2,
-                [
-                    [
-                        'filePath' => 'a.js',
-                        'messages' => [
-                            [
-                                'ruleId' => 'r1',
-                                'severity' => 2,
-                                'message' => 'm1',
-                                'column' => 'c1',
-                                'nodeType' => 'nt1',
-                                'source' => 's1',
-                            ],
-                        ],
-                        'errorCount' => 1,
-                        'warningCount' => 0,
-                    ]
-                ],
-                true,
             ],
         ];
     }
@@ -536,7 +485,7 @@ class ESLintRunFilesTest extends Unit
      *
      * @dataProvider casesRun
      */
-    public function testRun(int $expectedExitCode, array $expectedReport, bool $withJar): void
+    public function testRun(int $expectedExitCode, array $expectedReport): void
     {
         $container = Robo::createDefaultContainer();
         Robo::setContainer($container);
@@ -545,7 +494,6 @@ class ESLintRunFilesTest extends Unit
 
         $options = [
             'workingDirectory' => 'my-working-dir',
-            'assetJarMapping' => ['report' => ['ESLintRun', 'report']],
             'format' => 'json',
             'failOn' => 'warning',
         ];
@@ -568,31 +516,25 @@ class ESLintRunFilesTest extends Unit
         $task->setLogger($container->get('logger'));
         $task->setOutput($mainStdOutput);
 
-        $assetJar = null;
-        if ($withJar) {
-            $assetJar = new AssetJar();
-            $task->setAssetJar($assetJar);
-        }
-
         $result = $task->run();
 
         $this->tester->assertEquals($expectedExitCode, $result->getExitCode(), 'Exit code');
 
-        if ($withJar) {
-            /** @var \Sweetchuck\Robo\ESLint\LintReportWrapper\ReportWrapper $reportWrapper */
-            $reportWrapper = $assetJar->getValue(['ESLintRun', 'report']);
-            $this->tester->assertEquals(
-                $expectedReport,
-                $reportWrapper->getReport(),
-                'Output equals with jar'
-            );
-        } else {
-            $this->tester->assertEquals(
-                $expectedReport,
-                json_decode($mainStdOutput->output, true),
-                'Output equals without jar'
-            );
-        }
+        $assetNamePrefix = $options['assetNamePrefix'] ?? '';
+
+        /** @var \Sweetchuck\LintReport\ReportWrapperInterface $reportWrapper */
+        $reportWrapper = $result["{$assetNamePrefix}report"];
+        $this->tester->assertEquals(
+            $expectedReport,
+            $reportWrapper->getReport(),
+            'Output equals with jar'
+        );
+
+        $this->tester->assertEquals(
+            $expectedReport,
+            json_decode($mainStdOutput->output, true),
+            'Output equals without jar'
+        );
     }
 
     public function testRunFailed(): void
@@ -621,7 +563,6 @@ class ESLintRunFilesTest extends Unit
         $reportJson = json_encode($report);
         $options = [
             'workingDirectory' => 'my-working-dir',
-            'assetJarMapping' => ['report' => ['ESLintRun', 'report']],
             'format' => 'json',
             'failOn' => 'warning',
         ];
@@ -642,15 +583,15 @@ class ESLintRunFilesTest extends Unit
         ];
 
         $task->setLogger($container->get('logger'));
-        $assetJar = new AssetJar();
-        $task->setAssetJar($assetJar);
 
         $result = $task->run();
 
         $this->tester->assertEquals($exitCode, $result->getExitCode());
 
+        $assetNamePrefix = $options['assetNamePrefix'] ?? '';
+
         /** @var \Sweetchuck\Robo\ESLint\LintReportWrapper\ReportWrapper $reportWrapper */
-        $reportWrapper = $assetJar->getValue(['ESLintRun', 'report']);
+        $reportWrapper = $result["{$assetNamePrefix}report"];
         $this->tester->assertEquals($report, $reportWrapper->getReport());
     }
 }

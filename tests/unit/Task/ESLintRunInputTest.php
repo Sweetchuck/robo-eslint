@@ -2,7 +2,6 @@
 
 namespace Sweetchuck\Robo\ESLint\Tests\Unit;
 
-use Sweetchuck\AssetJar\AssetJar;
 use Sweetchuck\Robo\ESLint\Task\ESLintRunInput;
 use Codeception\Util\Stub;
 use Helper\Dummy\Output as DummyOutput;
@@ -115,7 +114,6 @@ class ESLintRunInputTest extends \Codeception\Test\Unit
                 'files',
                 [
                     'files' => ['a.js', 'b.js'],
-                    'assetJarMapping' => ['files' => ['l1', 'l2']],
                 ],
                 [
                     'l1' => [
@@ -128,7 +126,6 @@ class ESLintRunInputTest extends \Codeception\Test\Unit
                 'non-exists',
                 [
                     'files' => ['a.js', 'b.js'],
-                    'assetJarMapping' => ['files' => ['l1', 'l2']],
                 ],
                 [
                     'l1' => [
@@ -137,29 +134,6 @@ class ESLintRunInputTest extends \Codeception\Test\Unit
                 ],
             ],
         ];
-    }
-
-    /**
-     * @dataProvider casesGetJarValueOrLocal
-     */
-    public function testGetJarValueOrLocal(
-        $expected,
-        string $itemName,
-        array $options,
-        array $jarValue
-    ): void {
-        /** @var \Sweetchuck\Robo\ESLint\Task\ESLintRunInput $task */
-        $task = Stub::construct(
-            ESLintRunInput::class,
-            [$options],
-            []
-        );
-        $task->setAssetJar(new AssetJar($jarValue));
-
-        $this->tester->assertEquals(
-            $expected,
-            static::getMethod('getJarValueOrLocal')->invoke($task, $itemName)
-        );
     }
 
     public function casesRun(): array
