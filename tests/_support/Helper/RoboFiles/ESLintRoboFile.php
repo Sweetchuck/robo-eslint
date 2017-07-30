@@ -1,17 +1,20 @@
 <?php
 
+namespace Sweetchuck\Robo\ESLint\Test\Helper\RoboFiles;
+
+use League\Container\ContainerInterface;
+use Robo\Common\ConfigAwareTrait;
+use Robo\Contract\ConfigAwareInterface;
+use Robo\Tasks;
 use Sweetchuck\LintReport\Reporter\BaseReporter;
 use Sweetchuck\LintReport\Reporter\SummaryReporter;
 use Sweetchuck\LintReport\Reporter\VerboseReporter;
-use League\Container\ContainerInterface;
-use Robo\Contract\ConfigAwareInterface;
+use Sweetchuck\Robo\ESLint\ESLintTaskLoader;
 
-// @codingStandardsIgnoreStart
-class RoboFile extends \Robo\Tasks implements ConfigAwareInterface
+class ESLintRoboFile extends Tasks implements ConfigAwareInterface
 {
-    // @codingStandardsIgnoreEnd
-    use \Sweetchuck\Robo\ESLint\ESLintTaskLoader;
-    use \Robo\Common\ConfigAwareTrait;
+    use ESLintTaskLoader;
+    use ConfigAwareTrait;
 
     /**
      * @var string

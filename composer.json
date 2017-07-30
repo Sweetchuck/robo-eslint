@@ -15,6 +15,7 @@
     },
     "require-dev": {
         "codeception/codeception": "^2.2",
+        "sweetchuck/codeception-module-robo-task-runner": "^0.0.1",
         "sweetchuck/git-hooks": "^0.0",
         "sweetchuck/lint-report": "^0.0",
         "sweetchuck/robo-git": "^0.0",

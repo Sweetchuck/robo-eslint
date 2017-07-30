@@ -3,6 +3,7 @@
 namespace Sweetchuck\Robo\ESLint\Tests\Acceptance;
 
 use Sweetchuck\Robo\ESLint\Test\AcceptanceTester;
+use Sweetchuck\Robo\ESLint\Test\Helper\RoboFiles\ESLintRoboFile;
 
 class RunRoboTasksCest
 {
@@ -25,83 +26,95 @@ class RunRoboTasksCest
 
     public function lintAllInOneTask(AcceptanceTester $i): void
     {
-        $roboTaskName = 'lint:all-in-one';
+        $id = __METHOD__;
+        $this->runRoboTask(
+            $i,
+            $id,
+            ESLintRoboFile::class,
+            'lint:all-in-one'
+        );
 
-        $i->wantTo("Run Robo task '<comment>$roboTaskName</comment>'.");
-        $i->clearTheReportsDir();
-        $i->runRoboTask($roboTaskName);
-        $i->expectTheExitCodeToBe(2);
-        $i->seeThisTextInTheStdOutput(file_get_contents("{$this->expectedDir}/extra.verbose.txt"));
-        $i->seeThisTextInTheStdOutput(file_get_contents("{$this->expectedDir}/extra.summary.txt"));
+        $exitCode = $i->getRoboTaskExitCode($id);
+        $stdOutput = $i->getRoboTaskStdOutput($id);
+        $stdError = $i->getRoboTaskStdError($id);
+
+        $i->assertEquals(2, $exitCode);
+        $i->assertContains(file_get_contents("{$this->expectedDir}/extra.verbose.txt"), $stdOutput);
+        $i->assertContains(file_get_contents("{$this->expectedDir}/extra.summary.txt"), $stdOutput);
+        $i->assertContains('One or more errors were reported (and any number of warnings)', $stdError);
         $i->haveAFileLikeThis('extra.verbose.txt');
         $i->haveAFileLikeThis('extra.summary.txt');
-        $i->seeThisTextInTheStdError('One or more errors were reported (and any number of warnings)');
     }
 
     public function lintStylishFileTask(AcceptanceTester $i): void
     {
-        $roboTaskName = 'lint:stylish-file';
+        $id = __METHOD__;
+        $this->runRoboTask(
+            $i,
+            $id,
+            ESLintRoboFile::class,
+            'lint:stylish-file'
+        );
 
-        $i->wantTo("Run Robo task '<comment>$roboTaskName</comment>'.");
-        $i->runRoboTask($roboTaskName);
-        $i->expectTheExitCodeToBe(2);
+        $exitCode = $i->getRoboTaskExitCode($id);
+        $stdError = $i->getRoboTaskStdError($id);
+
+        $i->assertEquals(2, $exitCode);
+        $i->assertContains('One or more errors were reported (and any number of warnings)', $stdError);
         $i->haveAFileLikeThis('native.stylish.txt');
-        $i->seeThisTextInTheStdError('One or more errors were reported (and any number of warnings)');
     }
 
     public function lintStylishStdOutputTask(AcceptanceTester $i): void
     {
-        $roboTaskName = 'lint:stylish-std-output';
+        $id = __METHOD__;
+        $this->runRoboTask(
+            $i,
+            $id,
+            ESLintRoboFile::class,
+            'lint:stylish-std-output'
+        );
 
-        $i->wantTo("Run Robo task '<comment>$roboTaskName</comment>'.");
-        $i->runRoboTask($roboTaskName);
-        $i->expectTheExitCodeToBe(2);
-        $i->seeThisTextInTheStdOutput(file_get_contents("{$this->expectedDir}/native.stylish.txt"));
-        $i->seeThisTextInTheStdError('One or more errors were reported (and any number of warnings)');
+        $exitCode = $i->getRoboTaskExitCode($id);
+        $stdOutput = $i->getRoboTaskStdOutput($id);
+        $stdError = $i->getRoboTaskStdError($id);
+
+        $i->assertEquals(2, $exitCode);
+        $i->assertContains(file_get_contents("{$this->expectedDir}/native.stylish.txt"), $stdOutput);
+        $i->assertContains('One or more errors were reported (and any number of warnings)', $stdError);
     }
 
-    /**
-     * This test is ignored.
-     *
-     * @link https://github.com/Sweetchuck/robo-eslint/issues/6
-     */
-    protected function lintInputTaskCommandOnlyFalse(AcceptanceTester $i): void
+    public function lintInputTaskCommandOnlyFalse(AcceptanceTester $i): void
     {
-        $this->runLintInput($i, 'lint:input');
+        $this->lintInput($i, ['lint:input']);
     }
 
-    public function runLintInputTaskCommandOnlyTrue(AcceptanceTester $i): void
+    public function lintInputTaskCommandOnlyTrue(AcceptanceTester $i): void
     {
-        $this->runLintInput($i, 'lint:input', [], ['command-only' => null]);
+        $this->lintInput($i, ['lint:input', '--command-only']);
     }
 
-    protected function runLintInput(AcceptanceTester $i, string $roboTaskName, array $args = [], array $options = [])
+    protected function lintInput(AcceptanceTester $i, array $argsAndOptions = [])
     {
-        $cmdPattern = '%s';
-        $cmdArgs = [
-            escapeshellarg($roboTaskName),
-        ];
+        $id = implode(' ', $argsAndOptions);
+        $this->runRoboTask($i, $id, ESLintRoboFile::class, ...$argsAndOptions);
 
-        foreach ($options as $option => $value) {
-            $cmdPattern .= " --$option";
-            if ($value !== null) {
-                $cmdPattern .= '=%s';
-                $cmdArgs[] = escapeshellarg($value);
-            }
-        }
+        $exitCode = $i->getRoboTaskExitCode($id);
+        $stdError = $i->getRoboTaskStdError($id);
 
-        $cmdPattern .= str_repeat(' %s', count($args));
-        foreach ($args as $arg) {
-            $cmdArgs[] = escapeshellarg($arg);
-        }
-
-        $command = vsprintf($cmdPattern, $cmdArgs);
-
-        $i->wantTo("Run Robo task '<comment>$command</comment>'.");
-        $i->runRoboTask($roboTaskName, $args, $options);
-        $i->expectTheExitCodeToBe(2);
+        $i->assertEquals(2, $exitCode);
+        $i->assertContains('One or more errors were reported (and any number of warnings)', $stdError);
         $i->haveAFileLikeThis('extra.summary.txt');
         $i->haveAFileLikeThis('extra.verbose.txt');
-        $i->seeThisTextInTheStdError('One or more errors were reported (and any number of warnings)');
+    }
+
+    protected function runRoboTask(AcceptanceTester $i, string $id, string $class, string ...$args)
+    {
+        $command = implode(' ', $args);
+        $i->wantTo("Run Robo task: $command");
+
+        $cwd = getcwd();
+        chdir(codecept_data_dir());
+        $i->runRoboTask($id, $class, ...$args);
+        chdir($cwd);
     }
 }

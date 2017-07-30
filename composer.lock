@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "2cdc52493570ba823aec6367d3d352ef",
+    "content-hash": "7ad6529bfb25fc5bcf7c25fe52a9ca22",
     "packages": [
         {
             "name": "consolidation/annotated-command",
@@ -3000,6 +3000,41 @@
             ],
             "description": "Automatic BASH completion for Symfony Console Component based applications.",
             "time": "2016-02-24T05:08:54+00:00"
+        },
+        {
+            "name": "sweetchuck/codeception-module-robo-task-runner",
+            "version": "v0.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Sweetchuck/codeception-module-robo-task-runner.git",
+                "reference": "7fb951ec5f343333e95d450d25a13890cddfe49f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Sweetchuck/codeception-module-robo-task-runner/zipball/7fb951ec5f343333e95d450d25a13890cddfe49f",
+                "reference": "7fb951ec5f343333e95d450d25a13890cddfe49f",
+                "shasum": ""
+            },
+            "require": {
+                "codeception/codeception": "^2.3",
+                "consolidation/robo": "^1.1"
+            },
+            "require-dev": {
+                "squizlabs/php_codesniffer": "^3.0",
+                "sweetchuck/git-hooks": "^0.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Sweetchuck\\Codeception\\Module\\RoboTaskRunner\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0"
+            ],
+            "description": "Runs a Robo task.",
+            "time": "2017-07-29T11:31:55+00:00"
         },
         {
             "name": "sweetchuck/git-hooks",
