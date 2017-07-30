@@ -1,6 +1,6 @@
 <?php
 
-namespace Cheppers\Robo\ESLint\Task;
+namespace Sweetchuck\Robo\ESLint\Task;
 
 use Robo\Contract\CommandInterface;
 

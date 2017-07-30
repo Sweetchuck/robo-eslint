@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-if [[ "${TRAVIS_OS_NAME}" == 'linux' ]]; then
-    which phpdbg && phpenv config-rm xdebug.ini || true
-fi
-
 if [[ "${TRAVIS_OS_NAME}" == 'osx' ]]; then
     echo "Here's the OSX environment:"
     git --version
@@ -19,7 +15,7 @@ if [[ "${TRAVIS_OS_NAME}" == 'osx' ]]; then
     echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.bash_profile
     git --version
 
-    if [[ "${_PHP}" == 'hhvm' ]]; then
+    if [[ "${BREW_PHP}" == 'hhvm' ]]; then
         echo 'Adding brew HHVM dependencies...'
         brew tap hhvm/hhvm
     else
@@ -28,8 +24,10 @@ if [[ "${TRAVIS_OS_NAME}" == 'osx' ]]; then
         brew tap homebrew/versions
         brew tap homebrew/homebrew-php
 
-        src-dev/scripts/osx.homebrew-install.sh "${_PHP}"
-        src-dev/scripts/osx.homebrew-install.sh "${_PHP}-xdebug"
+        src-dev/scripts/osx.homebrew-install.sh "${BREW_PHP}"
+        src-dev/scripts/osx.homebrew-install.sh "${BREW_PHP}-xdebug"
+        php -v
+        php -m
     fi
 
     test -d "$HOME/bin" || mkdir "$HOME/bin"

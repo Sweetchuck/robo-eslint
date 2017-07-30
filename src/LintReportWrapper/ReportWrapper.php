@@ -1,8 +1,8 @@
 <?php
 
-namespace Cheppers\Robo\ESLint\LintReportWrapper;
+namespace Sweetchuck\Robo\ESLint\LintReportWrapper;
 
-use Cheppers\LintReport\ReportWrapperInterface;
+use Sweetchuck\LintReport\ReportWrapperInterface;
 
 class ReportWrapper implements ReportWrapperInterface
 {
@@ -56,7 +56,7 @@ class ReportWrapper implements ReportWrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function getReport()
+    public function getReport(): array
     {
         return $this->report;
     }
@@ -64,7 +64,7 @@ class ReportWrapper implements ReportWrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function setReport($report)
+    public function setReport(array $report)
     {
         $this->report = $report;
         $this->numOfErrors = null;
@@ -76,7 +76,7 @@ class ReportWrapper implements ReportWrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function countFiles()
+    public function countFiles(): int
     {
         return count($this->report);
     }
@@ -94,7 +94,7 @@ class ReportWrapper implements ReportWrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function numOfErrors()
+    public function numOfErrors(): int
     {
         $this->initNumOfAny();
 
@@ -104,7 +104,7 @@ class ReportWrapper implements ReportWrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function numOfWarnings()
+    public function numOfWarnings(): int
     {
         $this->initNumOfAny();
 
@@ -114,7 +114,7 @@ class ReportWrapper implements ReportWrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function highestSeverity()
+    public function highestSeverity(): string
     {
         if ($this->numOfErrors()) {
             return ReportWrapperInterface::SEVERITY_ERROR;

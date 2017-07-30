@@ -1,6 +1,6 @@
 <?php
 
-namespace Cheppers\Robo\ESLint;
+namespace Sweetchuck\Robo\ESLint;
 
 class Utils
 {

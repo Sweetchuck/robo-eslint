@@ -1,8 +1,8 @@
 <?php
 
 // @codingStandardsIgnoreStart
-use Cheppers\LintReport\Reporter\BaseReporter;
-use Cheppers\LintReport\Reporter\CheckstyleReporter;
+use Sweetchuck\LintReport\Reporter\BaseReporter;
+use Sweetchuck\LintReport\Reporter\CheckstyleReporter;
 use League\Container\ContainerInterface;
 use Robo\Collection\CollectionBuilder;
 use Symfony\Component\Process\Process;
@@ -11,8 +11,8 @@ use Symfony\Component\Yaml\Yaml;
 class RoboFile extends \Robo\Tasks
     // @codingStandardsIgnoreEnd
 {
-    use \Cheppers\Robo\Git\GitTaskLoader;
-    use \Cheppers\Robo\Phpcs\PhpcsTaskLoader;
+    use \Sweetchuck\Robo\Git\GitTaskLoader;
+    use \Sweetchuck\Robo\Phpcs\PhpcsTaskLoader;
 
     /**
      * @var array
@@ -258,7 +258,7 @@ class RoboFile extends \Robo\Tasks
     }
 
     /**
-     * @return \Cheppers\Robo\Phpcs\Task\PhpcsLintFiles|\Robo\Collection\CollectionBuilder
+     * @return \Sweetchuck\Robo\Phpcs\Task\PhpcsLintFiles|\Robo\Collection\CollectionBuilder
      */
     protected function getTaskPhpcsLint()
     {
@@ -275,7 +275,7 @@ class RoboFile extends \Robo\Tasks
 
         $options = [
             'failOn' => 'warning',
-            'standard' => 'PSR2',
+            'standards' => ['PSR2'],
             'lintReporters' => [
                 'lintVerboseReporter' => null,
             ],
@@ -293,22 +293,15 @@ class RoboFile extends \Robo\Tasks
             return $this->taskPhpcsLintFiles($options + ['files' => $files]);
         }
 
-        $assetJar = new Cheppers\AssetJar\AssetJar();
-
         return $this
             ->collectionBuilder()
-            ->addTaskList([
-                'git.readStagedFiles' => $this
-                    ->taskGitReadStagedFiles()
-                    ->setCommandOnly(true)
-                    ->setAssetJar($assetJar)
-                    ->setAssetJarMap('files', ['files'])
-                    ->setPaths($files),
-                'lint.phpcs.psr2' => $this
-                    ->taskPhpcsLintInput($options)
-                    ->setAssetJar($assetJar)
-                    ->setAssetJarMap('files', ['files']),
-            ]);
+            ->addTask($this
+                ->taskGitReadStagedFiles()
+                ->setCommandOnly(true)
+                ->setPaths($files))
+            ->addTask($this
+                ->taskPhpcsLintInput($options)
+                ->deferTaskConfiguration('setFiles', 'files'));
     }
 
     protected function isPhpExtensionAvailable(string $extension): bool

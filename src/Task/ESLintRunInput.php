@@ -1,8 +1,8 @@
 <?php
 
-namespace Cheppers\Robo\ESLint\Task;
+namespace Sweetchuck\Robo\ESLint\Task;
 
-use Cheppers\Robo\ESLint\Utils;
+use Sweetchuck\Robo\ESLint\Utils;
 
 class ESLintRunInput extends ESLintRun
 {

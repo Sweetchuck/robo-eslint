@@ -1,9 +1,9 @@
 <?php
 
-use Cheppers\AssetJar\AssetJar;
-use Cheppers\LintReport\Reporter\BaseReporter;
-use Cheppers\LintReport\Reporter\SummaryReporter;
-use Cheppers\LintReport\Reporter\VerboseReporter;
+use Sweetchuck\AssetJar\AssetJar;
+use Sweetchuck\LintReport\Reporter\BaseReporter;
+use Sweetchuck\LintReport\Reporter\SummaryReporter;
+use Sweetchuck\LintReport\Reporter\VerboseReporter;
 use League\Container\ContainerInterface;
 use Robo\Contract\ConfigAwareInterface;
 
@@ -11,7 +11,7 @@ use Robo\Contract\ConfigAwareInterface;
 class RoboFile extends \Robo\Tasks implements ConfigAwareInterface
 {
     // @codingStandardsIgnoreEnd
-    use \Cheppers\Robo\ESLint\ESLintTaskLoader;
+    use \Sweetchuck\Robo\ESLint\ESLintTaskLoader;
     use \Robo\Common\ConfigAwareTrait;
 
     /**
@@ -32,7 +32,7 @@ class RoboFile extends \Robo\Tasks implements ConfigAwareInterface
     }
 
     /**
-     * @return \Cheppers\Robo\ESLint\Task\ESLintRunFiles
+     * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunFiles
      */
     public function lintStylishStdOutput()
     {
@@ -42,7 +42,7 @@ class RoboFile extends \Robo\Tasks implements ConfigAwareInterface
     }
 
     /**
-     * @return \Cheppers\Robo\ESLint\Task\ESLintRunFiles
+     * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunFiles
      */
     public function lintStylishFile()
     {
@@ -53,7 +53,7 @@ class RoboFile extends \Robo\Tasks implements ConfigAwareInterface
     }
 
     /**
-     * @return \Cheppers\Robo\ESLint\Task\ESLintRunFiles
+     * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunFiles
      */
     public function lintAllInOne()
     {
@@ -75,7 +75,7 @@ class RoboFile extends \Robo\Tasks implements ConfigAwareInterface
     }
 
     /**
-     * @return \Cheppers\Robo\ESLint\Task\ESLintRunInput
+     * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunInput
      */
     public function lintInputWithoutJar(
         $options = [
@@ -115,7 +115,7 @@ class RoboFile extends \Robo\Tasks implements ConfigAwareInterface
     }
 
     /**
-     * @return \Cheppers\Robo\ESLint\Task\ESLintRunInput
+     * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunInput
      */
     public function lintInputWithJar(
         $options = [

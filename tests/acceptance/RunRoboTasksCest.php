@@ -1,6 +1,6 @@
 <?php
 
-namespace Cheppers\Robo\ESLint\Tests\Acceptance;
+namespace Sweetchuck\Robo\ESLint\Tests\Acceptance;
 
 use AcceptanceTester;
 
@@ -63,7 +63,7 @@ class RunRoboTasksCest
     /**
      * This test is ignored.
      *
-     * @link https://github.com/Cheppers/robo-eslint/issues/6
+     * @link https://github.com/Sweetchuck/robo-eslint/issues/6
      */
     protected function lintInputWithoutJarTaskCommandOnlyFalse(AcceptanceTester $i): void
     {
@@ -78,7 +78,7 @@ class RunRoboTasksCest
     /**
      * This test is ignored.
      *
-     * @link https://github.com/Cheppers/robo-eslint/issues/6
+     * @link https://github.com/Sweetchuck/robo-eslint/issues/6
      */
     protected function lintInputWithJarTaskCommandOnlyFalse(AcceptanceTester $i): void
     {
