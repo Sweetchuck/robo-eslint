@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Sweetchuck\Robo\ESLint;
 
 use League\Container\ContainerAwareInterface;
-use Robo\Contract\OutputAwareInterface;
+use Consolidation\AnnotatedCommand\Output\OutputAwareInterface;
 
 trait ESLintTaskLoader
 {

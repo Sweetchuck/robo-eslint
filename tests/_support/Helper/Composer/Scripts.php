@@ -1,63 +1,61 @@
 <?php
 
-namespace Sweetchuck\Robo\ESLint\Composer;
+declare(strict_types = 1);
 
-use Composer\Script\Event;
+namespace Sweetchuck\Robo\ESLint\Tests\Helper\Composer;
+
+use Composer\Script\Event as ComposerEvent;
 use Symfony\Component\Process\Process;
-use Sweetchuck\GitHooks\Composer\Scripts as GitHooks;
 
 class Scripts
 {
-    /**
-     * @var \Composer\Script\Event
-     */
-    protected static $event;
+    protected static ?ComposerEvent $event = null;
 
-    /**
-     * @var \Closure
-     */
-    protected static $processCallbackWrapper;
+    protected static \Closure $processCallbackWrapper;
 
-    public static function postInstallCmd(Event $event): bool
+    public static function postInstallCmd(ComposerEvent $event): bool
     {
         $return = [];
 
         if ($event->isDevMode()) {
             static::init($event);
 
-            $return[] = GitHooks::deploy($event);
-            $return[] = static::npmInstall($event);
+            $return[] = static::yarnInstall($event);
         }
 
         return count(array_keys($return, false, true)) === 0;
     }
 
-    public static function postUpdateCmd(Event $event): bool
+    public static function postUpdateCmd(ComposerEvent $event): bool
     {
         $return = [];
 
         if ($event->isDevMode()) {
             static::init($event);
-
-            $return[] = GitHooks::deploy($event);
         }
 
         return count(array_keys($return, false, true)) === 0;
     }
 
-    public static function npmInstall(Event $event): bool
+    public static function yarnInstall(ComposerEvent $event): bool
     {
         $return = true;
 
         if ($event->isDevMode()) {
             static::init($event);
 
-            $cmdPattern = 'cd %s && npm install';
+            $cmdPattern = 'cd %s && yarn install';
             $cmdArgs = [
                 escapeshellarg('tests/_data'),
             ];
 
-            $process = new Process(vsprintf($cmdPattern, $cmdArgs));
+            $process = new Process(
+                [
+                    'bash',
+                    '-c',
+                    vsprintf($cmdPattern, $cmdArgs),
+                ],
+            );
             $exitCode = $process->run(static::$processCallbackWrapper);
 
             $return = !$exitCode;
@@ -66,7 +64,7 @@ class Scripts
         return $return;
     }
 
-    protected static function init(Event $event)
+    protected static function init(ComposerEvent $event)
     {
         if (static::$event) {
             return;

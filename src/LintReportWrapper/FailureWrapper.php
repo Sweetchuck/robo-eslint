@@ -1,15 +1,14 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Sweetchuck\Robo\ESLint\LintReportWrapper;
 
 use Sweetchuck\LintReport\FailureWrapperInterface;
 
 class FailureWrapper implements FailureWrapperInterface
 {
-    /**
-     * @var array
-     */
-    protected $failure = [];
+    protected array $failure = [];
 
     /**
      * {@inheritdoc}

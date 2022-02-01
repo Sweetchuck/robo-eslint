@@ -1,7 +1,10 @@
 <?php
 
-namespace Sweetchuck\Robo\ESLint\Test;
+declare(strict_types = 1);
 
+namespace Sweetchuck\Robo\ESLint\Tests;
+
+use Codeception\Actor;
 use \PHPUnit\Framework\Assert;
 use Symfony\Component\Finder\Finder;
 
@@ -20,7 +23,7 @@ use Symfony\Component\Finder\Finder;
  *
  * @SuppressWarnings(PHPMD)
  */
-class AcceptanceTester extends \Codeception\Actor
+class AcceptanceTester extends Actor
 {
     use _generated\AcceptanceTesterActions;
 
@@ -52,9 +55,10 @@ class AcceptanceTester extends \Codeception\Actor
         $expectedDir = codecept_data_dir('expected');
         $actualDir = codecept_data_dir('actual');
 
-        Assert::assertContains(
+        $this->assertFileExists("$actualDir/$fileName");
+        $this->assertStringContainsString(
             file_get_contents("$expectedDir/$fileName"),
-            file_get_contents("$actualDir/$fileName")
+            file_get_contents("$actualDir/$fileName"),
         );
 
         return $this;
@@ -70,7 +74,7 @@ class AcceptanceTester extends \Codeception\Actor
         $doc->loadXML(file_get_contents($fileName));
         $xpath = new \DOMXPath($doc);
         $rootElement = $xpath->query('/checkstyle');
-        Assert::assertEquals(1, $rootElement->length, 'Root element of the Checkstyle XML is exists.');
+        Assert::assertSame(1, $rootElement->length, 'Root element of the Checkstyle XML is exists.');
 
         return $this;
     }

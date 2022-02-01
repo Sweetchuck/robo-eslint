@@ -1,8 +1,12 @@
 
-/bin/
-/vendor/
-
 /tests/_data/node_modules/
 /tests/_data/actual/
-/tests/_output/
+/tests/_log/
 /tests/_support/_generated/
+/tests/unit.suite.yml
+/tests/acceptance.suite.yml
+/codeception.yml
+
+/vendor/
+
+/robo.yml

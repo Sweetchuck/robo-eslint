@@ -1,6 +1,8 @@
 <?php
 
-namespace Sweetchuck\Robo\ESLint\Test;
+declare(strict_types = 1);
+
+namespace Sweetchuck\Robo\ESLint\Tests;
 
 use Codeception\Actor;
 

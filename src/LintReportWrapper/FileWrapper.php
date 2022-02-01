@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Sweetchuck\Robo\ESLint\LintReportWrapper;
 
 use Sweetchuck\LintReport\FileWrapperInterface;
@@ -7,19 +9,10 @@ use Sweetchuck\LintReport\ReportWrapperInterface;
 
 class FileWrapper implements FileWrapperInterface
 {
-    /**
-     * @var array
-     */
-    protected $item = [];
+    protected array $item = [];
 
-    /**
-     * @var array
-     */
-    public $stats = [];
+    public array $stats = [];
 
-    /**
-     * {@inheritdoc}
-     */
     public function __construct(array $file)
     {
         $this->item = $file + [
@@ -30,25 +23,16 @@ class FileWrapper implements FileWrapperInterface
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function filePath(): string
     {
         return $this->item['filePath'];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function numOfErrors(): int
     {
         return $this->item['errorCount'];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function numOfWarnings(): int
     {
         return $this->item['warningCount'];
@@ -64,9 +48,6 @@ class FileWrapper implements FileWrapperInterface
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function stats(): array
     {
         if (!$this->stats) {

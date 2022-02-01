@@ -3,5 +3,4 @@ samples/invalid-01.js
 | Severity | Line | Message             |
 +----------+------+---------------------+
 | error    |    2 | 'a' is not defined. |
-| error    |    2 | Extra semicolon.    |
 +----------+------+---------------------+

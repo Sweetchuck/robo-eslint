@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Sweetchuck\Robo\ESLint\Tests\Unit\LintReportWrapper;
 
 use Sweetchuck\Robo\ESLint\LintReportWrapper\ReportWrapper;
@@ -7,7 +9,7 @@ use Sweetchuck\Robo\ESLint\LintReportWrapper\ReportWrapper;
 class ReportWrapperTest extends \Codeception\Test\Unit
 {
     /**
-     * @var \Sweetchuck\Robo\ESLint\Test\UnitTester
+     * @var \Sweetchuck\Robo\ESLint\Tests\UnitTester
      */
     protected $tester;
 
@@ -163,10 +165,10 @@ class ReportWrapperTest extends \Codeception\Test\Unit
     {
         $rw = new ReportWrapper($report);
 
-        $this->tester->assertEquals($expected['countFiles'], $rw->countFiles());
-        $this->tester->assertEquals($expected['numOfErrors'], $rw->numOfErrors());
-        $this->tester->assertEquals($expected['numOfWarnings'], $rw->numOfWarnings());
-        $this->tester->assertEquals($expected['highestSeverity'], $rw->highestSeverity());
+        $this->tester->assertSame($expected['countFiles'], $rw->countFiles());
+        $this->tester->assertSame($expected['numOfErrors'], $rw->numOfErrors());
+        $this->tester->assertSame($expected['numOfWarnings'], $rw->numOfWarnings());
+        $this->tester->assertSame($expected['highestSeverity'], $rw->highestSeverity());
 
         $sm = [
             0 => 'ok',
@@ -180,11 +182,11 @@ class ReportWrapperTest extends \Codeception\Test\Unit
          */
         foreach ($rw->yieldFiles() as $filePath => $fw) {
             $file = array_shift($report);
-            $this->tester->assertEquals($file['filePath'], $fw->filePath());
-            $this->tester->assertEquals($file['errorCount'], $fw->numOfErrors());
-            $this->tester->assertEquals($file['warningCount'], $fw->numOfWarnings());
-            $this->tester->assertEquals($file['__highestSeverity'], $fw->highestSeverity());
-            $this->tester->assertEquals($file['__stats'], $fw->stats());
+            $this->tester->assertSame($file['filePath'], $fw->filePath());
+            $this->tester->assertSame($file['errorCount'], $fw->numOfErrors());
+            $this->tester->assertSame($file['warningCount'], $fw->numOfWarnings());
+            $this->tester->assertSame($file['__highestSeverity'], $fw->highestSeverity());
+            $this->tester->assertSame($file['__stats'], $fw->stats());
 
             /**
              * @var int $i
@@ -192,11 +194,11 @@ class ReportWrapperTest extends \Codeception\Test\Unit
              */
             foreach ($fw->yieldFailures() as $i => $failureWrapper) {
                 $message = $file['messages'][$i];
-                $this->tester->assertEquals($sm[$message['severity']], $failureWrapper->severity());
-                $this->tester->assertEquals($message['ruleId'], $failureWrapper->source());
-                $this->tester->assertEquals($message['line'], $failureWrapper->line());
-                $this->tester->assertEquals($message['column'], $failureWrapper->column());
-                $this->tester->assertEquals($message['message'], $failureWrapper->message());
+                $this->tester->assertSame($sm[$message['severity']], $failureWrapper->severity());
+                $this->tester->assertSame($message['ruleId'], $failureWrapper->source());
+                $this->tester->assertSame($message['line'], $failureWrapper->line());
+                $this->tester->assertSame($message['column'], $failureWrapper->column());
+                $this->tester->assertSame($message['message'], $failureWrapper->message());
             }
         }
     }

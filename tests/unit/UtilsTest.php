@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Sweetchuck\Robo\ESLint\Tests\Unit;
 
 use Sweetchuck\Robo\ESLint\Utils;
@@ -8,7 +10,7 @@ use Codeception\Test\Unit;
 class UtilsTest extends Unit
 {
     /**
-     * @var \Sweetchuck\Robo\ESLint\Test\UnitTester
+     * @var \Sweetchuck\Robo\ESLint\Tests\UnitTester
      */
     protected $tester;
 
@@ -28,7 +30,7 @@ class UtilsTest extends Unit
      */
     public function testIsAbsolutePath(bool $expected, string $path): void
     {
-        $this->tester->assertEquals($expected, Utils::isAbsolutePath($path));
+        $this->tester->assertSame($expected, Utils::isAbsolutePath($path));
     }
 
     public function casesMergeReports(): array
@@ -82,12 +84,12 @@ class UtilsTest extends Unit
      */
     public function testMergeReports(array $expected, array $reports): void
     {
-        $this->tester->assertEquals($expected, Utils::mergeReports($reports));
+        $this->tester->assertSame($expected, Utils::mergeReports($reports));
 
         if (count($reports) > 1) {
-            $this->tester->assertEquals(
+            $this->tester->assertSame(
                 $expected,
-                call_user_func_array(Utils::class . '::mergeReports', $reports)
+                call_user_func_array(Utils::class . '::mergeReports', $reports),
             );
         }
     }

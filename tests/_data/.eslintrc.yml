@@ -1,4 +1,5 @@
-extends: standard
+root: true
+extends:
+    - 'eslint:recommended'
 plugins:
-  - standard
-  - promise
+    - 'promise'

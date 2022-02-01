@@ -1,8 +1,10 @@
 <?php
 
-namespace Sweetchuck\Robo\ESLint\Test\Helper\RoboFiles;
+declare(strict_types = 1);
 
-use League\Container\ContainerInterface;
+namespace Sweetchuck\Robo\ESLint\Tests\Helper\RoboFiles;
+
+use League\Container\Container as LeagueContainer;
 use Robo\Common\ConfigAwareTrait;
 use Robo\Contract\ConfigAwareInterface;
 use Robo\Tasks;
@@ -16,46 +18,67 @@ class ESLintRoboFile extends Tasks implements ConfigAwareInterface
     use ESLintTaskLoader;
     use ConfigAwareTrait;
 
-    /**
-     * @var string
-     */
-    protected $reportsDir = 'actual';
+    protected string $workingDirectory = './tests/_data';
+
+    protected string $reportsDir = './tests/_data/actual';
 
     /**
      * {@inheritdoc}
      */
-    public function setContainer(ContainerInterface $container)
+    protected function output()
     {
-        $this->container = $container;
+        return $this->getContainer()->get('output');
+    }
 
-        BaseReporter::lintReportConfigureContainer($this->container);
+    /**
+     * @hook pre-command @initLintReporters
+     */
+    public function initLintReporters()
+    {
+        $lintServices = BaseReporter::getServices();
+        $container = $this->getContainer();
+        foreach ($lintServices as $name => $class) {
+            if ($container->has($name)) {
+                continue;
+            }
 
-        return $this;
+            if ($container instanceof LeagueContainer) {
+                $container->share($name, $class);
+            }
+        }
     }
 
     /**
      * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunFiles|\Robo\Collection\CollectionBuilder
+     *
+     * @initLintReporters
      */
     public function lintStylishStdOutput()
     {
         return $this->taskESLintRunFiles()
+            ->setWorkingDirectory($this->workingDirectory)
             ->setFiles(['samples/'])
             ->setFormat('stylish');
     }
 
     /**
      * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunFiles|\Robo\Collection\CollectionBuilder
+     *
+     * @initLintReporters
      */
     public function lintStylishFile()
     {
         return $this->taskESLintRunFiles()
-            ->setFiles(['samples/'])
+            ->setWorkingDirectory($this->workingDirectory)
+            ->setFiles(['./samples/'])
             ->setFormat('stylish')
-            ->setOutputFile("{$this->reportsDir}/native.stylish.txt");
+            ->setOutputFile('./actual/native.stylish.txt');
     }
 
     /**
      * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunFiles|\Robo\Collection\CollectionBuilder
+     *
+     * @initLintReporters
      */
     public function lintAllInOne()
     {
@@ -67,47 +90,53 @@ class ESLintRoboFile extends Tasks implements ConfigAwareInterface
             ->setFilePathStyle('relative')
             ->setDestination("{$this->reportsDir}/extra.summary.txt");
 
-        return $this->taskESLintRunFiles()
+        $task = $this->taskESLintRunFiles()
+            ->setWorkingDirectory($this->workingDirectory)
             ->setFiles(['samples/'])
             ->setFormat('json')
             ->addLintReporter('verbose:StdOutput', 'lintVerboseReporter')
             ->addLintReporter('verbose:file', $verboseFile)
             ->addLintReporter('summary:StdOutput', 'lintSummaryReporter')
             ->addLintReporter('summary:file', $summaryFile);
+        $task->setOutput($this->output());
+
+        return $task;
     }
 
     /**
      * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunInput|\Robo\Collection\CollectionBuilder
+     *
+     * @initLintReporters
      */
     public function lintInput(
         $options = [
             'command-only' => false,
         ]
     ) {
-        $fixturesDir = 'samples';
-        $reportsDir = 'actual';
-
         $verboseFile = (new VerboseReporter())
             ->setFilePathStyle('relative')
-            ->setDestination("$reportsDir/extra.verbose.txt");
+            ->setDestination("{$this->reportsDir}/extra.verbose.txt");
 
         $summaryFile = (new SummaryReporter())
             ->setFilePathStyle('relative')
-            ->setDestination("$reportsDir/extra.summary.txt");
+            ->setDestination("{$this->reportsDir}/extra.summary.txt");
 
         $files = [
             'invalid-01.js' => [
-                'fileName' => "$fixturesDir/invalid-01.js",
-                'command' => "cat $fixturesDir/invalid-01.js",
+                'fileName' => 'samples/invalid-01.js',
+                'command' => sprintf('cat %s', 'samples/invalid-01.js'),
                 'content' => null,
             ],
         ];
 
         if (!$options['command-only']) {
-            $files['invalid-01.js']['content'] = file_get_contents($files['invalid-01.js']['fileName']);
+            $files['invalid-01.js']['content'] = file_get_contents(
+                $this->workingDirectory . '/' . $files['invalid-01.js']['fileName'],
+            );
         }
 
         return $this->taskESLintRunInput()
+            ->setWorkingDirectory($this->workingDirectory)
             ->setFormat('json')
             ->setFiles($files)
             ->addLintReporter('verbose:StdOutput', 'lintVerboseReporter')

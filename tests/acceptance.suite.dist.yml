@@ -1,0 +1,6 @@
+actor: 'AcceptanceTester'
+modules:
+    enabled:
+        - 'Asserts'
+        - '\Sweetchuck\Codeception\Module\RoboTaskRunner\RoboTaskRunner'
+        - '\Sweetchuck\Robo\ESLint\Tests\Helper\Acceptance'

@@ -1,14 +1,17 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Sweetchuck\Robo\ESLint\Task;
 
 use Sweetchuck\LintReport\ReporterInterface;
+use Sweetchuck\LintReport\ReportWrapperInterface;
 use Sweetchuck\Robo\ESLint\LintReportWrapper\ReportWrapper;
 use Sweetchuck\Robo\ESLint\Utils;
 use League\Container\ContainerAwareInterface;
 use League\Container\ContainerAwareTrait;
 use Robo\Common\IO;
-use Robo\Contract\OutputAwareInterface;
+use Consolidation\AnnotatedCommand\Output\OutputAwareInterface;
 use Robo\Result;
 use Robo\Task\BaseTask;
 use Symfony\Component\Process\Process;
@@ -42,84 +45,49 @@ abstract class ESLintRun extends BaseTask implements
 
     /**
      * @todo Some kind of dependency injection would be awesome.
-     *
-     * @var string
      */
-    protected $processClass = Process::class;
+    protected string $processClass = Process::class;
 
-    /**
-     * @var Result|null
-     */
-    protected $taskResult = null;
+    protected ?Result $taskResult = null;
 
-    /**
-     * @var int
-     */
-    protected $lintExitCode = 0;
+    protected int $lintExitCode = 0;
 
-    /**
-     * @var string
-     */
-    protected $lintStdOutput = '';
+    protected string $lintStdOutput = '';
 
-    /**
-     * @var bool
-     */
-    protected $isLintStdOutputPublic = true;
+    protected bool $isLintStdOutputPublic = true;
 
-    /**
-     * @var string
-     */
-    protected $reportRaw = '';
+    protected string $reportRaw = '';
 
     /**
      * Exit code and error message mapping.
      *
-     * @var string
+     * @var string[]
      */
-    protected $exitMessages = [
+    protected array $exitMessages = [
         0 => 'No lints were found',
         1 => 'One or more warnings were reported (and no errors)',
         2 => 'One or more errors were reported (and any number of warnings)',
     ];
 
-    /**
-     * @var bool
-     */
-    protected $addFilesToCliCommand = true;
+    protected bool $addFilesToCliCommand = true;
 
-    /**
-     * @var string
-     */
-    protected $machineReadableFormat = 'json';
+    protected string $machineReadableFormat = 'json';
 
-    /**
-     * @var string
-     */
-    protected $lintOutput = '';
+    protected string $lintOutput = '';
 
-    /**
-     * @var array
-     */
-    protected $report = [];
+    protected array $report = [];
 
-    /**
-     * @var \Sweetchuck\LintReport\ReportWrapperInterface
-     */
-    protected $reportWrapper = null;
+    protected ?ReportWrapperInterface $reportWrapper = null;
 
-    /**
-     * @var array
-     */
-    protected $assets = [
+    protected array $assets = [
         'report' => null,
     ];
 
-    protected $triStateOptions = [
+    protected array $triStateOptions = [
         'color' => 'color',
     ];
 
-    protected $flagOptions = [
+    protected array $flagOptions = [
         'cache' => 'cache',
         'noESLintRc' => 'no-eslintrc',
         'noIgnore' => 'no-ignore',
@@ -127,7 +95,7 @@ abstract class ESLintRun extends BaseTask implements
         'quiet' => 'quiet',
     ];
 
-    protected $simpleOptions = [
+    protected array $simpleOptions = [
         'cacheLocation' => 'cache-location',
         'configFile' => 'config',
         'format' => 'format',
@@ -137,11 +105,11 @@ abstract class ESLintRun extends BaseTask implements
         'outputFile' => 'output-file',
     ];
 
-    protected $listOptions = [
+    protected array $listOptions = [
         'ext' => 'ext',
     ];
 
-    protected $multiOptions = [
+    protected array $multiOptions = [
         'rulesDir' => 'rulesdir',
     ];
 
@@ -194,10 +162,8 @@ abstract class ESLintRun extends BaseTask implements
     // region Option - cache.
     /**
      * Only check changed files - default: false.
-     *
-     * @var bool
      */
-    protected $cache = false;
+    protected bool $cache = false;
 
     public function getCache(): bool
     {
@@ -218,10 +184,8 @@ abstract class ESLintRun extends BaseTask implements
     // region Option - cacheLocation.
     /**
      * Path to the cache file or directory.
-     *
-     * @var string
      */
-    protected $cacheLocation = '';
+    protected string $cacheLocation = '';
 
     public function getCacheLocation(): string
     {
@@ -240,10 +204,7 @@ abstract class ESLintRun extends BaseTask implements
     // endregion
 
     // region Option - color.
-    /**
-     * @var bool|null
-     */
-    protected $color = null;
+    protected ?bool $color = null;
 
     /**
      * @return bool|null
@@ -265,10 +226,7 @@ abstract class ESLintRun extends BaseTask implements
     // endregion
 
     // region Option - configFile.
-    /**
-     * @var string
-     */
-    protected $configFile = '';
+    protected string $configFile = '';
 
     /**
      * The location of the configuration file.
@@ -292,10 +250,7 @@ abstract class ESLintRun extends BaseTask implements
     // endregion
 
     // region Option - assetNamePrefix.
-    /**
-     * @var string
-     */
-    protected $assetNamePrefix = '';
+    protected string $assetNamePrefix = '';
 
     public function getAssetNamePrefix(): string
     {
@@ -314,10 +269,7 @@ abstract class ESLintRun extends BaseTask implements
     // endregion
 
     // region Option - eslintExecutable.
-    /**
-     * @var string
-     */
-    protected $eslintExecutable = 'node_modules/.bin/eslint';
+    protected string $eslintExecutable = 'node_modules/.bin/eslint';
 
     public function getEslintExecutable(): string
     {
@@ -340,10 +292,8 @@ abstract class ESLintRun extends BaseTask implements
     // region Option - ext.
     /**
      * Specify JavaScript file extensions.
-     *
-     * @var array
      */
-    protected $ext = [];
+    protected array $ext = [];
 
     public function getExt(): array
     {
@@ -384,10 +334,8 @@ abstract class ESLintRun extends BaseTask implements
     // region Option - failOn.
     /**
      * Severity level.
-     *
-     * @var string
      */
-    protected $failOn = 'error';
+    protected string $failOn = 'error';
 
     public function getFailOn(): string
     {
@@ -411,10 +359,7 @@ abstract class ESLintRun extends BaseTask implements
     // endregion
 
     // region Option - format
-    /**
-     * @var string
-     */
-    protected $format = '';
+    protected string $format = '';
 
     public function getFormat(): string
     {
@@ -435,10 +380,7 @@ abstract class ESLintRun extends BaseTask implements
     // endregion
 
     // region Option - ignorePath.
-    /**
-     * @var string
-     */
-    protected $ignorePath = '';
+    protected string $ignorePath = '';
 
     public function getIgnorePath(): string
     {
@@ -457,10 +399,7 @@ abstract class ESLintRun extends BaseTask implements
     // endregion
 
     // region Option - ignorePattern.
-    /**
-     * @var null|string
-     */
-    protected $ignorePattern = null;
+    protected ?string $ignorePattern = null;
 
     public function getIgnorePattern(): ?string
     {
@@ -482,7 +421,7 @@ abstract class ESLintRun extends BaseTask implements
     /**
      * @var \Sweetchuck\LintReport\ReporterInterface[]
      */
-    protected $lintReporters = [];
+    protected array $lintReporters = [];
 
     /**
      * @return \Sweetchuck\LintReport\ReporterInterface[]
@@ -529,10 +468,7 @@ abstract class ESLintRun extends BaseTask implements
     // endregion
 
     // region Option - maxWarnings.
-    /**
-     * @var null|int
-     */
-    protected $maxWarnings = null;
+    protected ?int $maxWarnings = null;
 
     public function getMaxWarnings(): ?int
     {
@@ -551,10 +487,7 @@ abstract class ESLintRun extends BaseTask implements
     // endregion
 
     // region Option - noEslintRc.
-    /**
-     * @var bool
-     */
-    protected $noESLintRc = false;
+    protected bool $noESLintRc = false;
 
     public function isEslintRcDisabled(): bool
     {
@@ -573,10 +506,7 @@ abstract class ESLintRun extends BaseTask implements
     // endregion
 
     // region Option - noIgnore.
-    /**
-     * @var bool
-     */
-    protected $noIgnore = false;
+    protected bool $noIgnore = false;
 
     public function getNoIgnore(): bool
     {
@@ -595,10 +525,7 @@ abstract class ESLintRun extends BaseTask implements
     // endregion
 
     // region Option - noInlineConfig.
-    /**
-     * @var bool
-     */
-    protected $noInlineConfig = false;
+    protected bool $noInlineConfig = false;
 
     public function getNoInlineConfig(): bool
     {
@@ -619,15 +546,10 @@ abstract class ESLintRun extends BaseTask implements
     // region Option - files.
     /**
      * Files to check.
-     *
-     * @var array
      */
-    protected $files = [];
+    protected array $files = [];
 
-    /**
-     * @return array
-     */
-    public function getFiles()
+    public function getFiles(): array
     {
         return $this->files;
     }
@@ -649,10 +571,7 @@ abstract class ESLintRun extends BaseTask implements
     // endregion
 
     // region Option - outputFile.
-    /**
-     * @var string
-     */
-    protected $outputFile = '';
+    protected string $outputFile = '';
 
     public function getOutputFile(): string
     {
@@ -687,10 +606,7 @@ abstract class ESLintRun extends BaseTask implements
     // endregion
 
     // region Option - quiet.
-    /**
-     * @var bool
-     */
-    protected $quiet = false;
+    protected bool $quiet = false;
 
     public function isQuiet(): bool
     {
@@ -714,7 +630,7 @@ abstract class ESLintRun extends BaseTask implements
      *
      * @var bool[]
      */
-    protected $rulesDir = [];
+    protected array $rulesDir = [];
 
     public function getRulesDir(): array
     {
@@ -755,10 +671,8 @@ abstract class ESLintRun extends BaseTask implements
     // region Option - workingDirectory.
     /**
      * Directory to step in before run the `eslint`.
-     *
-     * @var string
      */
-    protected $workingDirectory = '';
+    protected string $workingDirectory = '';
 
     public function getWorkingDirectory(): string
     {
@@ -912,7 +826,7 @@ abstract class ESLintRun extends BaseTask implements
     }
 
     /**
-     * {@inheritdoc}
+     * @return $this
      */
     protected function runLint()
     {
@@ -925,7 +839,14 @@ abstract class ESLintRun extends BaseTask implements
         $command = $this->getCommand();
 
         /** @var \Symfony\Component\Process\Process $process */
-        $process = new $this->processClass($command);
+        $process = new $this->processClass(
+            [
+                'bash',
+                '-c',
+                $command,
+            ],
+            $this->getWorkingDirectory() ?: '.',
+        );
 
         $this->lintExitCode = $process->run();
         $this->lintStdOutput = $process->getOutput();
@@ -946,7 +867,16 @@ abstract class ESLintRun extends BaseTask implements
 
                 $this->setFormat($this->machineReadableFormat);
                 $this->setOutputFile('');
-                $process = new $this->processClass($this->getCommand());
+                /** @var \Symfony\Component\Process\Process $process */
+                $process = new $this->processClass(
+                    [
+                        'bash',
+                        '-c',
+                        $this->getCommand(),
+                    ],
+                    $this->getWorkingDirectory() ?: '.',
+                );
+                //$process->setWorkingDirectory($this->getWorkingDirectory() ?: '.');
                 $process->run();
                 $this->reportRaw = $process->getOutput();
 
@@ -1040,18 +970,15 @@ abstract class ESLintRun extends BaseTask implements
         return $data;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getCommand(): string
     {
         $cmdPattern = '';
         $cmdArgs = [];
 
-        if ($this->getWorkingDirectory()) {
-            $cmdPattern .= 'cd %s && ';
-            $cmdArgs[] = escapeshellarg($this->getWorkingDirectory());
-        }
+        //if ($this->getWorkingDirectory()) {
+        //    $cmdPattern .= 'cd %s && ';
+        //    $cmdArgs[] = escapeshellarg($this->getWorkingDirectory());
+        //}
 
         $cmdPattern .= '%s';
         $cmdArgs[] = escapeshellcmd($this->getEslintExecutable());
@@ -1075,7 +1002,7 @@ abstract class ESLintRun extends BaseTask implements
                 && ($options[$optionName] === 0 || $options[$optionName] === '0' || $options[$optionName])
             ) {
                 $cmdPattern .= " --{$optionCli} %s";
-                $cmdArgs[] = escapeshellarg($options[$optionName]);
+                $cmdArgs[] = escapeshellarg((string) $options[$optionName]);
             }
         }
 

@@ -1,13 +1,15 @@
 <?php
 
-namespace Sweetchuck\Robo\ESLint\Tests\Unit;
+declare(strict_types = 1);
+
+namespace Sweetchuck\Robo\ESLint\Tests\Unit\Task;
 
 use Codeception\Test\Unit;
 use Codeception\Util\Stub;
 use Robo\Robo;
 use Sweetchuck\Robo\ESLint\Task\ESLintRunFiles;
 use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyOutput;
-use Sweetchuck\Robo\ESLint\Test\Helper\Dummy\DummyProcess;
+use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyProcess;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ESLintRunFilesTest extends Unit
@@ -22,14 +24,14 @@ class ESLintRunFilesTest extends Unit
     }
 
     /**
-     * @var \Sweetchuck\Robo\ESLint\Test\UnitTester
+     * @var \Sweetchuck\Robo\ESLint\Tests\UnitTester
      */
     protected $tester;
 
     /**
      * {@inheritdoc}
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -84,8 +86,8 @@ class ESLintRunFilesTest extends Unit
     {
         $task = new ESLintRunFiles($options);
 
-        $this->tester->assertEquals($expectedDirect, $task->getOutputFile());
-        $this->tester->assertEquals($expectedReal, $task->getRealOutputFile());
+        $this->tester->assertSame($expectedDirect, $task->getOutputFile());
+        $this->tester->assertSame($expectedReal, $task->getRealOutputFile());
     }
 
     public function testGetSetLintReporters(): void
@@ -101,7 +103,7 @@ class ESLintRunFilesTest extends Unit
             ->addLintReporter('cKey', 'cValue')
             ->removeLintReporter('bKey');
 
-        $this->tester->assertEquals(
+        $this->tester->assertSame(
             [
                 'aKey' => 'aValue',
                 'cKey' => 'cValue',
@@ -118,7 +120,8 @@ class ESLintRunFilesTest extends Unit
                 [],
             ],
             'workingDirectory' => [
-                "cd 'my-dir' && node_modules/.bin/eslint",
+                // No need to "cd", because the Process receive the cwd.
+                "node_modules/.bin/eslint",
                 [
                     'workingDirectory' => 'my-dir',
                 ],
@@ -327,15 +330,15 @@ class ESLintRunFilesTest extends Unit
     public function testGetCommand(string $expected, array $options): void
     {
         $eslint = new ESLintRunFiles($options);
-        $this->tester->assertEquals($expected, $eslint->getCommand());
+        $this->tester->assertSame($expected, $eslint->getCommand());
     }
 
     public function testExitCodeConstants(): void
     {
-        $this->tester->assertEquals(0, ESLintRunFiles::EXIT_CODE_OK);
-        $this->tester->assertEquals(1, ESLintRunFiles::EXIT_CODE_WARNING);
-        $this->tester->assertEquals(2, ESLintRunFiles::EXIT_CODE_ERROR);
-        $this->tester->assertEquals(3, ESLintRunFiles::EXIT_CODE_INVALID);
+        $this->tester->assertSame(0, ESLintRunFiles::EXIT_CODE_OK);
+        $this->tester->assertSame(1, ESLintRunFiles::EXIT_CODE_WARNING);
+        $this->tester->assertSame(2, ESLintRunFiles::EXIT_CODE_ERROR);
+        $this->tester->assertSame(3, ESLintRunFiles::EXIT_CODE_INVALID);
     }
 
     public function casesGetTaskExitCode(): array
@@ -425,9 +428,9 @@ class ESLintRunFilesTest extends Unit
             ['lintExitCode' => $lintExitCode]
         );
 
-        $this->tester->assertEquals(
+        $this->tester->assertSame(
             $expected,
-            static::getMethod('getTaskExitCode')->invokeArgs($task, [$numOfErrors, $numOfWarnings])
+            static::getMethod('getTaskExitCode')->invokeArgs($task, [$numOfErrors, $numOfWarnings]),
         );
     }
 
@@ -523,22 +526,22 @@ class ESLintRunFilesTest extends Unit
 
         $result = $task->run();
 
-        $this->tester->assertEquals($expectedExitCode, $result->getExitCode(), 'Exit code');
+        $this->tester->assertSame($expectedExitCode, $result->getExitCode(), 'Exit code');
 
         $assetNamePrefix = $options['assetNamePrefix'] ?? '';
 
         /** @var \Sweetchuck\LintReport\ReportWrapperInterface $reportWrapper */
         $reportWrapper = $result["{$assetNamePrefix}report"];
-        $this->tester->assertEquals(
+        $this->tester->assertSame(
             $expectedReport,
             $reportWrapper->getReport(),
-            'Output equals with jar'
+            'Output equals with jar',
         );
 
-        $this->tester->assertEquals(
+        $this->tester->assertSame(
             $expectedReport,
             json_decode($mainStdOutput->output, true),
-            'Output equals without jar'
+            'Output equals without jar',
         );
     }
 
@@ -591,12 +594,12 @@ class ESLintRunFilesTest extends Unit
 
         $result = $task->run();
 
-        $this->tester->assertEquals($exitCode, $result->getExitCode());
+        $this->tester->assertSame($exitCode, $result->getExitCode());
 
         $assetNamePrefix = $options['assetNamePrefix'] ?? '';
 
         /** @var \Sweetchuck\Robo\ESLint\LintReportWrapper\ReportWrapper $reportWrapper */
         $reportWrapper = $result["{$assetNamePrefix}report"];
-        $this->tester->assertEquals($report, $reportWrapper->getReport());
+        $this->tester->assertSame($report, $reportWrapper->getReport());
     }
 }

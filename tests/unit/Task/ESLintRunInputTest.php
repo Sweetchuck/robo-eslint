@@ -1,12 +1,14 @@
 <?php
 
-namespace Sweetchuck\Robo\ESLint\Tests\Unit;
+declare(strict_types = 1);
+
+namespace Sweetchuck\Robo\ESLint\Tests\Unit\Task;
 
 use Codeception\Test\Unit;
 use Codeception\Util\Stub;
 use Sweetchuck\Robo\ESLint\Task\ESLintRunInput;
 use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyOutput;
-use Sweetchuck\Robo\ESLint\Test\Helper\Dummy\DummyProcess;
+use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyProcess;
 use Robo\Robo;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -22,14 +24,14 @@ class ESLintRunInputTest extends Unit
     }
 
     /**
-     * @var \Sweetchuck\Robo\ESLint\Test\UnitTester
+     * @var \Sweetchuck\Robo\ESLint\Tests\UnitTester
      */
     protected $tester;
 
     /**
      * {@inheritdoc}
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -39,13 +41,13 @@ class ESLintRunInputTest extends Unit
     public function testGetSetStdinFilename(): void
     {
         $task = new ESLintRunInput();
-        $this->tester->assertEquals(null, $task->getStdinFilename());
+        $this->tester->assertSame('', $task->getStdinFilename());
 
         $task = new ESLintRunInput(['stdinFilename' => 'a.js']);
-        $this->tester->assertEquals('a.js', $task->getStdinFilename());
+        $this->tester->assertSame('a.js', $task->getStdinFilename());
 
         $task->setStdinFilename('b.js');
-        $this->tester->assertEquals('b.js', $task->getStdinFilename());
+        $this->tester->assertSame('b.js', $task->getStdinFilename());
     }
 
     public function casesGetCommand(): array
@@ -98,7 +100,7 @@ class ESLintRunInputTest extends Unit
             $properties
         );
 
-        $this->tester->assertEquals($expected, $task->getCommand());
+        $this->tester->assertSame($expected, $task->getCommand());
     }
 
     public function casesGetJarValueOrLocal(): array
@@ -204,12 +206,12 @@ class ESLintRunInputTest extends Unit
                 [
                     'w1.js' => [
                         'lintExitCode' => 1,
-                        'lintStdOutput' => json_encode([$files['warning.js']], true),
+                        'lintStdOutput' => json_encode([$files['warning.js']]),
                         'report' => [$files['warning.js']],
                     ],
                     'w2.js' => [
                         'lintExitCode' => 1,
-                        'lintStdOutput' => json_encode([$files['warning.js']], true),
+                        'lintStdOutput' => json_encode([$files['warning.js']]),
                         'report' => [$files['warning.js']],
                     ],
                 ],
@@ -255,10 +257,10 @@ class ESLintRunInputTest extends Unit
 
         $result = $task->run();
 
-        $this->tester->assertEquals($expected['exitCode'], $result->getExitCode());
+        $this->tester->assertSame($expected['exitCode'], $result->getExitCode());
 
         /** @var \Sweetchuck\LintReport\ReportWrapperInterface $reportWrapper */
         $reportWrapper = $result['report'];
-        $this->tester->assertEquals($expected['report'], $reportWrapper->getReport());
+        $this->tester->assertSame($expected['report'], $reportWrapper->getReport());
     }
 }
