@@ -13,6 +13,7 @@ use Robo\Tasks;
 use Sweetchuck\LintReport\Reporter\BaseReporter;
 use Sweetchuck\Robo\Git\GitTaskLoader;
 use Sweetchuck\Robo\Phpcs\PhpcsTaskLoader;
+use Sweetchuck\Robo\PhpMessDetector\PhpmdTaskLoader;
 use Sweetchuck\Utils\Filter\ArrayFilterEnabled;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -27,6 +28,7 @@ class RoboFile extends Tasks implements LoggerAwareInterface, ConfigAwareInterfa
     use ConfigLoader;
     use GitTaskLoader;
     use PhpcsTaskLoader;
+    use PhpmdTaskLoader;
 
     protected array $composerInfo = [];
 
@@ -131,6 +133,22 @@ class RoboFile extends Tasks implements LoggerAwareInterface, ConfigAwareInterfa
             ->collectionBuilder()
             ->addTask($this->taskComposerValidate())
             ->addTask($this->getTaskPhpcsLint());
+    }
+
+    /**
+     * @initLintReporters
+     */
+    public function lintPhpcs(): CollectionBuilder
+    {
+        return $this->getTaskPhpcsLint();
+    }
+
+    /**
+     * @initLintReporters
+     */
+    public function lintPhpmd(): CollectionBuilder
+    {
+        return $this->getTaskPhpmdLint();
     }
 
     protected function errorOutput(): ?OutputInterface
@@ -452,6 +470,18 @@ class RoboFile extends Tasks implements LoggerAwareInterface, ConfigAwareInterfa
         }
 
         return $this->taskPhpcsLintFiles($options);
+    }
+
+    protected function getTaskPhpmdLint()
+    {
+        $task = $this
+            ->taskPhpmdLintFiles()
+            ->setInputFile('./rulesets/custom.include-pattern.txt')
+            ->addExcludePathsFromFile('./rulesets/custom.exclude-pattern.txt')
+            ->setRuleSetFileNames(['custom']);
+        $task->setOutput($this->output());
+
+        return $task;
     }
 
     protected function getLogDir(): string

@@ -80,8 +80,10 @@ class Scripts
     {
         if ($type === Process::OUT) {
             static::$event->getIO()->write($text);
-        } else {
-            static::$event->getIO()->writeError($text);
+
+            return;
         }
+
+        static::$event->getIO()->writeError($text);
     }
 }

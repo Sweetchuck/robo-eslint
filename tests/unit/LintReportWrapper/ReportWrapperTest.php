@@ -180,7 +180,7 @@ class ReportWrapperTest extends \Codeception\Test\Unit
          * @var string $filePath
          * @var \Sweetchuck\Robo\ESLint\LintReportWrapper\FileWrapper $fw
          */
-        foreach ($rw->yieldFiles() as $filePath => $fw) {
+        foreach ($rw->yieldFiles() as $fw) {
             $file = array_shift($report);
             $this->tester->assertSame($file['filePath'], $fw->filePath());
             $this->tester->assertSame($file['errorCount'], $fw->numOfErrors());

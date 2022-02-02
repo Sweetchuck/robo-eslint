@@ -4,15 +4,16 @@ declare(strict_types = 1);
 
 namespace Sweetchuck\Robo\ESLint\Tests\Unit\Task;
 
-use Codeception\Test\Unit;
 use Codeception\Util\Stub;
-use Robo\Robo;
+use Robo\Collection\CollectionBuilder;
 use Sweetchuck\Robo\ESLint\Task\ESLintRunFiles;
-use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyOutput;
 use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyProcess;
-use Symfony\Component\Console\Output\OutputInterface;
 
-class ESLintRunFilesTest extends Unit
+/**
+ * @covers \Sweetchuck\Robo\ESLint\Task\ESLintRunFiles<extended>
+ * @covers \Sweetchuck\Robo\ESLint\ESLintTaskLoader
+ */
+class ESLintRunFilesTest extends TaskTestBase
 {
     protected static function getMethod(string $name): \ReflectionMethod
     {
@@ -23,19 +24,9 @@ class ESLintRunFilesTest extends Unit
         return $method;
     }
 
-    /**
-     * @var \Sweetchuck\Robo\ESLint\Tests\UnitTester
-     */
-    protected $tester;
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function setUp(): void
+    protected function initTaskCreate(): CollectionBuilder
     {
-        parent::setUp();
-
-        DummyProcess::reset();
+        return $this->taskBuilder->taskESLintRunFiles();
     }
 
     public function casesGetSetOutputFile(): array
@@ -84,21 +75,20 @@ class ESLintRunFilesTest extends Unit
      */
     public function testGetSetOutputFile(string $expectedDirect, string $expectedReal, array $options): void
     {
-        $task = new ESLintRunFiles($options);
+        $this->task->setOptions($options);
 
-        $this->tester->assertSame($expectedDirect, $task->getOutputFile());
-        $this->tester->assertSame($expectedReal, $task->getRealOutputFile());
+        $this->tester->assertSame($expectedDirect, $this->task->getOutputFile());
+        $this->tester->assertSame($expectedReal, $this->task->getRealOutputFile());
     }
 
     public function testGetSetLintReporters(): void
     {
-        $task = new ESLintRunFiles([
-            'lintReporters' => [
-                'aKey' => 'aValue',
-            ],
-        ]);
-
-        $task
+        $this->task
+            ->setOptions([
+                'lintReporters' => [
+                    'aKey' => 'aValue',
+                ],
+            ])
             ->addLintReporter('bKey', 'bValue')
             ->addLintReporter('cKey', 'cValue')
             ->removeLintReporter('bKey');
@@ -108,7 +98,7 @@ class ESLintRunFilesTest extends Unit
                 'aKey' => 'aValue',
                 'cKey' => 'cValue',
             ],
-            $task->getLintReporters()
+            $this->task->getLintReporters(),
         );
     }
 
@@ -329,8 +319,8 @@ class ESLintRunFilesTest extends Unit
      */
     public function testGetCommand(string $expected, array $options): void
     {
-        $eslint = new ESLintRunFiles($options);
-        $this->tester->assertSame($expected, $eslint->getCommand());
+        $this->task->setOptions($options);
+        $this->tester->assertSame($expected, $this->task->getCommand());
     }
 
     public function testExitCodeConstants(): void
@@ -421,7 +411,7 @@ class ESLintRunFilesTest extends Unit
         int $numOfWarnings,
         int $lintExitCode
     ): void {
-        /** @var ESLintRunFiles $task */
+        /** @var \Sweetchuck\Robo\ESLint\Task\ESLintRunFiles $task */
         $task = Stub::construct(
             ESLintRunFiles::class,
             [['failOn' => $failOn]],
@@ -491,42 +481,27 @@ class ESLintRunFilesTest extends Unit
      */
     public function testRun(int $expectedExitCode, array $expectedReport): void
     {
-        $container = Robo::createDefaultContainer();
-        Robo::setContainer($container);
-
-        $outputConfig = [
-            'verbosity' => OutputInterface::VERBOSITY_DEBUG,
-            'colors' => false,
+        $processIndex = count(DummyProcess::$instances);
+        DummyProcess::$prophecy[$processIndex] = [
+            'exitCode' => $expectedExitCode,
+            'stdOutput' => json_encode($expectedReport),
+            'stdError' => '',
         ];
-        $mainStdOutput = new DummyOutput($outputConfig);
 
         $options = [
             'workingDirectory' => 'my-working-dir',
             'format' => 'json',
             'failOn' => 'warning',
         ];
+        $this->task->setOptions($options);
 
-        /** @var ESLintRunFiles $task */
-        $task = Stub::construct(
-            ESLintRunFiles::class,
-            [$options, []],
-            [
-                'processClass' => DummyProcess::class,
-            ]
+        $result = $this->task->run();
+
+        $this->tester->assertSame(
+            $expectedExitCode,
+            $result->getExitCode(),
+            'Exit code',
         );
-
-        $processIndex = count(DummyProcess::$instances);
-        DummyProcess::$prophecy[$processIndex] = [
-            'exitCode' => $expectedExitCode,
-            'stdOutput' => json_encode($expectedReport),
-        ];
-
-        $task->setLogger($container->get('logger'));
-        $task->setOutput($mainStdOutput);
-
-        $result = $task->run();
-
-        $this->tester->assertSame($expectedExitCode, $result->getExitCode(), 'Exit code');
 
         $assetNamePrefix = $options['assetNamePrefix'] ?? '';
 
@@ -535,21 +510,22 @@ class ESLintRunFilesTest extends Unit
         $this->tester->assertSame(
             $expectedReport,
             $reportWrapper->getReport(),
-            'Output equals with jar',
+            '$reportWrapper equals with jar',
         );
+
+        /** @var \Sweetchuck\Codeception\Module\RoboTaskRunner\DummyOutput $output */
+        $output = $this->container->get('output');
+        $stdOutput = $output->output;
 
         $this->tester->assertSame(
             $expectedReport,
-            json_decode($mainStdOutput->output, true),
-            'Output equals without jar',
+            json_decode($stdOutput, true),
+            'stdOutput same',
         );
     }
 
     public function testRunFailed(): void
     {
-        $container = Robo::createDefaultContainer();
-        Robo::setContainer($container);
-
         $exitCode = 1;
         $report = [
             [
@@ -569,20 +545,6 @@ class ESLintRunFilesTest extends Unit
             ],
         ];
         $reportJson = json_encode($report);
-        $options = [
-            'workingDirectory' => 'my-working-dir',
-            'format' => 'json',
-            'failOn' => 'warning',
-        ];
-
-        /** @var ESLintRunFiles $task */
-        $task = Stub::construct(
-            ESLintRunFiles::class,
-            [$options, []],
-            [
-                'processClass' => DummyProcess::class,
-            ]
-        );
 
         $processIndex = count(DummyProcess::$instances);
         DummyProcess::$prophecy[$processIndex] = [
@@ -590,9 +552,13 @@ class ESLintRunFilesTest extends Unit
             'stdOutput' => $reportJson,
         ];
 
-        $task->setLogger($container->get('logger'));
-
-        $result = $task->run();
+        $options = [
+            'workingDirectory' => 'my-working-dir',
+            'format' => 'json',
+            'failOn' => 'warning',
+        ];
+        $this->task->setOptions($options);
+        $result = $this->task->run();
 
         $this->tester->assertSame($exitCode, $result->getExitCode());
 

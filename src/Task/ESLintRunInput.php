@@ -11,7 +11,7 @@ class ESLintRunInput extends ESLintRun
     // region Properties
     protected bool $addFilesToCliCommand = false;
 
-    protected array$currentFile = [
+    protected array $currentFile = [
         'fileName' => '',
         'content' => '',
     ];
@@ -119,12 +119,10 @@ class ESLintRunInput extends ESLintRun
      */
     public function getCommand(): string
     {
-        if ($this->currentFile['content'] === null) {
-            // @todo Handle the different working directories.
-            $echo = $this->currentFile['command'];
-        } else {
-            $echo = sprintf('echo -n %s', escapeshellarg($this->currentFile['content']));
-        }
+        // @todo Handle the different working directories.
+        $echo = $this->currentFile['content'] === null ?
+            $this->currentFile['command']
+            : sprintf('echo -n %s', escapeshellarg($this->currentFile['content']));
 
         return $echo . ' | ' . parent::getCommand();
     }
@@ -133,7 +131,7 @@ class ESLintRunInput extends ESLintRun
     {
         return [
             'stdin' => true,
-            'stdinFilename' => $this->currentFile['fileName'] ?: $this->getStdinFilename(),
+            'stdinFilename' => $this->currentFile['fileName'] ?? $this->getStdinFilename(),
         ] + parent::getCommandOptions();
     }
 }

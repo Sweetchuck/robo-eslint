@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Sweetchuck\Robo\ESLint\Task;
 
+use Robo\Contract\CommandInterface;
 use Sweetchuck\LintReport\ReporterInterface;
 use Sweetchuck\LintReport\ReportWrapperInterface;
 use Sweetchuck\Robo\ESLint\LintReportWrapper\ReportWrapper;
@@ -17,6 +18,7 @@ use Robo\Task\BaseTask;
 use Symfony\Component\Process\Process;
 
 abstract class ESLintRun extends BaseTask implements
+    CommandInterface,
     ContainerAwareInterface,
     OutputAwareInterface
 {
@@ -943,7 +945,7 @@ abstract class ESLintRun extends BaseTask implements
         } else {
             $exitCode = $this->getTaskExitCode(
                 $this->reportWrapper->numOfErrors(),
-                $this->reportWrapper->numOfWarnings()
+                $this->reportWrapper->numOfWarnings(),
             );
         }
 
@@ -974,11 +976,6 @@ abstract class ESLintRun extends BaseTask implements
     {
         $cmdPattern = '';
         $cmdArgs = [];
-
-        //if ($this->getWorkingDirectory()) {
-        //    $cmdPattern .= 'cd %s && ';
-        //    $cmdArgs[] = escapeshellarg($this->getWorkingDirectory());
-        //}
 
         $cmdPattern .= '%s';
         $cmdArgs[] = escapeshellcmd($this->getEslintExecutable());

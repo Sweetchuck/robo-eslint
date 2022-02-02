@@ -28,58 +28,26 @@
         "preferred-install": "dist",
         "sort-packages": true
     },
-    "repositories": {
-        "nuvoleweb/robo-config - Issue #19": {
-            "type": "package",
-            "package": {
-                "name": "nuvoleweb/robo-config",
-                "description": "CI/developer-friendly configuration processor for Robo.",
-                "type": "robo-tasks",
-                "license": "GPL-2.0-or-later",
-                "version": "2.99.99",
-                "dist": {
-                    "type": "zip",
-                    "url": "https://github.com/nuvoleweb/robo-config/archive/81e9983146c6e4c7acc7584d1a92451eaecfd695.zip"
-                },
-                "source": {
-                    "type": "git",
-                    "url": "https://github.com/nuvoleweb/robo-config.git",
-                    "reference": "81e9983146c6e4c7acc7584d1a92451eaecfd695"
-                },
-                "authors": [
-                    {
-                        "name": "Antonio De Marco",
-                        "email": "antonio@nuvole.org"
-                    }
-                ],
-                "require": {
-                    "consolidation/robo": "^2.1"
-                },
-                "autoload": {
-                    "psr-4": {
-                        "NuvoleWeb\\Robo\\Task\\Config\\": "src/"
-                    }
-                }
-            }
-        }
-    },
+    "repositories": {},
     "require": {
         "php": ">=7.4",
-        "consolidation/robo": "^2.0"
+        "consolidation/robo": "^3.0"
     },
     "require-dev": {
         "ext-dom": "*",
         "ext-json": "*",
         "codeception/codeception": "^4.0",
         "codeception/module-asserts": "^1.1",
-        "nuvoleweb/robo-config": "2.99.99",
+        "nuvoleweb/robo-config": "2.x-dev",
+        "phpmd/phpmd": "^2.11",
         "squizlabs/php_codesniffer": "^3.5",
-        "sweetchuck/codeception-module-robo-task-runner": "1.x-dev",
+        "sweetchuck/codeception-module-robo-task-runner": "2.x-dev",
         "sweetchuck/git-hooks": "2.x-dev",
         "sweetchuck/lint-report": "1.x-dev",
-        "sweetchuck/robo-git": "1.x-dev",
-        "sweetchuck/robo-phpcs": "1.x-dev",
-        "sweetchuck/utils": "1.x-dev",
+        "sweetchuck/robo-git": "2.x-dev",
+        "sweetchuck/robo-phpcs": "2.x-dev",
+        "sweetchuck/robo-phpmd": "2.x-dev",
+        "sweetchuck/utils": "2.x-dev",
         "symfony/error-handler": "^5.0",
         "webmozart/path-util": "^2.3"
     },

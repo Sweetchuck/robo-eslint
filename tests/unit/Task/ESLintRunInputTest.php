@@ -4,15 +4,17 @@ declare(strict_types = 1);
 
 namespace Sweetchuck\Robo\ESLint\Tests\Unit\Task;
 
-use Codeception\Test\Unit;
-use Codeception\Util\Stub;
+use Robo\Collection\CollectionBuilder;
 use Sweetchuck\Robo\ESLint\Task\ESLintRunInput;
-use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyOutput;
 use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyProcess;
-use Robo\Robo;
-use Symfony\Component\Console\Output\OutputInterface;
 
-class ESLintRunInputTest extends Unit
+/**
+ * @covers \Sweetchuck\Robo\ESLint\Task\ESLintRunInput<extended>
+ * @covers \Sweetchuck\Robo\ESLint\ESLintTaskLoader
+ *
+ * @property \Sweetchuck\Robo\ESLint\Task\ESLintRunInput $task
+ */
+class ESLintRunInputTest extends TaskTestBase
 {
     protected static function getMethod(string $name): \ReflectionMethod
     {
@@ -23,66 +25,62 @@ class ESLintRunInputTest extends Unit
         return $method;
     }
 
-    /**
-     * @var \Sweetchuck\Robo\ESLint\Tests\UnitTester
-     */
-    protected $tester;
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function setUp(): void
+    protected function initTaskCreate(): CollectionBuilder
     {
-        parent::setUp();
-
-        DummyProcess::reset();
+        return $this->taskBuilder->taskESLintRunInput();
     }
 
     public function testGetSetStdinFilename(): void
     {
-        $task = new ESLintRunInput();
-        $this->tester->assertSame('', $task->getStdinFilename());
+        $this->tester->assertSame('', $this->task->getStdinFilename());
 
-        $task = new ESLintRunInput(['stdinFilename' => 'a.js']);
-        $this->tester->assertSame('a.js', $task->getStdinFilename());
+        $this->initTask();
+        $this->task->setOptions(['stdinFilename' => 'a.js']);
+        $this->tester->assertSame('a.js', $this->task->getStdinFilename());
 
-        $task->setStdinFilename('b.js');
-        $this->tester->assertSame('b.js', $task->getStdinFilename());
+        $this->initTask();
+        $this->task->setStdinFilename('b.js');
+        $this->tester->assertSame('b.js', $this->task->getStdinFilename());
     }
 
     public function casesGetCommand(): array
     {
         return [
-            'empty' => [
-                "echo -n '' | eslint --stdin",
-                [],
-            ],
             'file' => [
-                "echo -n '' | eslint --stdin --stdin-filename 'a.js'",
+                "echo -n 'var a = 42;' | eslint --stdin --stdin-filename 'a.js'",
                 [
                     'stdinFilename' => 'a.js',
+                    'files' => [
+                        'c.js' => [
+                            'content' => 'var a = 42;',
+                        ],
+                    ],
                 ],
             ],
             'content' => [
                 "echo -n 'var a = 42;' | eslint --stdin --stdin-filename 'c.js'",
-                [],
                 [
-                    'currentFile' => [
-                        'fileName' => 'c.js',
-                        'content' => 'var a = 42;',
+                    'files' => [
+                        'c.js' => [
+                            'fileName' => 'c.js',
+                            'content' => 'var a = 42;',
+                        ],
                     ],
-                ]
+                ],
+                [],
             ],
             'command' => [
                 "git show :c.js | eslint --stdin --stdin-filename 'c.js'",
-                [],
                 [
-                    'currentFile' => [
-                        'fileName' => 'c.js',
-                        'content' => null,
-                        'command' => 'git show :c.js',
+                    'files' => [
+                        'c.js' => [
+                            'fileName' => 'c.js',
+                            'content' => null,
+                            'command' => 'git show :c.js',
+                        ],
                     ],
-                ]
+                ],
+                [],
             ],
         ];
     }
@@ -90,17 +88,17 @@ class ESLintRunInputTest extends Unit
     /**
      * @dataProvider casesGetCommand
      */
-    public function testGetCommand(string $expected, array $options, array $properties = []): void
+    public function testGetCommand(string $expected, array $options): void
     {
-        $options += ['eslintExecutable' => 'eslint'];
-        /** @var \Sweetchuck\Robo\ESLint\Task\ESLintRunInput $task */
-        $task = Stub::construct(
-            ESLintRunInput::class,
-            [$options, []],
-            $properties
-        );
-
-        $this->tester->assertSame($expected, $task->getCommand());
+        $files = $options['files'] ?? [];
+        $this->initTask([
+            'currentFile' => reset($files) ?: [],
+        ]);
+        $options += [
+            'eslintExecutable' => 'eslint',
+        ];
+        $this->task->setOptions($options);
+        $this->tester->assertSame($expected, $this->task->getCommand());
     }
 
     public function casesGetJarValueOrLocal(): array
@@ -222,26 +220,8 @@ class ESLintRunInputTest extends Unit
     /**
      * @dataProvider casesRun
      */
-    public function testRun(array $expected, array $options, array $files, array $properties = []): void
+    public function testRun(array $expected, array $options, array $files): void
     {
-        $container = Robo::createDefaultContainer();
-        Robo::setContainer($container);
-
-        $outputConfig = [
-            'verbosity' => OutputInterface::VERBOSITY_DEBUG,
-            'colors' => false,
-        ];
-        $mainStdOutput = new DummyOutput($outputConfig);
-
-        $properties += ['processClass' => DummyProcess::class];
-
-        /** @var \Sweetchuck\Robo\ESLint\Task\ESLintRunInput $task */
-        $task = Stub::construct(
-            ESLintRunInput::class,
-            [$options, []],
-            $properties
-        );
-
         $processIndex = count(DummyProcess::$instances);
         foreach ($files as $file) {
             DummyProcess::$prophecy[$processIndex] = [
@@ -252,10 +232,8 @@ class ESLintRunInputTest extends Unit
             $processIndex++;
         }
 
-        $task->setLogger($container->get('logger'));
-        $task->setOutput($mainStdOutput);
-
-        $result = $task->run();
+        $this->task->setOptions($options);
+        $result = $this->task->run();
 
         $this->tester->assertSame($expected['exitCode'], $result->getExitCode());
 
