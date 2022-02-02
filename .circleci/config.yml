@@ -1,0 +1,218 @@
+
+version: 2.1
+
+orbs:
+    codecov: 'codecov/codecov@3.0.0'
+
+.env_app: &env_app
+    SHELL: '/bin/bash'
+    NVM_DIR: '/home/circleci/.nvm'
+
+.env_composer: &env_composer
+    COMPOSER_NO_INTERACTION: '1'
+    COMPOSER_MEMORY_LIMIT: '-1'
+    COMPOSER_DISABLE_XDEBUG_WARN: '1'
+    COMPOSER_CACHE_DIR: '/home/circleci/.cache/composer'
+    YARN_CACHE_FOLDER: '/home/circleci/.cache/yarn'
+
+executors:
+    php_min:
+        resource_class: 'small'
+        environment:
+            <<: *env_app
+            <<: *env_composer
+
+        docker:
+            -
+                name: 'main'
+                image: 'circleci/php:7.4'
+    php_plus1:
+        resource_class: 'small'
+        environment:
+            <<: *env_app
+            <<: *env_composer
+
+        docker:
+            -
+                name: 'main'
+                image: 'circleci/php:8.0'
+    php_plus2:
+        resource_class: 'small'
+        environment:
+            <<: *env_app
+            <<: *env_composer
+
+        docker:
+            -
+                name: 'main'
+                image: 'cimg/php:8.1'
+
+commands:
+    install_php_extension_pcov:
+        description: 'Install PCOV PHP extension'
+        steps:
+            -
+                run:
+                    name: 'Install PCOV PHP extension - pecl install pcov'
+                    command: |
+                        sudo pecl install pcov
+                        php -v
+                        php -m
+                        if php -m | grep pcov ; then
+                            exit 0
+                        fi
+
+                        scanDir="$(php -i | grep --color=never --only-matching --perl-regexp '(?<=^Scan this dir for additional \.ini files => ).+')"
+                        echo 'extension=pcov' | sudo tee "${scanDir}/pcov.ini"
+                        php -m
+
+    nvm_install:
+        description: 'NVM install'
+        steps:
+            -
+                run:
+                    name: 'NVM install - self'
+                    command: |
+                        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+            -
+                run:
+                    name: 'NVM install - node version .nvmrc'
+                    command: |
+                        source "${NVM_DIR}/nvm.sh" --install
+            -
+                run:
+                    name: 'NVM install - install yarn for node .nvmrc'
+                    command: |
+                        source "${NVM_DIR}/nvm.sh"
+                        npm --global install --save yarn
+
+    composer_install:
+        description: 'Install Composer dependencies with cache restore and save'
+        steps:
+            -
+                restore_cache:
+                    name: 'Composer - Composer restore'
+                    keys:
+                        - 'composer-{{ checksum "./composer.lock" }}-2'
+            -
+                restore_cache:
+                    name: 'Composer - NPM restore'
+                    keys:
+                        - 'npm-{{ checksum "./tests/_data/yarn.lock" }}-2'
+            -
+                run:
+                    name: 'Composer - install'
+                    command: |
+                        source "${NVM_DIR}/nvm.sh"
+                        composer install --no-progress --ansi
+            -
+                save_cache:
+                    name: 'Composer - Composer save'
+                    key: 'composer-{{ checksum "./composer.lock" }}-2'
+                    paths:
+                        - '~/.cache/composer/'
+            -
+                save_cache:
+                    name: 'Composer - NPM save'
+                    key: 'npm-{{ checksum "./tests/_data/yarn.lock" }}-2'
+                    paths:
+                        - '~/.cache/yarn/'
+
+    lint:
+        description: 'Run linters'
+        steps:
+            -
+                run:
+                    name: 'Run linters'
+                    command: '"$(composer config bin-dir)/robo" --ansi lint'
+
+    test:
+        description: 'Run tests'
+        steps:
+            -
+                run:
+                    name: 'Codeception - unit'
+                    command: |
+                        source "${NVM_DIR}/nvm.sh"
+                        "$(composer config bin-dir)/robo" --ansi test unit
+            -   codecov/upload:
+                    flags: 'unit'
+                    file: './tests/_log/machine/coverage/unit/coverage.xml'
+            -
+                run:
+                    name: 'Codeception - acceptance'
+                    command: |
+                        source "${NVM_DIR}/nvm.sh"
+                        "$(composer config bin-dir)/robo" --ansi test acceptance
+            -   codecov/upload:
+                    flags: 'acceptance'
+                    file: './tests/_log/machine/coverage/unit/coverage.xml'
+            -   store_test_results:
+                    name: 'Store unit test results'
+                    path: './tests/_log/machine/junit'
+
+jobs:
+    build:
+        executor: 'php_min'
+        working_directory: '~/repo'
+        steps:
+            - 'checkout'
+            - 'nvm_install'
+            - 'composer_install'
+    lint:
+        executor: 'php_min'
+        working_directory: '~/repo'
+        steps:
+            - 'checkout'
+            - 'nvm_install'
+            - 'composer_install'
+            - 'lint'
+    test_php_min:
+        executor: 'php_min'
+        working_directory: '~/repo'
+        steps:
+            - 'checkout'
+            - 'install_php_extension_pcov'
+            - 'nvm_install'
+            - 'composer_install'
+            - 'test'
+    test_php_plus1:
+        executor: 'php_plus1'
+        working_directory: '~/repo'
+        steps:
+            - 'checkout'
+            - 'install_php_extension_pcov'
+            - 'nvm_install'
+            - 'composer_install'
+            - 'test'
+    test_php_plus2:
+        executor: 'php_plus2'
+        working_directory: '~/repo'
+        steps:
+            - 'checkout'
+            - 'install_php_extension_pcov'
+            - 'nvm_install'
+            - 'composer_install'
+            - 'test'
+
+workflows:
+    lint_and_test:
+        jobs:
+            -
+                build: {}
+            -
+                lint:
+                    requires:
+                        - 'build'
+            -
+                test_php_min:
+                    requires:
+                        - 'build'
+            -
+                test_php_plus1:
+                    requires:
+                        - 'build'
+            -
+                test_php_plus2:
+                    requires:
+                        - 'build'

@@ -1,6 +1,0 @@
-
-class_name: UnitTester
-modules:
-    enabled:
-        - Asserts
-        - \Sweetchuck\Robo\ESLint\Test\Helper\Unit

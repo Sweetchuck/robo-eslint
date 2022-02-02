@@ -3,5 +3,4 @@ samples/invalid-01.js
 | Source   | Occurrences |
 +----------+-------------+
 | no-undef |           1 |
-| semi     |           1 |
 +----------+-------------+

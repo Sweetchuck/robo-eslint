@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Sweetchuck\Robo\ESLint\Task;
 
 use Sweetchuck\Robo\ESLint\Utils;
@@ -7,25 +9,16 @@ use Sweetchuck\Robo\ESLint\Utils;
 class ESLintRunInput extends ESLintRun
 {
     // region Properties
-    /**
-     * {@inheritdoc}
-     */
-    protected $addFilesToCliCommand = false;
+    protected bool $addFilesToCliCommand = false;
 
-    /**
-     * @var array
-     */
-    protected $currentFile = [
+    protected array$currentFile = [
         'fileName' => '',
         'content' => '',
     ];
     // endregion
 
     // region Option - stdinFilename.
-    /**
-     * @var string
-     */
-    protected $stdinFilename = '';
+    protected string $stdinFilename = '';
 
     public function getStdinFilename(): string
     {
@@ -43,9 +36,6 @@ class ESLintRunInput extends ESLintRun
     }
     // endregion
 
-    /**
-     * {@inheritdoc}
-     */
     public function __construct(array $options = [])
     {
         parent::__construct($options);
@@ -139,9 +129,6 @@ class ESLintRunInput extends ESLintRun
         return $echo . ' | ' . parent::getCommand();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getCommandOptions(): array
     {
         return [

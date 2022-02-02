@@ -1,25 +1,86 @@
 {
+    "type": "robo-task",
     "name": "sweetchuck/robo-eslint",
     "description": "Robo task wrapper for ESLint",
-    "license": "GPL-2.0+",
-    "config": {
-        "bin-dir": "bin",
-        "sort-packages": true
+    "keywords": [
+        "robo-tasks",
+        "eslint"
+    ],
+    "authors": [
+        {
+            "name": "Andor",
+            "role": "Maintainer",
+            "homepage": "https://github.com/Sweetchuck"
+        }
+    ],
+    "support": {
+        "source": "https://github.com/Sweetchuck/robo-eslint",
+        "issues": "https://github.com/Sweetchuck/robo-eslint/issues"
     },
+    "license": "GPL-2.0-or-later",
     "minimum-stability": "dev",
     "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "sweetchuck/git-hooks": true
+        },
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "repositories": {
+        "nuvoleweb/robo-config - Issue #19": {
+            "type": "package",
+            "package": {
+                "name": "nuvoleweb/robo-config",
+                "description": "CI/developer-friendly configuration processor for Robo.",
+                "type": "robo-tasks",
+                "license": "GPL-2.0-or-later",
+                "version": "2.99.99",
+                "dist": {
+                    "type": "zip",
+                    "url": "https://github.com/nuvoleweb/robo-config/archive/81e9983146c6e4c7acc7584d1a92451eaecfd695.zip"
+                },
+                "source": {
+                    "type": "git",
+                    "url": "https://github.com/nuvoleweb/robo-config.git",
+                    "reference": "81e9983146c6e4c7acc7584d1a92451eaecfd695"
+                },
+                "authors": [
+                    {
+                        "name": "Antonio De Marco",
+                        "email": "antonio@nuvole.org"
+                    }
+                ],
+                "require": {
+                    "consolidation/robo": "^2.1"
+                },
+                "autoload": {
+                    "psr-4": {
+                        "NuvoleWeb\\Robo\\Task\\Config\\": "src/"
+                    }
+                }
+            }
+        }
+    },
     "require": {
-        "php": ">=7.1",
-        "consolidation/robo": "^1.0",
-        "symfony/process": "^2.8 || ^3.1"
+        "php": ">=7.4",
+        "consolidation/robo": "^2.0"
     },
     "require-dev": {
-        "codeception/codeception": "^2.2",
-        "sweetchuck/codeception-module-robo-task-runner": "^0.0.1",
-        "sweetchuck/git-hooks": "^0.0",
-        "sweetchuck/lint-report": "^0.0",
-        "sweetchuck/robo-git": "^0.0",
-        "sweetchuck/robo-phpcs": "^0.0",
+        "ext-dom": "*",
+        "ext-json": "*",
+        "codeception/codeception": "^4.0",
+        "codeception/module-asserts": "^1.1",
+        "nuvoleweb/robo-config": "2.99.99",
+        "squizlabs/php_codesniffer": "^3.5",
+        "sweetchuck/codeception-module-robo-task-runner": "1.x-dev",
+        "sweetchuck/git-hooks": "2.x-dev",
+        "sweetchuck/lint-report": "1.x-dev",
+        "sweetchuck/robo-git": "1.x-dev",
+        "sweetchuck/robo-phpcs": "1.x-dev",
+        "sweetchuck/utils": "1.x-dev",
+        "symfony/error-handler": "^5.0",
         "webmozart/path-util": "^2.3"
     },
     "autoload": {
@@ -29,16 +90,15 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Sweetchuck\\Robo\\ESLint\\Composer\\": "src-dev/Composer/",
-            "Sweetchuck\\Robo\\ESLint\\Test\\": "tests/_support/",
+            "Sweetchuck\\Robo\\ESLint\\Tests\\Fixtures\\Project01\\": "tests/_data/fixtures/project-01/",
+            "Sweetchuck\\Robo\\ESLint\\Tests\\Acceptance\\": "tests/acceptance/",
             "Sweetchuck\\Robo\\ESLint\\Tests\\Unit\\": "tests/unit/",
-            "Sweetchuck\\Robo\\ESLint\\Tests\\Acceptance\\": "tests/acceptance/"
+            "Sweetchuck\\Robo\\ESLint\\Tests\\": "tests/_support/"
         }
     },
     "scripts": {
-        "post-install-cmd": "\\Sweetchuck\\Robo\\ESLint\\Composer\\Scripts::postInstallCmd",
-        "post-update-cmd": "\\Sweetchuck\\Robo\\ESLint\\Composer\\Scripts::postUpdateCmd",
-        "deploy-git-hooks": "\\Sweetchuck\\GitHooks\\Composer\\Scripts::deploy",
-        "npm-install": "\\Sweetchuck\\Robo\\ESLint\\Composer\\Scripts::npmInstall"
+        "post-install-cmd": "\\Sweetchuck\\Robo\\ESLint\\Tests\\Helper\\Composer\\Scripts::postInstallCmd",
+        "post-update-cmd": "\\Sweetchuck\\Robo\\ESLint\\Tests\\Helper\\Composer\\Scripts::postUpdateCmd",
+        "npm-install": "\\Sweetchuck\\Robo\\ESLint\\Tests\\Helper\\Composer\\Scripts::npmInstall"
     }
 }
