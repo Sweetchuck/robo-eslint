@@ -15,6 +15,7 @@ use Robo\Common\IO;
 use Consolidation\AnnotatedCommand\Output\OutputAwareInterface;
 use Robo\Result;
 use Robo\Task\BaseTask;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
 
 abstract class ESLintRun extends BaseTask implements
@@ -587,7 +588,7 @@ abstract class ESLintRun extends BaseTask implements
             return '';
         }
 
-        if (Utils::isAbsolutePath($outputFile)) {
+        if (Path::isAbsolute($outputFile)) {
             return $outputFile;
         }
 

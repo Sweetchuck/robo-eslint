@@ -4,34 +4,13 @@ declare(strict_types = 1);
 
 namespace Sweetchuck\Robo\ESLint\Tests\Unit;
 
+use Sweetchuck\Robo\ESLint\Tests\UnitTester;
 use Sweetchuck\Robo\ESLint\Utils;
 use Codeception\Test\Unit;
 
 class UtilsTest extends Unit
 {
-    /**
-     * @var \Sweetchuck\Robo\ESLint\Tests\UnitTester
-     */
-    protected $tester;
-
-    public function casesIsAbsolutePath(): array
-    {
-        return [
-            'empty string' => [false, ''],
-            'dot simple' => [false, '.'],
-            'dot double' => [false, '..'],
-            'relative' => [false, 'a'],
-            'absolute' => [true, '/'],
-        ];
-    }
-
-    /**
-     * @dataProvider casesIsAbsolutePath
-     */
-    public function testIsAbsolutePath(bool $expected, string $path): void
-    {
-        $this->tester->assertSame($expected, Utils::isAbsolutePath($path));
-    }
+    protected UnitTester $tester;
 
     public function casesMergeReports(): array
     {

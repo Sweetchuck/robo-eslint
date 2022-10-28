@@ -6,16 +6,6 @@ namespace Sweetchuck\Robo\ESLint;
 
 class Utils
 {
-    /**
-     * @todo Use webmozart/path-utils
-     *
-     * @deprecated Use webmozart/path-utils
-     */
-    public static function isAbsolutePath(string $path): bool
-    {
-        return strpos($path, DIRECTORY_SEPARATOR) === 0;
-    }
-
     public static function mergeReports(array $reports): array
     {
         if (func_num_args() > 1) {
