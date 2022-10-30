@@ -1,0 +1,3 @@
+parameters:
+    typeAliases:
+        robo-eslint-enum-cache-strategy: '"metadata"|"content"'

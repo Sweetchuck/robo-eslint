@@ -140,28 +140,88 @@ class ESLintRunFilesTest extends TaskTestBase
                 'node_modules/.bin/eslint --no-eslintrc',
                 ['noESLintRc' => true],
             ],
-            'ext-empty' => [
+            'env-empty' => [
                 'node_modules/.bin/eslint',
-                ['ext' => []],
+                ['environments' => []],
             ],
-            'ext-vector-1' => [
+            'env-vector-1' => [
+                "node_modules/.bin/eslint --env 'browser'",
+                ['environments' => ['browser']],
+            ],
+            'env-vector-multi' => [
+                "node_modules/.bin/eslint --env 'browser,node'",
+                ['environments' => ['browser', 'node']],
+            ],
+            'env-assoc' => [
+                "node_modules/.bin/eslint --env 'browser,es6'",
+                [
+                    'environments' => [
+                        'browser' => true,
+                        'node' => false,
+                        'es6' => true,
+                    ],
+                ],
+            ],
+            'extensions-empty' => [
+                'node_modules/.bin/eslint',
+                ['extensions' => []],
+            ],
+            'extensions-vector-1' => [
                 "node_modules/.bin/eslint --ext '.a'",
-                ['ext' => ['.a']],
+                ['extensions' => ['.a']],
             ],
-            'ext-vector-multi' => [
+            'extensions-vector-multi' => [
                 "node_modules/.bin/eslint --ext '.a,.b'",
-                ['ext' => ['.a', '.b']],
+                ['extensions' => ['.a', '.b']],
             ],
-            'ext-assoc' => [
+            'extensions-assoc' => [
                 "node_modules/.bin/eslint --ext '.b,.d'",
                 [
-                    'ext' => [
+                    'extensions' => [
                         '.a' => false,
                         '.b' => true,
                         '.c' => false,
                         '.d' => true,
                     ],
                 ],
+            ],
+            'globalVariables-empty' => [
+                'node_modules/.bin/eslint',
+                ['globalVariables' => []],
+            ],
+            'globalVariables-vector-1' => [
+                "node_modules/.bin/eslint --global 'a'",
+                ['globalVariables' => ['a']],
+            ],
+            'globalVariables-vector-multi' => [
+                "node_modules/.bin/eslint --global 'a,b'",
+                ['globalVariables' => ['a', 'b']],
+            ],
+            'globalVariables-assoc' => [
+                "node_modules/.bin/eslint --global 'a,c:true'",
+                [
+                    'globalVariables' => [
+                        'a' => null,
+                        'b' => false,
+                        'c' => true,
+                    ],
+                ],
+            ],
+            'parser-empty' => [
+                'node_modules/.bin/eslint',
+                ['cacheLocation' => ''],
+            ],
+            'parser-string' => [
+                "node_modules/.bin/eslint --parser 'a'",
+                ['parser' => 'a'],
+            ],
+            'parserOptions-empty' => [
+                'node_modules/.bin/eslint',
+                ['parserOptions' => []],
+            ],
+            'parserOptions-basic' => [
+                'node_modules/.bin/eslint --parser-options \'{"a":"b"}\'',
+                ['parserOptions' => ['a' => 'b']],
             ],
             'cache-false' => [
                 'node_modules/.bin/eslint',
@@ -179,23 +239,37 @@ class ESLintRunFilesTest extends TaskTestBase
                 "node_modules/.bin/eslint --cache-location 'my-dir'",
                 ['cacheLocation' => 'my-dir'],
             ],
+            'cacheStrategy-empty' => [
+                'node_modules/.bin/eslint',
+                ['cacheStrategy' => ''],
+            ],
+            'cacheStrategy-string' => [
+                "node_modules/.bin/eslint --cache-strategy 'content'",
+                ['cacheStrategy' => 'content'],
+            ],
+            'noErrorOnUnmatchedPattern-false' => [
+                "node_modules/.bin/eslint",
+                ['noErrorOnUnmatchedPattern' => false],
+            ],
+            'noErrorOnUnmatchedPattern-true' => [
+                "node_modules/.bin/eslint --no-error-on-unmatched-pattern",
+                ['noErrorOnUnmatchedPattern' => true],
+            ],
+            'exitOnFatalError-true' => [
+                "node_modules/.bin/eslint --exit-on-fatal-error",
+                ['exitOnFatalError' => true],
+            ],
+            'exitOnFatalError-false' => [
+                "node_modules/.bin/eslint",
+                ['exitOnFatalError' => false],
+            ],
             'rulesDir-empty' => [
                 'node_modules/.bin/eslint',
-                ['rulesDir' => []],
+                ['rulesDir' => null],
             ],
             'rulesDir-vector' => [
-                "node_modules/.bin/eslint --rulesdir 'my-dir-1' --rulesdir 'my-dir-2'",
-                ['rulesDir' => ['my-dir-1', 'my-dir-2']],
-            ],
-            'rulesDir-assoc' => [
-                "node_modules/.bin/eslint --rulesdir 'my-dir-1' --rulesdir 'my-dir-3'",
-                [
-                    'rulesDir' => [
-                        'my-dir-1' => true,
-                        'my-dir-2' => false,
-                        'my-dir-3' => true,
-                    ],
-                ],
+                "node_modules/.bin/eslint --rulesdir 'my-dir-1'",
+                ['rulesDir' => 'my-dir-1'],
             ],
             'ignorePath-empty' => [
                 'node_modules/.bin/eslint',
@@ -217,9 +291,19 @@ class ESLintRunFilesTest extends TaskTestBase
                 'node_modules/.bin/eslint',
                 ['ignorePattern' => ''],
             ],
-            'ignorePattern-string' => [
-                "node_modules/.bin/eslint --ignore-pattern 'my-dir'",
-                ['ignorePattern' => 'my-dir'],
+            'ignorePattern-vector' => [
+                "node_modules/.bin/eslint --ignore-pattern 'a' --ignore-pattern 'b'",
+                ['ignorePatterns' => ['a', 'b']],
+            ],
+            'ignorePattern-assoc' => [
+                "node_modules/.bin/eslint --ignore-pattern 'a' --ignore-pattern 'c'",
+                [
+                    'ignorePatterns' => [
+                        'a' => true,
+                        'b' => false,
+                        'c' => true,
+                    ],
+                ],
             ],
             'quiet-false' => [
                 'node_modules/.bin/eslint',
@@ -281,6 +365,14 @@ class ESLintRunFilesTest extends TaskTestBase
                 "node_modules/.bin/eslint --no-inline-config",
                 ['noInlineConfig' => true],
             ],
+            'reportUnusedDisableDirectives-true' => [
+                "node_modules/.bin/eslint --report-unused-disable-directives",
+                ['reportUnusedDisableDirectives' => true],
+            ],
+            'reportUnusedDisableDirectives-false' => [
+                "node_modules/.bin/eslint",
+                ['reportUnusedDisableDirectives' => false],
+            ],
             'files-empty' => [
                 "node_modules/.bin/eslint",
                 ['files' => []],
@@ -321,6 +413,119 @@ class ESLintRunFilesTest extends TaskTestBase
     {
         $this->task->setOptions($options);
         $this->tester->assertSame($expected, $this->task->getCommand());
+    }
+
+    public function testGetCommandOptionExtensions(): void
+    {
+        $this->task->setExtensions(['a', 'b']);
+        $this->tester->assertSame(
+            "node_modules/.bin/eslint --ext 'a,b'",
+            $this->task->getCommand(),
+        );
+
+        $this->task->addExtension('c');
+        $this->tester->assertSame(
+            "node_modules/.bin/eslint --ext 'a,b,c'",
+            $this->task->getCommand(),
+        );
+
+        $this->task->removeExtension('b');
+        $this->tester->assertSame(
+            "node_modules/.bin/eslint --ext 'a,c'",
+            $this->task->getCommand(),
+        );
+    }
+
+    public function testGetCommandOptionIgnorePatterns(): void
+    {
+        $this->task->setIgnorePatterns(['a', 'b']);
+        $this->tester->assertSame(
+            "node_modules/.bin/eslint --ignore-pattern 'a' --ignore-pattern 'b'",
+            $this->task->getCommand(),
+        );
+
+        $this->task->addIgnorePattern('c');
+        $this->tester->assertSame(
+            "node_modules/.bin/eslint --ignore-pattern 'a' --ignore-pattern 'b' --ignore-pattern 'c'",
+            $this->task->getCommand(),
+        );
+
+        $this->task->removeIgnorePattern('b');
+        $this->tester->assertSame(
+            "node_modules/.bin/eslint --ignore-pattern 'a' --ignore-pattern 'c'",
+            $this->task->getCommand(),
+        );
+
+        $this->task->removeIgnorePatterns(['c']);
+        $this->tester->assertSame(
+            "node_modules/.bin/eslint --ignore-pattern 'a'",
+            $this->task->getCommand(),
+        );
+    }
+
+    public function testGetCommandOptionRules(): void
+    {
+        $rules = [
+            'r1' => [
+                'value' => [
+                    'error',
+                    'foo',
+                ],
+                'cli' => '{"r1":["error","foo"]}',
+            ],
+            'r2' => [
+                'value' => [
+                    'error',
+                    'bar'
+                ],
+                'cli' => '{"r2":["error","bar"]}',
+            ],
+            'r3' => [
+                'value' => 'warn',
+                'cli' => '{"r3":["warn"]}',
+            ],
+        ];
+
+        $this->task->setOptions([
+            'rules' => [
+                'r1' => $rules['r1']['value'],
+                'r2' => $rules['r2']['value'],
+                'r3' => $rules['r3']['value'],
+            ],
+        ]);
+        $this->tester->assertSame(
+            sprintf(
+                'node_modules/.bin/eslint --rule %s --rule %s --rule %s',
+                escapeshellarg($rules['r1']['cli']),
+                escapeshellarg($rules['r2']['cli']),
+                escapeshellarg($rules['r3']['cli']),
+            ),
+            $this->task->getCommand(),
+        );
+
+        $this->task->removeRules(['r2']);
+        $this->tester->assertSame(
+            sprintf(
+                'node_modules/.bin/eslint --rule %s --rule %s',
+                escapeshellarg($rules['r1']['cli']),
+                escapeshellarg($rules['r3']['cli']),
+            ),
+            $this->task->getCommand(),
+        );
+
+        $this->task->removeRules([
+            [
+                'r3',
+                'error',
+            ],
+        ]);
+        $this->tester->assertSame(
+            sprintf(
+                'node_modules/.bin/eslint --rule %s',
+                escapeshellarg($rules['r1']['cli']),
+            ),
+            $this->task->getCommand(),
+        );
     }
 
     public function testExitCodeConstants(): void

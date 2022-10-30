@@ -31,13 +31,13 @@
     "repositories": {},
     "require": {
         "php": ">=7.4",
+        "ext-json": "*",
         "consolidation/robo": "^3.0",
         "sweetchuck/lint-report": "1.x-dev",
         "symfony/filesystem": "^5.4 || ^6.0"
     },
     "require-dev": {
         "ext-dom": "*",
-        "ext-json": "*",
         "codeception/codeception": "^4.0",
         "codeception/module-asserts": "^1.1",
         "nuvoleweb/robo-config": "2.x-dev",
@@ -67,6 +67,6 @@
     "scripts": {
         "post-install-cmd": "\\Sweetchuck\\Robo\\ESLint\\Tests\\Helper\\Composer\\Scripts::postInstallCmd",
         "post-update-cmd": "\\Sweetchuck\\Robo\\ESLint\\Tests\\Helper\\Composer\\Scripts::postUpdateCmd",
-        "npm-install": "\\Sweetchuck\\Robo\\ESLint\\Tests\\Helper\\Composer\\Scripts::npmInstall"
+        "yarn-install": "\\Sweetchuck\\Robo\\ESLint\\Tests\\Helper\\Composer\\Scripts::yarnInstall"
     }
 }

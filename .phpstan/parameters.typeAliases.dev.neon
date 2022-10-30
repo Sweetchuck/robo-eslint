@@ -1,0 +1,16 @@
+parameters:
+    typeAliases:
+        dev-robo-eslint-php-executable: '''
+            array{
+                enabled: bool,
+                command: string,
+                envVars?: array<string, ?string>,
+            }
+        '''
+        dev-robo-eslint-process-result: '''
+            array{
+                exitCode: int,
+                stdOutput: string,
+                stdError: string,
+            }
+        '''

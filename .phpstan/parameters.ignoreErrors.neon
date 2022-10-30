@@ -1,0 +1,82 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Call to an undefined method Robo\\\\Collection\\\\CollectionBuilder\\:\\:setAssetNamePrefix\\(\\)\\.$#"
+			count: 1
+			path: ../RoboFile.php
+
+		-
+			message: "#^Call to an undefined method Robo\\\\Collection\\\\CollectionBuilder\\|Robo\\\\Collection\\\\TaskForEach\\:\\:iterationMessage\\(\\)\\.$#"
+			count: 1
+			path: ../RoboFile.php
+
+		-
+			message: "#^Call to an undefined method Robo\\\\Collection\\\\CollectionBuilder\\|Robo\\\\Task\\\\Composer\\\\Install\\:\\:option\\(\\)\\.$#"
+			count: 1
+			path: ../RoboFile.php
+
+		-
+			message: "#^Call to an undefined method Robo\\\\Collection\\\\CollectionBuilder\\|Robo\\\\Task\\\\Filesystem\\\\FilesystemStack\\:\\:copy\\(\\)\\.$#"
+			count: 1
+			path: ../RoboFile.php
+
+		-
+			message: "#^Call to an undefined method Robo\\\\Collection\\\\CollectionBuilder\\|Robo\\\\Task\\\\Filesystem\\\\FilesystemStack\\:\\:mkdir\\(\\)\\.$#"
+			count: 4
+			path: ../RoboFile.php
+
+		-
+			message: "#^Call to an undefined method Robo\\\\Collection\\\\CollectionBuilder\\|Robo\\\\Task\\\\Filesystem\\\\WorkDir\\:\\:cwd\\(\\)\\.$#"
+			count: 1
+			path: ../RoboFile.php
+
+		-
+			message: "#^Call to an undefined method Robo\\\\Collection\\\\CollectionBuilder\\|Sweetchuck\\\\Robo\\\\Git\\\\Task\\\\GitListFilesTask\\:\\:setAssetNamePrefix\\(\\)\\.$#"
+			count: 1
+			path: ../RoboFile.php
+
+		-
+			message: "#^Call to an undefined method Robo\\\\Collection\\\\CollectionBuilder\\|Sweetchuck\\\\Robo\\\\Git\\\\Task\\\\GitListStagedFilesTask\\:\\:setPaths\\(\\)\\.$#"
+			count: 1
+			path: ../RoboFile.php
+
+		-
+			message: "#^Call to an undefined method Robo\\\\Collection\\\\CollectionBuilder\\|Sweetchuck\\\\Robo\\\\Git\\\\Task\\\\GitReadStagedFilesTask\\:\\:setCommandOnly\\(\\)\\.$#"
+			count: 1
+			path: ../RoboFile.php
+
+		-
+			message: "#^Call to an undefined method Robo\\\\Collection\\\\CollectionBuilder\\|Sweetchuck\\\\Robo\\\\Phpstan\\\\Task\\\\AnalyzeTask\\:\\:setNoProgress\\(\\)\\.$#"
+			count: 1
+			path: ../RoboFile.php
+
+		-
+			message: "#^Call to an undefined method Robo\\\\Collection\\\\TaskForEach\\:\\:deferTaskConfiguration\\(\\)\\.$#"
+			count: 1
+			path: ../RoboFile.php
+
+		-
+			message: "#^Call to an undefined method Sweetchuck\\\\Robo\\\\Git\\\\Task\\\\GitListFilesTask\\:\\:deferTaskConfiguration\\(\\)\\.$#"
+			count: 1
+			path: ../RoboFile.php
+
+		-
+			message: "#^Call to an undefined method Sweetchuck\\\\Robo\\\\Git\\\\Task\\\\GitReadStagedFilesTask\\:\\:deferTaskConfiguration\\(\\)\\.$#"
+			count: 1
+			path: ../RoboFile.php
+
+		-
+			message: "#^Negated boolean expression is always true\\.$#"
+			count: 5
+			path: ../src/Application.php
+
+		-
+			message: "#^Property Sweetchuck\\\\ComposerSuiteCli\\\\Command\\\\ChangedPackagesList\\:\\:\\$requireDiffer \\(Sweetchuck\\\\ComposerSuiteHandler\\\\RequireDiffer\\) does not accept object\\|null\\.$#"
+			count: 1
+			path: ../src/Command/ChangedPackagesList.php
+
+		-
+			message: "#^Property Sweetchuck\\\\ComposerSuiteCli\\\\Command\\\\Generate\\:\\:\\$composerJsonData \\(array\\<string, mixed\\>\\) does not accept array\\<int\\|string, mixed\\>\\.$#"
+			count: 1
+			path: ../src/Command/Generate.php
+
