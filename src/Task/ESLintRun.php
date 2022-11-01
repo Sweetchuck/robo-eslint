@@ -8,13 +8,13 @@ use Robo\Contract\CommandInterface;
 use Sweetchuck\LintReport\ReporterInterface;
 use Sweetchuck\LintReport\ReportWrapperInterface;
 use Sweetchuck\Robo\ESLint\LintReportWrapper\ReportWrapper;
-use Sweetchuck\Robo\ESLint\Utils;
 use League\Container\ContainerAwareInterface;
 use League\Container\ContainerAwareTrait;
 use Robo\Common\IO;
 use Consolidation\AnnotatedCommand\Output\OutputAwareInterface;
 use Robo\Result;
 use Robo\Task\BaseTask;
+use Sweetchuck\Robo\ESLint\Utils;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
 
@@ -86,186 +86,151 @@ abstract class ESLintRun extends BaseTask implements
         'report' => null,
     ];
 
+    /**
+     * In the CLI command the option will appear only once.
+     *
+     * Key: internal name.
+     * Value: CLI option.
+     *
+     * @code
+     * ::setFoo(true);
+     * eslint --foo
+     * @endcode
+     *
+     * @code
+     * ::setFoo(false);
+     * eslint --no-foo
+     * @endcode
+     *
+     * @code
+     * ::setFoo(null);
+     * eslint
+     * @endcode
+     *
+     * @var array<string, string>
+     */
     protected array $triStateOptions = [
         'color' => 'color',
     ];
 
+    /**
+     * In the CLI command the option will appear only once.
+     *
+     * Key: internal name.
+     * Value: CLI option.
+     *
+     * @code
+     * ::setFoo(true);
+     * eslint --foo
+     * @endcode
+     *
+     * @code
+     * ::setFoo(false);
+     * eslint
+     * @endcode
+     *
+     * @var array<string, string>
+     */
     protected array $flagOptions = [
         'cache' => 'cache',
         'noESLintRc' => 'no-eslintrc',
         'noIgnore' => 'no-ignore',
         'noInlineConfig' => 'no-inline-config',
+        'reportUnusedDisableDirectives' => 'report-unused-disable-directives',
         'quiet' => 'quiet',
+        'noErrorOnUnmatchedPattern' => 'no-error-on-unmatched-pattern',
+        'exitOnFatalError' => 'exit-on-fatal-error',
     ];
 
+    /**
+     * In the CLI command the option will appear only once.
+     *
+     * Key: internal name.
+     * Value: CLI option.
+     *
+     * @code
+     * ::setFoo('myValue');
+     * eslint --foo 'myValue'
+     * @endcode
+     *
+     * @var array<string, string>
+     */
     protected array $simpleOptions = [
+        'parser' => 'parser',
+        'parserOptions' => 'parser-options',
+        'resolvePluginsRelativeTo' => 'resolve-plugins-relative-to',
         'cacheLocation' => 'cache-location',
+        'cacheStrategy' => 'cache-strategy',
         'configFile' => 'config',
         'format' => 'format',
         'ignorePath' => 'ignore-path',
-        'ignorePattern' => 'ignore-pattern',
         'maxWarnings' => 'max-warnings',
         'outputFile' => 'output-file',
-    ];
-
-    protected array $listOptions = [
-        'ext' => 'ext',
-    ];
-
-    protected array $multiOptions = [
         'rulesDir' => 'rulesdir',
     ];
 
-    // region Options - Not supported.
     /**
-     * @todo
+     * In the CLI command the option will appear only once.
      *
-     * @var mixed
+     * Key: internal name.
+     * Value: CLI option.
+     *
+     * @code
+     * ::setFoo(['a', 'b']);
+     * eslint --foo 'a,b'
+     * @endcode
+     *
+     * @var array<string, string>
      */
-    protected $env = null;
+    protected array $listOptions = [
+        'environments' => 'env',
+        'extensions' => 'ext',
+        'globalVariables' => 'global',
+        'plugins' => 'plugin',
+    ];
 
     /**
-     * @todo
+     * In the CLI command the option will appear multiple times.
      *
-     * @var mixed
+     * Key: internal name.
+     * Value: CLI option.
+     *
+     * @code
+     * ::setFoo(['a', 'b']);
+     * eslint --foo 'a' --foo 'b'
+     * @endcode
+     *
+     * @var array<string, string>
      */
-    protected $global = null;
+    protected array $multiOptions = [
+        'ignorePatterns' => 'ignore-pattern',
+    ];
 
-    /**
-     * @todo
-     *
-     * @var mixed
-     */
-    protected $parser = null;
-
-    /**
-     * @todo
-     *
-     * @var mixed
-     */
-    protected $parserOptions = null;
-
-    /**
-     * @todo
-     *
-     * @var mixed
-     */
-    protected $plugin = null;
-
-    /**
-     * @todo
-     *
-     * @var mixed
-     */
-    protected $rule = null;
-    // endregion
+    protected array $multiOptionsPrepared = [
+        'rules' => 'rule',
+    ];
 
     // region Options.
 
-    // region Option - cache.
+    // region Option - workingDirectory.
     /**
-     * Only check changed files - default: false.
+     * Directory to step in before run the `eslint`.
      */
-    protected bool $cache = false;
+    protected string $workingDirectory = '';
 
-    public function getCache(): bool
+    public function getWorkingDirectory(): string
     {
-        return $this->cache;
+        return $this->workingDirectory;
     }
 
     /**
-     * @return $this
-     */
-    public function setCache(bool $value)
-    {
-        $this->cache = $value;
-
-        return $this;
-    }
-    // endregion
-
-    // region Option - cacheLocation.
-    /**
-     * Path to the cache file or directory.
-     */
-    protected string $cacheLocation = '';
-
-    public function getCacheLocation(): string
-    {
-        return $this->cacheLocation;
-    }
-
-    /**
-     * @return $this
-     */
-    public function setCacheLocation(string $value)
-    {
-        $this->cacheLocation = $value;
-
-        return $this;
-    }
-    // endregion
-
-    // region Option - color.
-    protected ?bool $color = null;
-
-    /**
-     * @return bool|null
-     */
-    public function getColor(): ?bool
-    {
-        return $this->color;
-    }
-
-    /**
-     * @return $this
-     */
-    public function setColor(?bool $value)
-    {
-        $this->color = $value;
-
-        return $this;
-    }
-    // endregion
-
-    // region Option - configFile.
-    protected string $configFile = '';
-
-    /**
-     * The location of the configuration file.
-     */
-    public function getConfigFile(): string
-    {
-        return $this->configFile;
-    }
-
-    /**
-     * Specify which configuration file you want to use.
+     * Set the current working directory.
      *
      * @return $this
      */
-    public function setConfigFile(string $path)
+    public function setWorkingDirectory(string $path)
     {
-        $this->configFile = $path;
-
-        return $this;
-    }
-    // endregion
-
-    // region Option - assetNamePrefix.
-    protected string $assetNamePrefix = '';
-
-    public function getAssetNamePrefix(): string
-    {
-        return $this->assetNamePrefix;
-    }
-
-    /**
-     * @return $this
-     */
-    public function setAssetNamePrefix(string $value)
-    {
-        $this->assetNamePrefix = $value;
+        $this->workingDirectory = $path;
 
         return $this;
     }
@@ -287,48 +252,6 @@ abstract class ESLintRun extends BaseTask implements
     public function setEslintExecutable(string $path)
     {
         $this->eslintExecutable = $path;
-
-        return $this;
-    }
-    // endregion
-
-    // region Option - ext.
-    /**
-     * Specify JavaScript file extensions.
-     */
-    protected array $ext = [];
-
-    public function getExt(): array
-    {
-        return $this->ext;
-    }
-
-    /**
-     * @return $this
-     */
-    public function setExt(array $extensions, bool $include = true)
-    {
-        $this->ext = $this->createIncludeList($extensions, $include);
-
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
-    public function addExt(string $extension)
-    {
-        $this->ext[$extension] = true;
-
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
-    public function removeExt(string $extension)
-    {
-        unset($this->ext[$extension]);
 
         return $this;
     }
@@ -356,65 +279,6 @@ abstract class ESLintRun extends BaseTask implements
     public function setFailOn(string $severity)
     {
         $this->failOn = $severity;
-
-        return $this;
-    }
-    // endregion
-
-    // region Option - format
-    protected string $format = '';
-
-    public function getFormat(): string
-    {
-        return $this->format;
-    }
-
-    /**
-     * Specify how to display lints.
-     *
-     * @return $this
-     */
-    public function setFormat(string $value)
-    {
-        $this->format = $value;
-
-        return $this;
-    }
-    // endregion
-
-    // region Option - ignorePath.
-    protected string $ignorePath = '';
-
-    public function getIgnorePath(): string
-    {
-        return $this->ignorePath;
-    }
-
-    /**
-     * @return $this
-     */
-    public function setIgnorePath(string $value)
-    {
-        $this->ignorePath = $value;
-
-        return $this;
-    }
-    // endregion
-
-    // region Option - ignorePattern.
-    protected ?string $ignorePattern = null;
-
-    public function getIgnorePattern(): ?string
-    {
-        return $this->ignorePattern;
-    }
-
-    /**
-     * @return $this
-     */
-    public function setIgnorePattern(?string $value)
-    {
-        $this->ignorePattern = $value;
 
         return $this;
     }
@@ -470,20 +334,20 @@ abstract class ESLintRun extends BaseTask implements
     }
     // endregion
 
-    // region Option - maxWarnings.
-    protected ?int $maxWarnings = null;
+    // region Option - assetNamePrefix.
+    protected string $assetNamePrefix = '';
 
-    public function getMaxWarnings(): ?int
+    public function getAssetNamePrefix(): string
     {
-        return $this->maxWarnings;
+        return $this->assetNamePrefix;
     }
 
     /**
      * @return $this
      */
-    public function setMaxWarnings(?int $value)
+    public function setAssetNamePrefix(string $value)
     {
-        $this->maxWarnings = $value;
+        $this->assetNamePrefix = $value;
 
         return $this;
     }
@@ -508,6 +372,401 @@ abstract class ESLintRun extends BaseTask implements
     }
     // endregion
 
+    // region Option - configFile.
+    protected string $configFile = '';
+
+    /**
+     * The location of the configuration file.
+     */
+    public function getConfigFile(): string
+    {
+        return $this->configFile;
+    }
+
+    /**
+     * Specify which configuration file you want to use.
+     *
+     * @return $this
+     */
+    public function setConfigFile(string $path)
+    {
+        $this->configFile = $path;
+
+        return $this;
+    }
+    // endregion
+
+    // region Option - environments.
+    protected array $environments = [];
+
+    public function getEnvironments(): array
+    {
+        return $this->environments;
+    }
+
+    /**
+     * @phpstan-param array<string, bool>|array<string> $environments
+     *
+     * @return $this
+     */
+    public function setEnvironments(array $environments, bool $include = true)
+    {
+        $this->environments = Utils::createIncludeList($environments, $include);
+
+        return $this;
+    }
+    // endregion
+
+    // region Option - extensions.
+    /**
+     * Specify JavaScript file extensions.
+     */
+    protected array $extensions = [];
+
+    public function getExtensions(): array
+    {
+        return $this->extensions;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setExtensions(array $extensions, bool $include = true)
+    {
+        $this->extensions = Utils::createIncludeList($extensions, $include);
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function addExtension(string $extension)
+    {
+        $this->extensions[$extension] = true;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function removeExtension(string $extension)
+    {
+        unset($this->extensions[$extension]);
+
+        return $this;
+    }
+    // endregion
+
+    // region Option - globalVariables.
+    /**
+     * Values:
+     *  - null: "key"
+     *  - false: ignored
+     *  - true: "key:true"
+     *
+     * @phpstan-var array<string, null|bool>
+     */
+    protected array $globalVariables = [];
+
+    public function getGlobalVariables(): array
+    {
+        return $this->globalVariables;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setGlobalVariables(array $globalVariables)
+    {
+        $this->globalVariables = Utils::createTriStateList($globalVariables, null);
+
+        return $this;
+    }
+
+    public function addGlobalVariable(string $name)
+    {
+        $this->globalVariables[$name] = null;
+
+        return $this;
+    }
+
+    public function addGlobalVariables(array $names)
+    {
+        foreach (Utils::createTriStateList($names, null) as $name => $state) {
+            $this->globalVariables[$name] = $state;
+        }
+
+        return $this;
+    }
+
+    public function removeGlobalVariable(string $name)
+    {
+        unset($this->globalVariables[$name]);
+
+        return $this;
+    }
+
+    public function removeGlobalVariables(array $names)
+    {
+        foreach (Utils::createTriStateList($names, false) as $name => $state) {
+            $this->globalVariables[$name] = $state;
+        }
+
+        return $this;
+    }
+    // endregion
+
+    // region Option - parser.
+    protected ?string $parser = null;
+
+    public function getParser(): ?string
+    {
+        return $this->parser;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setParser(?string $parser)
+    {
+        $this->parser = $parser;
+
+        return $this;
+    }
+    // endregion
+
+    // region Option - parserOptions.
+    protected array $parserOptions = [];
+
+    public function getParserOptions(): array
+    {
+        return $this->parserOptions;
+    }
+
+    protected function getParserOptionsAsCliOptions(): string
+    {
+        $parserOptions = $this->getParserOptions();
+
+        // NOTE: There is not enough documentation.
+        // https://eslint.org/docs/latest/user-guide/command-line-interface#--parser-options
+        return $parserOptions ?
+            json_encode($parserOptions)
+            : '';
+    }
+
+    /**
+     * @return $this
+     */
+    public function setParserOptions(array $parserOptions)
+    {
+        $this->parserOptions = $parserOptions;
+
+        return $this;
+    }
+    // endregion
+
+    // region Option - resolvePluginsRelativeTo.
+    protected ?string $resolvePluginsRelativeTo = null;
+
+    public function getResolvePluginsRelativeTo(): ?string
+    {
+        return $this->resolvePluginsRelativeTo;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setResolvePluginsRelativeTo(?string $baseDir)
+    {
+        $this->resolvePluginsRelativeTo = $baseDir;
+
+        return $this;
+    }
+    // endregion
+
+    // region Option -  plugins.
+    /**
+     * @phpstan-var array<string, bool>
+     */
+    protected array $plugins = [];
+
+    public function getPlugins(): array
+    {
+        return $this->plugins;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setPlugins(array $plugins)
+    {
+        $this->plugins = Utils::createIncludeList($plugins, true);
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function addPlugin(string $name)
+    {
+        $this->plugins[$name] = true;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function addPlugins(array $plugins)
+    {
+        foreach (Utils::createIncludeList($plugins, true) as $name => $state) {
+            $this->plugins[$name] = $state;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function removePlugin(string $name)
+    {
+        $this->plugins[$name] = false;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function removePlugins(array $plugins)
+    {
+        foreach (Utils::createIncludeList($plugins, false) as $name => $state) {
+            $this->plugins[$name] = $state;
+        }
+
+        return $this;
+    }
+    // endregion
+
+    // region Option - rule.
+    protected array $rules = [];
+
+    public function getRules(): array
+    {
+        return $this->rules;
+    }
+
+    protected function getRulesAsCliOptions(): array
+    {
+        $rules = [];
+        foreach ($this->getRules() as $id => $rule) {
+            $rules[] = Utils::ruleToOptionValue($id, $rule);
+        }
+
+        return $rules;
+    }
+
+    public function setRules(array $rules)
+    {
+        $this->rules = [];
+        $this->addRules($rules);
+
+        return $this;
+    }
+
+    public function addRule(array $rule)
+    {
+        $id = array_shift($rule);
+        $this->rules[$id] = $rule;
+
+        return $this;
+    }
+
+    public function addRules(iterable $rules)
+    {
+        foreach ($rules as $id => $rule) {
+            if (($rule[0] ?? null) !== $id) {
+                settype($rule, 'array');
+                array_unshift($rule, $id);
+            }
+
+            $this->addRule($rule);
+        }
+    }
+
+    /**
+     * @return $this
+     */
+    public function removeRule(string $id)
+    {
+        unset($this->rules[$id]);
+
+        return $this;
+    }
+
+    public function removeRules(iterable $rules)
+    {
+        foreach ($rules as $id => $rule) {
+            if (is_string($rule)) {
+                $id = $rule;
+            } elseif (is_numeric($id)) {
+                $id = $rule[0] ?? '';
+            }
+
+            $this->removeRule($id);
+        }
+
+        return $this;
+    }
+    // endregion
+
+    // region Option - rulesDir.
+    /**
+     *  An additional rules directory, for user-created rules.
+     *
+     * @var null|string
+     */
+    protected ?string $rulesDir = null;
+
+    public function getRulesDir(): ?string
+    {
+        return $this->rulesDir;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setRulesDir(?string $path)
+    {
+        $this->rulesDir = $path;
+
+        return $this;
+    }
+    // endregion
+
+    // region Option - ignorePath.
+    protected string $ignorePath = '';
+
+    public function getIgnorePath(): string
+    {
+        return $this->ignorePath;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setIgnorePath(string $value)
+    {
+        $this->ignorePath = $value;
+
+        return $this;
+    }
+    // endregion
+
     // region Option - noIgnore.
     protected bool $noIgnore = false;
 
@@ -527,47 +786,93 @@ abstract class ESLintRun extends BaseTask implements
     }
     // endregion
 
-    // region Option - noInlineConfig.
-    protected bool $noInlineConfig = false;
+    // region Option - ignorePatterns.
+    protected ?array $ignorePatterns = [];
 
-    public function getNoInlineConfig(): bool
+    public function getIgnorePatterns(): array
     {
-        return $this->noInlineConfig;
+        return $this->ignorePatterns;
     }
 
     /**
      * @return $this
      */
-    public function setNoInlineConfig(bool $value)
+    public function setIgnorePatterns(array $value)
     {
-        $this->noInlineConfig = $value;
+        $this->ignorePatterns = Utils::createIncludeList($value, true);
+
+        return $this;
+    }
+
+    public function addIgnorePattern(string $pattern)
+    {
+        $this->ignorePatterns[$pattern] = true;
+
+        return $this;
+    }
+
+    public function addIgnorePatterns(array $patterns)
+    {
+        foreach (Utils::createIncludeList($patterns, true) as $pattern => $status) {
+            $this->ignorePatterns[$pattern] = $status;
+        }
+    }
+
+    /**
+     * @return $this
+     */
+    public function removeIgnorePattern(string $pattern)
+    {
+        unset($this->ignorePatterns[$pattern]);
+
+        return $this;
+    }
+
+    public function removeIgnorePatterns(array $patterns)
+    {
+        foreach (Utils::createIncludeList($patterns, false) as $pattern => $status) {
+            if (!$status) {
+                unset($this->ignorePatterns[$pattern]);
+            }
+        }
 
         return $this;
     }
     // endregion
 
-    // region Option - files.
-    /**
-     * Files to check.
-     */
-    protected array $files = [];
+    // region Option - quiet.
+    protected bool $quiet = false;
 
-    public function getFiles(): array
+    public function isQuiet(): bool
     {
-        return $this->files;
+        return $this->quiet;
     }
 
     /**
-     * File files to lint.
-     *
-     * @param string[]|bool[] $files
-     *   Key-value pair of file names and boolean.
-     *
      * @return $this
      */
-    public function setFiles(array $files)
+    public function setQuiet(bool $value)
     {
-        $this->files = $files;
+        $this->quiet = $value;
+
+        return $this;
+    }
+    // endregion
+
+    // region Option - maxWarnings.
+    protected ?int $maxWarnings = null;
+
+    public function getMaxWarnings(): ?int
+    {
+        return $this->maxWarnings;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setMaxWarnings(?int $value)
+    {
+        $this->maxWarnings = $value;
 
         return $this;
     }
@@ -608,88 +913,219 @@ abstract class ESLintRun extends BaseTask implements
     }
     // endregion
 
-    // region Option - quiet.
-    protected bool $quiet = false;
+    // region Option - format
+    protected string $format = '';
 
-    public function isQuiet(): bool
+    public function getFormat(): string
     {
-        return $this->quiet;
+        return $this->format;
     }
 
     /**
+     * Specify how to display lints.
+     *
      * @return $this
      */
-    public function setQuiet(bool $value)
+    public function setFormat(string $value)
     {
-        $this->quiet = $value;
+        $this->format = $value;
 
         return $this;
     }
     // endregion
 
-    // region Option - rulesDir.
-    /**
-     *  An additional rules directory, for user-created rules.
-     *
-     * @var bool[]
-     */
-    protected array $rulesDir = [];
+    // region Option - color.
+    protected ?bool $color = null;
 
-    public function getRulesDir(): array
+    /**
+     * @return bool|null
+     */
+    public function getColor(): ?bool
     {
-        return $this->rulesDir;
+        return $this->color;
     }
 
     /**
      * @return $this
      */
-    public function setRulesDir(array $paths)
+    public function setColor(?bool $value)
     {
-        $this->rulesDir = $this->createIncludeList($paths, true);
-
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
-    public function addRulesDir(string $path)
-    {
-        $this->rulesDir[$path] = true;
-
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
-    public function removeRulesDir(string $path)
-    {
-        unset($this->rulesDir[$path]);
+        $this->color = $value;
 
         return $this;
     }
     // endregion
 
-    // region Option - workingDirectory.
-    /**
-     * Directory to step in before run the `eslint`.
-     */
-    protected string $workingDirectory = '';
+    // region Option - noInlineConfig.
+    protected bool $noInlineConfig = false;
 
-    public function getWorkingDirectory(): string
+    public function getNoInlineConfig(): bool
     {
-        return $this->workingDirectory;
+        return $this->noInlineConfig;
     }
 
     /**
-     * Set the current working directory.
+     * @return $this
+     */
+    public function setNoInlineConfig(bool $value)
+    {
+        $this->noInlineConfig = $value;
+
+        return $this;
+    }
+    // endregion
+
+    // region Option - reportUnusedDisableDirectives
+    protected bool $reportUnusedDisableDirectives = false;
+
+    public function getReportUnusedDisableDirectives(): bool
+    {
+        return $this->reportUnusedDisableDirectives;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setReportUnusedDisableDirectives(bool $value)
+    {
+        $this->reportUnusedDisableDirectives = $value;
+
+        return $this;
+    }
+    // endregion
+
+    // region Option - cache.
+    /**
+     * Only check changed files - default: false.
+     */
+    protected bool $cache = false;
+
+    public function getCache(): bool
+    {
+        return $this->cache;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setCache(bool $value)
+    {
+        $this->cache = $value;
+
+        return $this;
+    }
+    // endregion
+
+    // region Option - cacheLocation.
+    /**
+     * Path to the cache file or directory.
+     */
+    protected string $cacheLocation = '';
+
+    public function getCacheLocation(): string
+    {
+        return $this->cacheLocation;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setCacheLocation(string $value)
+    {
+        $this->cacheLocation = $value;
+
+        return $this;
+    }
+    // endregion
+
+    // region Option - cacheStrategy
+    /**
+     * @phpstan-var null|robo-eslint-enum-cache-strategy
+     */
+    protected ?string $cacheStrategy = null;
+
+    /**
+     * @phpstan-return null|robo-eslint-enum-cache-strategy
+     */
+    public function getCacheStrategy(): ?string
+    {
+        return $this->cacheStrategy;
+    }
+
+    /**
+     * @phpstan-param null|robo-eslint-enum-cache-strategy $cacheStrategy
      *
      * @return $this
      */
-    public function setWorkingDirectory(string $path)
+    public function setCacheStrategy(?string $cacheStrategy)
     {
-        $this->workingDirectory = $path;
+        $this->cacheStrategy = $cacheStrategy;
+
+        return $this;
+    }
+    // endregion
+
+    // region Option - noErrorOnUnmatchedPattern
+    protected bool $noErrorOnUnmatchedPattern = false;
+
+    public function getNoErrorOnUnmatchedPattern(): bool
+    {
+        return $this->noErrorOnUnmatchedPattern;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setNoErrorOnUnmatchedPattern(
+        bool $noErrorOnUnmatchedPattern
+    ) {
+        $this->noErrorOnUnmatchedPattern = $noErrorOnUnmatchedPattern;
+
+        return $this;
+    }
+    // endregion
+
+    // region Option - exitOnFatalError
+    protected bool $exitOnFatalError = false;
+
+    public function getExitOnFatalError(): bool
+    {
+        return $this->exitOnFatalError;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setExitOnFatalError(bool $exitOnFatalError)
+    {
+        $this->exitOnFatalError = $exitOnFatalError;
+
+        return $this;
+    }
+    // endregion
+
+    // region Option - files.
+    /**
+     * Files to check.
+     */
+    protected array $files = [];
+
+    public function getFiles(): array
+    {
+        return $this->files;
+    }
+
+    /**
+     * File files to lint.
+     *
+     * @param string[]|bool[] $files
+     *   Key-value pair of file names and boolean.
+     *
+     * @return $this
+     */
+    public function setFiles(array $files)
+    {
+        $this->files = $files;
 
         return $this;
     }
@@ -711,16 +1147,12 @@ abstract class ESLintRun extends BaseTask implements
     {
         foreach ($options as $name => $value) {
             switch ($name) {
-                case 'eslintExecutable':
-                    $this->setEslintExecutable($value);
-                    break;
-
-                case 'assetNamePrefix':
-                    $this->setAssetNamePrefix($value);
-                    break;
-
                 case 'workingDirectory':
                     $this->setWorkingDirectory($value);
+                    break;
+
+                case 'eslintExecutable':
+                    $this->setEslintExecutable($value);
                     break;
 
                 case 'failOn':
@@ -731,24 +1163,48 @@ abstract class ESLintRun extends BaseTask implements
                     $this->setLintReporters($value);
                     break;
 
-                case 'configFile':
-                    $this->setConfigFile($value);
+                case 'assetNamePrefix':
+                    $this->setAssetNamePrefix($value);
                     break;
 
                 case 'noESLintRc':
                     $this->setNoESLintRc($value);
                     break;
 
-                case 'ext':
-                    $this->setExt($value);
+                case 'configFile':
+                    $this->setConfigFile($value);
                     break;
 
-                case 'cache':
-                    $this->setCache($value);
+                case 'environments':
+                    $this->setEnvironments($value);
                     break;
 
-                case 'cacheLocation':
-                    $this->setCacheLocation($value);
+                case 'extensions':
+                    $this->setExtensions($value);
+                    break;
+
+                case 'globalVariables':
+                    $this->setGlobalVariables($value);
+                    break;
+
+                case 'parser':
+                    $this->setParser($value);
+                    break;
+
+                case 'parserOptions':
+                    $this->setParserOptions($value);
+                    break;
+
+                case 'resolvePluginsRelativeTo':
+                    $this->setResolvePluginsRelativeTo($value);
+                    break;
+
+                case 'plugin':
+                    $this->setPlugins($value);
+                    break;
+
+                case 'rules':
+                    $this->setRules($value);
                     break;
 
                 case 'rulesDir':
@@ -763,8 +1219,8 @@ abstract class ESLintRun extends BaseTask implements
                     $this->setNoIgnore($value);
                     break;
 
-                case 'ignorePattern':
-                    $this->setIgnorePattern($value);
+                case 'ignorePatterns':
+                    $this->setIgnorePatterns($value);
                     break;
 
                 case 'quiet':
@@ -789,6 +1245,30 @@ abstract class ESLintRun extends BaseTask implements
 
                 case 'noInlineConfig':
                     $this->setNoInlineConfig($value);
+                    break;
+
+                case 'reportUnusedDisableDirectives':
+                    $this->setReportUnusedDisableDirectives($value);
+                    break;
+
+                case 'cache':
+                    $this->setCache($value);
+                    break;
+
+                case 'cacheLocation':
+                    $this->setCacheLocation($value);
+                    break;
+
+                case 'cacheStrategy':
+                    $this->setCacheStrategy($value);
+                    break;
+
+                case 'noErrorOnUnmatchedPattern':
+                    $this->setNoErrorOnUnmatchedPattern($value);
+                    break;
+
+                case 'exitOnFatalError':
+                    $this->setExitOnFatalError($value);
                     break;
 
                 case 'files':
@@ -1027,6 +1507,15 @@ abstract class ESLintRun extends BaseTask implements
             }
         }
 
+        foreach ($this->multiOptionsPrepared as $optionName => $optionCli) {
+            if (!empty($options[$optionName])) {
+                foreach ($options[$optionName] as $value) {
+                    $cmdPattern .= " --{$optionCli} %s";
+                    $cmdArgs[] = escapeshellarg($value);
+                }
+            }
+        }
+
         if ($this->addFilesToCliCommand) {
             $files = $this->filterEnabled($this->getFiles());
             if ($files) {
@@ -1043,21 +1532,38 @@ abstract class ESLintRun extends BaseTask implements
     protected function getCommandOptions(): array
     {
         return [
-            'configFile' => $this->getConfigFile(),
             'noESLintRc' => $this->isEslintRcDisabled(),
-            'ext' => $this->getExt(),
-            'cache' => $this->getCache(),
-            'cacheLocation' => $this->getCacheLocation(),
+            'configFile' => $this->getConfigFile(),
+            'environments' => $this->getEnvironments(),
+            'extensions' => $this->getExtensions(),
+            'globalVariables' => Utils::getGlobalVariablesAsCliOptions($this->getGlobalVariables()),
+            'parser' => $this->getParser(),
+            'parserOptions' => $this->getParserOptionsAsCliOptions(),
+            'resolvePluginsRelativeTo' => $this->getResolvePluginsRelativeTo(),
+            'plugins' => $this->getPlugins(),
+            'rules' => $this->getRulesAsCliOptions(),
             'rulesDir' => $this->getRulesDir(),
+
             'ignorePath' => $this->getIgnorePath(),
             'noIgnore' => $this->getNoIgnore(),
-            'ignorePattern' => $this->getIgnorePattern(),
+            'ignorePatterns' => $this->getIgnorePatterns(),
+
             'quiet' => $this->isQuiet(),
             'maxWarnings' => $this->getMaxWarnings(),
+
             'outputFile' => $this->getOutputFile(),
             'format' => $this->getFormat(),
             'color' => $this->getColor(),
+
             'noInlineConfig' => $this->getNoInlineConfig(),
+            'reportUnusedDisableDirectives' => $this->getReportUnusedDisableDirectives(),
+
+            'cache' => $this->getCache(),
+            'cacheLocation' => $this->getCacheLocation(),
+            'cacheStrategy' => $this->getCacheStrategy(),
+
+            'noErrorOnUnmatchedPattern' => $this->getNoErrorOnUnmatchedPattern(),
+            'exitOnFatalError' => $this->getExitOnFatalError(),
         ];
     }
 
@@ -1151,26 +1657,5 @@ abstract class ESLintRun extends BaseTask implements
         }
 
         return $lintReporters;
-    }
-
-    /**
-     * The array key is the relevant value and the array value will be a boolean.
-     *
-     * @param string[]|bool[] $items
-     *   Items.
-     * @param bool $include
-     *   Default value.
-     *
-     * @return bool[]
-     *   Key is the relevant value, the value is a boolean.
-     */
-    protected function createIncludeList(array $items, bool $include): array
-    {
-        $item = reset($items);
-        if (gettype($item) !== 'boolean') {
-            $items = array_fill_keys($items, $include);
-        }
-
-        return $items;
     }
 }

@@ -39,29 +39,26 @@ class Scripts
 
     public static function yarnInstall(ComposerEvent $event): bool
     {
-        $return = true;
-
-        if ($event->isDevMode()) {
-            static::init($event);
-
-            $cmdPattern = 'cd %s && yarn install';
-            $cmdArgs = [
-                escapeshellarg('tests/_data'),
-            ];
-
-            $process = new Process(
-                [
-                    'bash',
-                    '-c',
-                    vsprintf($cmdPattern, $cmdArgs),
-                ],
-            );
-            $exitCode = $process->run(static::$processCallbackWrapper);
-
-            $return = !$exitCode;
+        if (!$event->isDevMode()) {
+            return true;
         }
 
-        return $return;
+        static::init($event);
+        $cmdPattern = 'cd %s && yarn install';
+        $cmdArgs = [
+            escapeshellarg('tests/_data'),
+        ];
+
+        $process = new Process(
+            [
+                'bash',
+                '-c',
+                vsprintf($cmdPattern, $cmdArgs),
+            ],
+        );
+        $exitCode = $process->run(static::$processCallbackWrapper);
+
+        return $exitCode === 0;
     }
 
     protected static function init(ComposerEvent $event)
