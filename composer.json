@@ -48,7 +48,7 @@
         "sweetchuck/robo-git": "2.x-dev",
         "sweetchuck/robo-phpcs": "2.x-dev",
         "sweetchuck/robo-phpmd": "2.x-dev",
-        "sweetchuck/utils": "2.x-dev",
+        "sweetchuck/utils": "1.x-dev",
         "symfony/error-handler": "^5.0"
     },
     "autoload": {
