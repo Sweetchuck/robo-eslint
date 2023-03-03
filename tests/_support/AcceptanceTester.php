@@ -27,10 +27,7 @@ class AcceptanceTester extends Actor
 {
     use _generated\AcceptanceTesterActions;
 
-    /**
-     * @return $this
-     */
-    public function clearTheReportsDir()
+    public function clearTheReportsDir(): static
     {
         $reportsDir = codecept_data_dir('actual');
         if (is_dir($reportsDir)) {
@@ -47,10 +44,7 @@ class AcceptanceTester extends Actor
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function haveAFileLikeThis(string $fileName)
+    public function haveAFileLikeThis(string $fileName): static
     {
         $expectedDir = codecept_data_dir('expected');
         $actualDir = codecept_data_dir('actual');
@@ -64,10 +58,7 @@ class AcceptanceTester extends Actor
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function haveAValidCheckstyleReport(string $fileName)
+    public function haveAValidCheckstyleReport(string $fileName): static
     {
         $fileName = codecept_data_dir($fileName);
         $doc = new \DOMDocument();

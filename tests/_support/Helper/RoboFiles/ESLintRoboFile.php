@@ -7,6 +7,7 @@ namespace Sweetchuck\Robo\ESLint\Tests\Helper\RoboFiles;
 use League\Container\Container as LeagueContainer;
 use Robo\Common\ConfigAwareTrait;
 use Robo\Contract\ConfigAwareInterface;
+use Robo\Contract\TaskInterface;
 use Robo\Tasks;
 use Sweetchuck\LintReport\Reporter\BaseReporter;
 use Sweetchuck\LintReport\Reporter\SummaryReporter;
@@ -56,7 +57,7 @@ class ESLintRoboFile extends Tasks implements ConfigAwareInterface
      *
      * @initLintReporters
      */
-    public function lintStylishStdOutput()
+    public function lintStylishStdOutput(): TaskInterface
     {
         return $this->taskESLintRunFiles()
             ->setWorkingDirectory($this->workingDirectory)
@@ -69,7 +70,7 @@ class ESLintRoboFile extends Tasks implements ConfigAwareInterface
      *
      * @initLintReporters
      */
-    public function lintStylishFile()
+    public function lintStylishFile(): TaskInterface
     {
         return $this->taskESLintRunFiles()
             ->setWorkingDirectory($this->workingDirectory)
@@ -83,7 +84,7 @@ class ESLintRoboFile extends Tasks implements ConfigAwareInterface
      *
      * @initLintReporters
      */
-    public function lintAllInOne()
+    public function lintAllInOne(): TaskInterface
     {
         $verboseFile = (new VerboseReporter())
             ->setFilePathStyle('relative')
@@ -115,7 +116,7 @@ class ESLintRoboFile extends Tasks implements ConfigAwareInterface
         $options = [
             'command-only' => false,
         ]
-    ) {
+    ): TaskInterface {
         $verboseFile = (new VerboseReporter())
             ->setFilePathStyle('relative')
             ->setDestination("{$this->reportsDir}/extra.verbose.txt");

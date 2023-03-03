@@ -5,7 +5,7 @@ declare(strict_types = 1);
 namespace Sweetchuck\Robo\ESLint\Tests\Unit\Task;
 
 use Codeception\Test\Unit;
-use Codeception\Util\Stub;
+use Codeception\Stub;
 use League\Container\Container as LeagueContainer;
 use Psr\Container\ContainerInterface;
 use Robo\Collection\CollectionBuilder;
@@ -66,10 +66,7 @@ abstract class TaskTestBase extends Unit
         $this->initTask();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function initTask(array $properties = [])
+    protected function initTask(array $properties = []): static
     {
         $cb = $this->initTaskCreate();
         $task = $cb->getCollectionBuilderCurrentTask();
@@ -98,8 +95,5 @@ abstract class TaskTestBase extends Unit
         return $this;
     }
 
-    /**
-     * @return $this
-     */
     abstract protected function initTaskCreate(): CollectionBuilder;
 }

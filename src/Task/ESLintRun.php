@@ -51,6 +51,16 @@ abstract class ESLintRun extends BaseTask implements
      */
     protected string $processClass = Process::class;
 
+    /**
+     * @internal
+     */
+    public function setProcessClass(string $processClass): static
+    {
+        $this->processClass = $processClass;
+
+        return $this;
+    }
+
     protected ?Result $taskResult = null;
 
     protected int $lintExitCode = 0;
@@ -225,10 +235,8 @@ abstract class ESLintRun extends BaseTask implements
 
     /**
      * Set the current working directory.
-     *
-     * @return $this
      */
-    public function setWorkingDirectory(string $path)
+    public function setWorkingDirectory(string $path): static
     {
         $this->workingDirectory = $path;
 
@@ -246,10 +254,8 @@ abstract class ESLintRun extends BaseTask implements
 
     /**
      * Set path to the "eslint" executable.
-     *
-     * @return $this
      */
-    public function setEslintExecutable(string $path)
+    public function setEslintExecutable(string $path): static
     {
         $this->eslintExecutable = $path;
 
@@ -273,10 +279,8 @@ abstract class ESLintRun extends BaseTask implements
      *
      * @param string $severity
      *   Allowed values are: never, warning, error.
-     *
-     * @return $this
      */
-    public function setFailOn(string $severity)
+    public function setFailOn(string $severity): static
     {
         $this->failOn = $severity;
 
@@ -300,10 +304,8 @@ abstract class ESLintRun extends BaseTask implements
 
     /**
      * @param $lintReporters \Sweetchuck\LintReport\ReporterInterface[]
-     *
-     * @return $this
      */
-    public function setLintReporters(array $lintReporters)
+    public function setLintReporters(array $lintReporters): static
     {
         $this->lintReporters = $lintReporters;
 
@@ -313,20 +315,15 @@ abstract class ESLintRun extends BaseTask implements
     /**
      * @param string $id
      * @param null|string|ReporterInterface $lintReporter
-     *
-     * @return $this
      */
-    public function addLintReporter(string $id, $lintReporter = null)
+    public function addLintReporter(string $id, $lintReporter = null): static
     {
         $this->lintReporters[$id] = $lintReporter;
 
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function removeLintReporter(string $id)
+    public function removeLintReporter(string $id): static
     {
         unset($this->lintReporters[$id]);
 
@@ -342,10 +339,7 @@ abstract class ESLintRun extends BaseTask implements
         return $this->assetNamePrefix;
     }
 
-    /**
-     * @return $this
-     */
-    public function setAssetNamePrefix(string $value)
+    public function setAssetNamePrefix(string $value): static
     {
         $this->assetNamePrefix = $value;
 
@@ -361,10 +355,7 @@ abstract class ESLintRun extends BaseTask implements
         return $this->noESLintRc;
     }
 
-    /**
-     * @return $this
-     */
-    public function setNoESLintRc(bool $value)
+    public function setNoESLintRc(bool $value): static
     {
         $this->noESLintRc = $value;
 
@@ -385,10 +376,8 @@ abstract class ESLintRun extends BaseTask implements
 
     /**
      * Specify which configuration file you want to use.
-     *
-     * @return $this
      */
-    public function setConfigFile(string $path)
+    public function setConfigFile(string $path): static
     {
         $this->configFile = $path;
 
@@ -406,10 +395,8 @@ abstract class ESLintRun extends BaseTask implements
 
     /**
      * @phpstan-param array<string, bool>|array<string> $environments
-     *
-     * @return $this
      */
-    public function setEnvironments(array $environments, bool $include = true)
+    public function setEnvironments(array $environments, bool $include = true): static
     {
         $this->environments = Utils::createIncludeList($environments, $include);
 
@@ -428,30 +415,21 @@ abstract class ESLintRun extends BaseTask implements
         return $this->extensions;
     }
 
-    /**
-     * @return $this
-     */
-    public function setExtensions(array $extensions, bool $include = true)
+    public function setExtensions(array $extensions, bool $include = true): static
     {
         $this->extensions = Utils::createIncludeList($extensions, $include);
 
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function addExtension(string $extension)
+    public function addExtension(string $extension): static
     {
         $this->extensions[$extension] = true;
 
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function removeExtension(string $extension)
+    public function removeExtension(string $extension): static
     {
         unset($this->extensions[$extension]);
 
@@ -475,24 +453,21 @@ abstract class ESLintRun extends BaseTask implements
         return $this->globalVariables;
     }
 
-    /**
-     * @return $this
-     */
-    public function setGlobalVariables(array $globalVariables)
+    public function setGlobalVariables(array $globalVariables): static
     {
         $this->globalVariables = Utils::createTriStateList($globalVariables, null);
 
         return $this;
     }
 
-    public function addGlobalVariable(string $name)
+    public function addGlobalVariable(string $name): static
     {
         $this->globalVariables[$name] = null;
 
         return $this;
     }
 
-    public function addGlobalVariables(array $names)
+    public function addGlobalVariables(array $names): static
     {
         foreach (Utils::createTriStateList($names, null) as $name => $state) {
             $this->globalVariables[$name] = $state;
@@ -501,14 +476,14 @@ abstract class ESLintRun extends BaseTask implements
         return $this;
     }
 
-    public function removeGlobalVariable(string $name)
+    public function removeGlobalVariable(string $name): static
     {
         unset($this->globalVariables[$name]);
 
         return $this;
     }
 
-    public function removeGlobalVariables(array $names)
+    public function removeGlobalVariables(array $names): static
     {
         foreach (Utils::createTriStateList($names, false) as $name => $state) {
             $this->globalVariables[$name] = $state;
@@ -526,10 +501,7 @@ abstract class ESLintRun extends BaseTask implements
         return $this->parser;
     }
 
-    /**
-     * @return $this
-     */
-    public function setParser(?string $parser)
+    public function setParser(?string $parser): static
     {
         $this->parser = $parser;
 
@@ -556,10 +528,7 @@ abstract class ESLintRun extends BaseTask implements
             : '';
     }
 
-    /**
-     * @return $this
-     */
-    public function setParserOptions(array $parserOptions)
+    public function setParserOptions(array $parserOptions): static
     {
         $this->parserOptions = $parserOptions;
 
@@ -575,10 +544,7 @@ abstract class ESLintRun extends BaseTask implements
         return $this->resolvePluginsRelativeTo;
     }
 
-    /**
-     * @return $this
-     */
-    public function setResolvePluginsRelativeTo(?string $baseDir)
+    public function setResolvePluginsRelativeTo(?string $baseDir): static
     {
         $this->resolvePluginsRelativeTo = $baseDir;
 
@@ -597,30 +563,21 @@ abstract class ESLintRun extends BaseTask implements
         return $this->plugins;
     }
 
-    /**
-     * @return $this
-     */
-    public function setPlugins(array $plugins)
+    public function setPlugins(array $plugins): static
     {
         $this->plugins = Utils::createIncludeList($plugins, true);
 
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function addPlugin(string $name)
+    public function addPlugin(string $name): static
     {
         $this->plugins[$name] = true;
 
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function addPlugins(array $plugins)
+    public function addPlugins(array $plugins): static
     {
         foreach (Utils::createIncludeList($plugins, true) as $name => $state) {
             $this->plugins[$name] = $state;
@@ -629,20 +586,14 @@ abstract class ESLintRun extends BaseTask implements
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function removePlugin(string $name)
+    public function removePlugin(string $name): static
     {
         $this->plugins[$name] = false;
 
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function removePlugins(array $plugins)
+    public function removePlugins(array $plugins): static
     {
         foreach (Utils::createIncludeList($plugins, false) as $name => $state) {
             $this->plugins[$name] = $state;
@@ -698,17 +649,14 @@ abstract class ESLintRun extends BaseTask implements
         }
     }
 
-    /**
-     * @return $this
-     */
-    public function removeRule(string $id)
+    public function removeRule(string $id): static
     {
         unset($this->rules[$id]);
 
         return $this;
     }
 
-    public function removeRules(iterable $rules)
+    public function removeRules(iterable $rules): static
     {
         foreach ($rules as $id => $rule) {
             if (is_string($rule)) {
@@ -737,10 +685,7 @@ abstract class ESLintRun extends BaseTask implements
         return $this->rulesDir;
     }
 
-    /**
-     * @return $this
-     */
-    public function setRulesDir(?string $path)
+    public function setRulesDir(?string $path): static
     {
         $this->rulesDir = $path;
 
@@ -756,10 +701,7 @@ abstract class ESLintRun extends BaseTask implements
         return $this->ignorePath;
     }
 
-    /**
-     * @return $this
-     */
-    public function setIgnorePath(string $value)
+    public function setIgnorePath(string $value): static
     {
         $this->ignorePath = $value;
 
@@ -775,10 +717,7 @@ abstract class ESLintRun extends BaseTask implements
         return $this->noIgnore;
     }
 
-    /**
-     * @return $this
-     */
-    public function setNoIgnore(bool $value)
+    public function setNoIgnore(bool $value): static
     {
         $this->noIgnore = $value;
 
@@ -794,10 +733,7 @@ abstract class ESLintRun extends BaseTask implements
         return $this->ignorePatterns;
     }
 
-    /**
-     * @return $this
-     */
-    public function setIgnorePatterns(array $value)
+    public function setIgnorePatterns(array $value): static
     {
         $this->ignorePatterns = Utils::createIncludeList($value, true);
 
@@ -811,24 +747,23 @@ abstract class ESLintRun extends BaseTask implements
         return $this;
     }
 
-    public function addIgnorePatterns(array $patterns)
+    public function addIgnorePatterns(array $patterns): static
     {
         foreach (Utils::createIncludeList($patterns, true) as $pattern => $status) {
             $this->ignorePatterns[$pattern] = $status;
         }
+
+        return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function removeIgnorePattern(string $pattern)
+    public function removeIgnorePattern(string $pattern): static
     {
         unset($this->ignorePatterns[$pattern]);
 
         return $this;
     }
 
-    public function removeIgnorePatterns(array $patterns)
+    public function removeIgnorePatterns(array $patterns): static
     {
         foreach (Utils::createIncludeList($patterns, false) as $pattern => $status) {
             if (!$status) {
@@ -848,10 +783,7 @@ abstract class ESLintRun extends BaseTask implements
         return $this->quiet;
     }
 
-    /**
-     * @return $this
-     */
-    public function setQuiet(bool $value)
+    public function setQuiet(bool $value): static
     {
         $this->quiet = $value;
 
@@ -867,10 +799,7 @@ abstract class ESLintRun extends BaseTask implements
         return $this->maxWarnings;
     }
 
-    /**
-     * @return $this
-     */
-    public function setMaxWarnings(?int $value)
+    public function setMaxWarnings(?int $value): static
     {
         $this->maxWarnings = $value;
 
@@ -902,10 +831,7 @@ abstract class ESLintRun extends BaseTask implements
         return "$wd/$outputFile";
     }
 
-    /**
-     * @return $this
-     */
-    public function setOutputFile(string $path)
+    public function setOutputFile(string $path): static
     {
         $this->outputFile = $path;
 
@@ -923,10 +849,8 @@ abstract class ESLintRun extends BaseTask implements
 
     /**
      * Specify how to display lints.
-     *
-     * @return $this
      */
-    public function setFormat(string $value)
+    public function setFormat(string $value): static
     {
         $this->format = $value;
 
@@ -937,18 +861,12 @@ abstract class ESLintRun extends BaseTask implements
     // region Option - color.
     protected ?bool $color = null;
 
-    /**
-     * @return bool|null
-     */
     public function getColor(): ?bool
     {
         return $this->color;
     }
 
-    /**
-     * @return $this
-     */
-    public function setColor(?bool $value)
+    public function setColor(?bool $value): static
     {
         $this->color = $value;
 
@@ -964,10 +882,7 @@ abstract class ESLintRun extends BaseTask implements
         return $this->noInlineConfig;
     }
 
-    /**
-     * @return $this
-     */
-    public function setNoInlineConfig(bool $value)
+    public function setNoInlineConfig(bool $value): static
     {
         $this->noInlineConfig = $value;
 
@@ -983,10 +898,7 @@ abstract class ESLintRun extends BaseTask implements
         return $this->reportUnusedDisableDirectives;
     }
 
-    /**
-     * @return $this
-     */
-    public function setReportUnusedDisableDirectives(bool $value)
+    public function setReportUnusedDisableDirectives(bool $value): static
     {
         $this->reportUnusedDisableDirectives = $value;
 
@@ -1005,10 +917,7 @@ abstract class ESLintRun extends BaseTask implements
         return $this->cache;
     }
 
-    /**
-     * @return $this
-     */
-    public function setCache(bool $value)
+    public function setCache(bool $value): static
     {
         $this->cache = $value;
 
@@ -1027,10 +936,7 @@ abstract class ESLintRun extends BaseTask implements
         return $this->cacheLocation;
     }
 
-    /**
-     * @return $this
-     */
-    public function setCacheLocation(string $value)
+    public function setCacheLocation(string $value): static
     {
         $this->cacheLocation = $value;
 
@@ -1054,10 +960,8 @@ abstract class ESLintRun extends BaseTask implements
 
     /**
      * @phpstan-param null|robo-eslint-enum-cache-strategy $cacheStrategy
-     *
-     * @return $this
      */
-    public function setCacheStrategy(?string $cacheStrategy)
+    public function setCacheStrategy(?string $cacheStrategy): static
     {
         $this->cacheStrategy = $cacheStrategy;
 
@@ -1073,12 +977,9 @@ abstract class ESLintRun extends BaseTask implements
         return $this->noErrorOnUnmatchedPattern;
     }
 
-    /**
-     * @return $this
-     */
     public function setNoErrorOnUnmatchedPattern(
         bool $noErrorOnUnmatchedPattern
-    ) {
+    ): static {
         $this->noErrorOnUnmatchedPattern = $noErrorOnUnmatchedPattern;
 
         return $this;
@@ -1093,10 +994,7 @@ abstract class ESLintRun extends BaseTask implements
         return $this->exitOnFatalError;
     }
 
-    /**
-     * @return $this
-     */
-    public function setExitOnFatalError(bool $exitOnFatalError)
+    public function setExitOnFatalError(bool $exitOnFatalError): static
     {
         $this->exitOnFatalError = $exitOnFatalError;
 
@@ -1120,10 +1018,8 @@ abstract class ESLintRun extends BaseTask implements
      *
      * @param string[]|bool[] $files
      *   Key-value pair of file names and boolean.
-     *
-     * @return $this
      */
-    public function setFiles(array $files)
+    public function setFiles(array $files): static
     {
         $this->files = $files;
 
@@ -1133,6 +1029,8 @@ abstract class ESLintRun extends BaseTask implements
 
     // endregion
 
+
+
     public function __construct(array $options = [])
     {
         $this->setOptions($options);
@@ -1140,10 +1038,8 @@ abstract class ESLintRun extends BaseTask implements
 
     /**
      * All in one configuration.
-     *
-     * @return $this
      */
-    public function setOptions(array $options)
+    public function setOptions(array $options): static
     {
         foreach ($options as $name => $value) {
             switch ($name) {
@@ -1293,10 +1189,7 @@ abstract class ESLintRun extends BaseTask implements
             ->runReturn();
     }
 
-    /**
-     * @return $this
-     */
-    protected function runHeader()
+    protected function runHeader(): static
     {
         $this->printTaskInfo(
             'ESLint task runs: <info>{command}</info>',
@@ -1308,10 +1201,7 @@ abstract class ESLintRun extends BaseTask implements
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    protected function runLint()
+    protected function runLint(): static
     {
         $this->reportRaw = '';
         $this->isLintStdOutputPublic = true;
@@ -1376,10 +1266,7 @@ abstract class ESLintRun extends BaseTask implements
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    protected function runReleaseLintReports()
+    protected function runReleaseLintReports(): static
     {
         if (!$this->isLintSuccess()) {
             // @todo Print the StdError as well.
@@ -1403,10 +1290,7 @@ abstract class ESLintRun extends BaseTask implements
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    protected function runReleaseAssets()
+    protected function runReleaseAssets(): static
     {
         if ($this->isLintSuccess()) {
             $this->assets['report'] = $this->reportWrapper;
@@ -1453,7 +1337,10 @@ abstract class ESLintRun extends BaseTask implements
         return $data;
     }
 
-    public function getCommand(): string
+    /**
+     * {@inheritdoc}
+     */
+    public function getCommand()
     {
         $cmdPattern = '';
         $cmdArgs = [];

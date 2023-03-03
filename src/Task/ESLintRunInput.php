@@ -25,10 +25,7 @@ class ESLintRunInput extends ESLintRun
         return $this->stdinFilename;
     }
 
-    /**
-     * @return $this
-     */
-    public function setStdinFilename(string $path)
+    public function setStdinFilename(string $path): static
     {
         $this->stdinFilename = $path;
 
@@ -47,7 +44,7 @@ class ESLintRunInput extends ESLintRun
     /**
      * {@inheritdoc}
      */
-    public function setOptions(array $options)
+    public function setOptions(array $options): static
     {
         parent::setOptions($options);
         foreach ($options as $name => $value) {
@@ -61,10 +58,7 @@ class ESLintRunInput extends ESLintRun
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function runHeader()
+    protected function runHeader(): static
     {
         $files = $this->filterEnabled($this->getFiles());
         $this->printTaskInfo(
@@ -77,10 +71,7 @@ class ESLintRunInput extends ESLintRun
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function runLint()
+    protected function runLint(): static
     {
         $reports = [];
         $files = $this->getFiles();
@@ -117,7 +108,7 @@ class ESLintRunInput extends ESLintRun
     /**
      * {@inheritdoc}
      */
-    public function getCommand(): string
+    public function getCommand()
     {
         // @todo Handle the different working directories.
         $echo = $this->currentFile['content'] === null ?

@@ -9,22 +9,14 @@ use Sweetchuck\Robo\ESLint\Task\ESLintRunInput;
 use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyProcess;
 
 /**
- * @covers \Sweetchuck\Robo\ESLint\Task\ESLintRunInput<extended>
+ * @covers \Sweetchuck\Robo\ESLint\Task\ESLintRunInput
+ * @covers \Sweetchuck\Robo\ESLint\Task\ESLintRun
  * @covers \Sweetchuck\Robo\ESLint\ESLintTaskLoader
  *
  * @property \Sweetchuck\Robo\ESLint\Task\ESLintRunInput $task
  */
 class ESLintRunInputTest extends TaskTestBase
 {
-    protected static function getMethod(string $name): \ReflectionMethod
-    {
-        $class = new \ReflectionClass(ESLintRunInput::class);
-        $method = $class->getMethod($name);
-        $method->setAccessible(true);
-
-        return $method;
-    }
-
     protected function initTaskCreate(): CollectionBuilder
     {
         return $this->taskBuilder->taskESLintRunInput();

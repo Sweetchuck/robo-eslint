@@ -8,6 +8,9 @@ use Sweetchuck\Robo\ESLint\Tests\UnitTester;
 use Sweetchuck\Robo\ESLint\Utils;
 use Codeception\Test\Unit;
 
+/**
+ * @covers \Sweetchuck\Robo\ESLint\Utils
+ */
 class UtilsTest extends Unit
 {
     protected UnitTester $tester;
