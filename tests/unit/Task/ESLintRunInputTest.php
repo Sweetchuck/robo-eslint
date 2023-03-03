@@ -214,14 +214,11 @@ class ESLintRunInputTest extends TaskTestBase
      */
     public function testRun(array $expected, array $options, array $files): void
     {
-        $processIndex = count(DummyProcess::$instances);
         foreach ($files as $file) {
-            DummyProcess::$prophecy[$processIndex] = [
+            DummyProcess::$prophecy[] = [
                 'exitCode' => $file['lintExitCode'],
                 'stdOutput' => $file['lintStdOutput'],
             ];
-
-            $processIndex++;
         }
 
         $this->task->setOptions($options);

@@ -688,10 +688,7 @@ class ESLintRunFilesTest extends TaskTestBase
      */
     public function testRunNormal(int $expectedExitCode, array $expectedReport): void
     {
-        throw new SkippedTestSuiteError('@todo Why there is a segmentation fault');
-
-        $processIndex = count(DummyProcess::$instances);
-        DummyProcess::$prophecy[$processIndex] = [
+        DummyProcess::$prophecy[] = [
             'exitCode' => $expectedExitCode,
             'stdOutput' => json_encode($expectedReport),
             'stdError' => '',
@@ -735,8 +732,6 @@ class ESLintRunFilesTest extends TaskTestBase
 
     public function testRunFailed(): void
     {
-        throw new SkippedTestSuiteError('@todo Why there is a segmentation fault');
-
         $exitCode = 1;
         $report = [
             [
@@ -757,8 +752,7 @@ class ESLintRunFilesTest extends TaskTestBase
         ];
         $reportJson = json_encode($report);
 
-        $processIndex = count(DummyProcess::$instances);
-        DummyProcess::$prophecy[$processIndex] = [
+        DummyProcess::$prophecy[] = [
             'exitCode' => $exitCode,
             'stdOutput' => $reportJson,
         ];
