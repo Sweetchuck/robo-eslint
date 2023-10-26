@@ -50,7 +50,6 @@
         "sweetchuck/robo-git": "3.x-dev",
         "sweetchuck/robo-phpcs": "3.x-dev",
         "sweetchuck/robo-phpmd": "3.x-dev",
-        "sweetchuck/utils": "1.x-dev",
         "symfony/error-handler": "^5.0 || ^6.0"
     },
     "autoload": {
