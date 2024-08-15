@@ -1,3 +1,33 @@
 parameters:
-    typeAliases:
-        robo-eslint-enum-cache-strategy: '"metadata"|"content"'
+	typeAliases:
+		robo-eslint-enum-cache-strategy: '"metadata"|"content"'
+		robo-eslint-lint-report-file: '''
+			array{
+				filePath?: string,
+				errorCount?: int,
+				warningCount?: int,
+				messages: array<array{severity: int, ruleId: string}>,
+			}
+		'''
+		robo-eslint-lint-report-file-full: '''
+			array{
+				filePath: string,
+				errorCount: int,
+				warningCount: int,
+				messages: array<array{severity: int, ruleId: string}>,
+			}
+		'''
+		robo-eslint-lint-report-stats: '''
+			array{
+				severity?: string,
+				has?: array<string, bool>,
+				source?: array<string, array{severity: string, count: int}>,
+			}
+		'''
+		robo-eslint-lint-report-stats-full: '''
+			array{
+				severity: string,
+				has: array<string, bool>,
+				source: array<string, array{severity: string, count: int}>,
+			}
+		'''

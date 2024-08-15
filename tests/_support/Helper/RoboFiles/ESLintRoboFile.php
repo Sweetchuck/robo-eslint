@@ -34,7 +34,7 @@ class ESLintRoboFile extends Tasks implements ConfigAwareInterface
     /**
      * @hook pre-command @initLintReporters
      */
-    public function initLintReporters()
+    public function initLintReporters(): void
     {
         $container = $this->getContainer();
         if (!($container instanceof LeagueContainer)) {
@@ -53,26 +53,28 @@ class ESLintRoboFile extends Tasks implements ConfigAwareInterface
     }
 
     /**
-     * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunFiles|\Robo\Collection\CollectionBuilder
+     * @command lint:stylish:std-output
      *
      * @initLintReporters
      */
-    public function lintStylishStdOutput(): TaskInterface
+    public function cmdLintStylishStdOutputExecute(): TaskInterface
     {
-        return $this->taskESLintRunFiles()
+        return $this
+            ->taskESLintRunFiles()
             ->setWorkingDirectory($this->workingDirectory)
             ->setFiles(['samples/'])
             ->setFormat('stylish');
     }
 
     /**
-     * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunFiles|\Robo\Collection\CollectionBuilder
+     * @command lint:stylish:file
      *
      * @initLintReporters
      */
-    public function lintStylishFile(): TaskInterface
+    public function cmdLintStylishFileExecute(): TaskInterface
     {
-        return $this->taskESLintRunFiles()
+        return $this
+            ->taskESLintRunFiles()
             ->setWorkingDirectory($this->workingDirectory)
             ->setFiles(['./samples/'])
             ->setFormat('stylish')
@@ -80,11 +82,11 @@ class ESLintRoboFile extends Tasks implements ConfigAwareInterface
     }
 
     /**
-     * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunFiles|\Robo\Collection\CollectionBuilder
+     * @command lint:all-in-one
      *
      * @initLintReporters
      */
-    public function lintAllInOne(): TaskInterface
+    public function cmdLintAllInOneExecute(): TaskInterface
     {
         $verboseFile = (new VerboseReporter())
             ->setFilePathStyle('relative')
@@ -94,7 +96,8 @@ class ESLintRoboFile extends Tasks implements ConfigAwareInterface
             ->setFilePathStyle('relative')
             ->setDestination("{$this->reportsDir}/extra.summary.txt");
 
-        $task = $this->taskESLintRunFiles()
+        $task = $this
+            ->taskESLintRunFiles()
             ->setWorkingDirectory($this->workingDirectory)
             ->setFiles(['samples/'])
             ->setFormat('json')
@@ -108,11 +111,13 @@ class ESLintRoboFile extends Tasks implements ConfigAwareInterface
     }
 
     /**
-     * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunInput|\Robo\Collection\CollectionBuilder
+     * @phpstan-param array<string, mixed> $options
+     *
+     * @command lint:input
      *
      * @initLintReporters
      */
-    public function lintInput(
+    public function cmdLintInputExecute(
         $options = [
             'command-only' => false,
         ]
@@ -134,12 +139,13 @@ class ESLintRoboFile extends Tasks implements ConfigAwareInterface
         ];
 
         if (!$options['command-only']) {
-            $files['invalid-01.js']['content'] = file_get_contents(
+            $files['invalid-01.js']['content'] = (string) file_get_contents(
                 $this->workingDirectory . '/' . $files['invalid-01.js']['fileName'],
             );
         }
 
-        return $this->taskESLintRunInput()
+        return $this
+            ->taskESLintRunInput()
             ->setWorkingDirectory($this->workingDirectory)
             ->setFormat('json')
             ->setFiles($files)

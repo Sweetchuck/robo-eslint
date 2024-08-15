@@ -9,16 +9,31 @@ use Sweetchuck\LintReport\ReportWrapperInterface;
 
 class FileWrapper implements FileWrapperInterface
 {
-    protected array $item = [];
 
+    /**
+     * @phpstan-var robo-eslint-lint-report-file-full
+     */
+    protected array $item = [
+        'filePath' => '',
+        'errorCount' => 0,
+        'warningCount' => 0,
+        'messages' => [],
+    ];
+
+    /**
+     * @phpstan-var robo-eslint-lint-report-stats
+     */
     public array $stats = [];
 
+    /**
+     * @phpstan-param robo-eslint-lint-report-file $file
+     */
     public function __construct(array $file)
     {
         $this->item = $file + [
             'filePath' => '',
-            'errorCount' => '',
-            'warningCount' => '',
+            'errorCount' => 0,
+            'warningCount' => 0,
             'messages' => [],
         ];
     }
@@ -44,21 +59,27 @@ class FileWrapper implements FileWrapperInterface
     public function yieldFailures()
     {
         foreach ($this->item['messages'] as $message) {
+            // @phpstan-ignore-next-line
             yield new FailureWrapper($message);
         }
     }
 
+    /**
+     * @phpstan-return robo-eslint-lint-report-stats-full
+     */
     public function stats(): array
     {
         if (!$this->stats) {
             $this->stats = [
-                'severity' => 0,
+                'severity' => '',
                 'has' => array_fill_keys(ReportWrapper::severityMap(), false),
                 'source' => [],
             ];
+
+            $globalSeverity = 0;
             foreach ($this->item['messages'] as $message) {
-                if ($this->stats['severity'] < $message['severity']) {
-                    $this->stats['severity'] = $message['severity'];
+                if ($globalSeverity < $message['severity']) {
+                    $globalSeverity = $message['severity'];
                 }
 
                 $severity = ReportWrapper::severity($message['severity']);
@@ -73,9 +94,10 @@ class FileWrapper implements FileWrapperInterface
                 $this->stats['source'][$message['ruleId']]['count']++;
             }
 
-            $this->stats['severity'] = ReportWrapper::severity($this->stats['severity']);
+            $this->stats['severity'] = ReportWrapper::severity($globalSeverity);
         }
 
+        // @phpstan-ignore-next-line
         return $this->stats;
     }
 

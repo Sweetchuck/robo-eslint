@@ -1,9 +1,13 @@
 parameters:
 	paths:
 		- ../src/
-		- ../tests/
+		- ../tests/_support/
+		- ../tests/acceptance/
+		- ../tests/unit/
 		- ../RoboFile.php
 	excludePaths:
 		- ../RoboFileAcceptance.php
-		- ../tests/_log/
+		- ../tests/_data/
+		- ../tests/_output/
 		- ../tests/_support/_generated/
+		- ../tests/_support/Helper/Composer/Scripts.php

@@ -4,16 +4,19 @@ declare(strict_types = 1);
 
 namespace Sweetchuck\Robo\ESLint\Tests\Unit\LintReportWrapper;
 
+use Codeception\Attribute\DataProvider;
+use Codeception\Test\Unit;
 use Sweetchuck\Robo\ESLint\LintReportWrapper\ReportWrapper;
+use Sweetchuck\Robo\ESLint\Tests\UnitTester;
 
-class ReportWrapperTest extends \Codeception\Test\Unit
+class ReportWrapperTest extends Unit
 {
-    /**
-     * @var \Sweetchuck\Robo\ESLint\Tests\UnitTester
-     */
-    protected $tester;
+    protected UnitTester $tester;
 
-    public function casesReports(): array
+    /**
+     * @phpstan-return array<string, mixed>
+     */
+    public static function casesReports(): array
     {
         return [
             'ok:no-files' => [
@@ -159,8 +162,10 @@ class ReportWrapperTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @dataProvider casesReports
+     * @phpstan-param array<string, mixed> $expected
+     * @phpstan-param array<string, mixed> $report
      */
+    #[DataProvider('casesReports')]
     public function testAll(array $expected, array $report): void
     {
         $rw = new ReportWrapper($report);
@@ -176,10 +181,7 @@ class ReportWrapperTest extends \Codeception\Test\Unit
             2 => 'error',
         ];
 
-        /**
-         * @var string $filePath
-         * @var \Sweetchuck\Robo\ESLint\LintReportWrapper\FileWrapper $fw
-         */
+        /** @var \Sweetchuck\Robo\ESLint\LintReportWrapper\FileWrapper $fw */
         foreach ($rw->yieldFiles() as $fw) {
             $file = array_shift($report);
             $this->tester->assertSame($file['filePath'], $fw->filePath());

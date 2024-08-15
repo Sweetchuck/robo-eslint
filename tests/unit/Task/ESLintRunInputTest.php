@@ -4,21 +4,26 @@ declare(strict_types = 1);
 
 namespace Sweetchuck\Robo\ESLint\Tests\Unit\Task;
 
+use Codeception\Attribute\DataProvider;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use Robo\Collection\CollectionBuilder;
-use Sweetchuck\Robo\ESLint\Task\ESLintRunInput;
 use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyProcess;
+use Sweetchuck\Robo\ESLint\ESLintTaskLoader;
+use Sweetchuck\Robo\ESLint\Task\ESLintRun;
+use Sweetchuck\Robo\ESLint\Task\ESLintRunInput;
 
 /**
- * @covers \Sweetchuck\Robo\ESLint\Task\ESLintRunInput
- * @covers \Sweetchuck\Robo\ESLint\Task\ESLintRun
- * @covers \Sweetchuck\Robo\ESLint\ESLintTaskLoader
- *
  * @property \Sweetchuck\Robo\ESLint\Task\ESLintRunInput $task
  */
+#[CoversClass(ESLintRunInput::class)]
+#[CoversClass(ESLintRun::class)]
+#[CoversTrait(ESLintTaskLoader::class)]
 class ESLintRunInputTest extends TaskTestBase
 {
     protected function initTaskCreate(): CollectionBuilder
     {
+        // @phpstan-ignore-next-line
         return $this->taskBuilder->taskESLintRunInput();
     }
 
@@ -35,7 +40,10 @@ class ESLintRunInputTest extends TaskTestBase
         $this->tester->assertSame('b.js', $this->task->getStdinFilename());
     }
 
-    public function casesGetCommand(): array
+    /**
+     * @phpstan-return array<string, mixed>
+     */
+    public static function casesGetCommand(): array
     {
         return [
             'file' => [
@@ -78,8 +86,9 @@ class ESLintRunInputTest extends TaskTestBase
     }
 
     /**
-     * @dataProvider casesGetCommand
+     * @phpstan-param array<string, mixed> $options
      */
+    #[DataProvider('casesGetCommand')]
     public function testGetCommand(string $expected, array $options): void
     {
         $files = $options['files'] ?? [];
@@ -93,7 +102,10 @@ class ESLintRunInputTest extends TaskTestBase
         $this->tester->assertSame($expected, $this->task->getCommand());
     }
 
-    public function casesGetJarValueOrLocal(): array
+    /**
+     * @phpstan-return array<string, mixed>
+     */
+    public static function casesGetJarValueOrLocal(): array
     {
         return [
             'without jar' => [
@@ -129,7 +141,10 @@ class ESLintRunInputTest extends TaskTestBase
         ];
     }
 
-    public function casesRun(): array
+    /**
+     * @phpstan-return array<string, mixed>
+     */
+    public static function casesRun(): array
     {
         $files = [
             'empty.js' => [],
@@ -210,8 +225,11 @@ class ESLintRunInputTest extends TaskTestBase
     }
 
     /**
-     * @dataProvider casesRun
+     * @phpstan-param array<string, mixed> $expected
+     * @phpstan-param array<string, mixed> $options
+     * @phpstan-param array<string, mixed> $files
      */
+    #[DataProvider('casesRun')]
     public function testRun(array $expected, array $options, array $files): void
     {
         foreach ($files as $file) {

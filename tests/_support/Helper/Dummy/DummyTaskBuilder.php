@@ -31,6 +31,7 @@ class DummyTaskBuilder implements
 
     public function collectionBuilder(): CollectionBuilder
     {
+        // @phpstan-ignore-next-line
         return CollectionBuilder::create($this->getContainer(), null);
     }
 }

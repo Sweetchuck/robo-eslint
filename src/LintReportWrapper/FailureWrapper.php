@@ -8,10 +8,14 @@ use Sweetchuck\LintReport\FailureWrapperInterface;
 
 class FailureWrapper implements FailureWrapperInterface
 {
+
+    /**
+     * @var array<string, mixed>
+     */
     protected array $failure = [];
 
     /**
-     * {@inheritdoc}
+     * @param array<string, mixed> $failure
      */
     public function __construct(array $failure)
     {
@@ -31,41 +35,26 @@ class FailureWrapper implements FailureWrapperInterface
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function severity(): string
     {
         return ReportWrapper::severity($this->failure['severity']);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function source(): string
     {
         return $this->failure['ruleId'];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function line(): int
     {
         return $this->failure['line'];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function column(): int
     {
         return $this->failure['column'];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function message(): string
     {
         return $this->failure['message'];

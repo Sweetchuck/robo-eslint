@@ -4,17 +4,19 @@ declare(strict_types = 1);
 
 namespace Sweetchuck\Robo\ESLint\Tests\Unit\Task;
 
+use Codeception\Attribute\DataProvider;
 use Codeception\Stub;
-use PHPUnit\Framework\SkippedTestSuiteError;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use Robo\Collection\CollectionBuilder;
+use Sweetchuck\Robo\ESLint\ESLintTaskLoader;
+use Sweetchuck\Robo\ESLint\Task\ESLintRun;
 use Sweetchuck\Robo\ESLint\Task\ESLintRunFiles;
 use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyProcess;
 
-/**
- * @covers \Sweetchuck\Robo\ESLint\Task\ESLintRunFiles
- * @covers \Sweetchuck\Robo\ESLint\Task\ESLintRun
- * @covers \Sweetchuck\Robo\ESLint\ESLintTaskLoader
- */
+#[CoversClass(ESLintRunFiles::class)]
+#[CoversClass(ESLintRun::class)]
+#[CoversTrait(ESLintTaskLoader::class)]
 class ESLintRunFilesTest extends TaskTestBase
 {
     protected static function getMethod(string $name): \ReflectionMethod
@@ -28,10 +30,14 @@ class ESLintRunFilesTest extends TaskTestBase
 
     protected function initTaskCreate(): CollectionBuilder
     {
+        // @phpstan-ignore-next-line
         return $this->taskBuilder->taskESLintRunFiles();
     }
 
-    public function casesGetSetOutputFile(): array
+    /**
+     * @phpstan-return array<string, mixed>
+     */
+    public static function casesGetSetOutputFile(): array
     {
         return [
             'empty' => [
@@ -73,8 +79,9 @@ class ESLintRunFilesTest extends TaskTestBase
     }
 
     /**
-     * @dataProvider casesGetSetOutputFile
+     * @phpstan-param array<string, mixed> $options
      */
+    #[DataProvider('casesGetSetOutputFile')]
     public function testGetSetOutputFile(string $expectedDirect, string $expectedReal, array $options): void
     {
         $this->task->setOptions($options);
@@ -104,7 +111,10 @@ class ESLintRunFilesTest extends TaskTestBase
         );
     }
 
-    public function casesGetCommand(): array
+    /**
+     * @phpstan-return array<string, mixed>
+     */
+    public static function casesGetCommand(): array
     {
         return [
             'basic' => [
@@ -409,8 +419,9 @@ class ESLintRunFilesTest extends TaskTestBase
     }
 
     /**
-     * @dataProvider casesGetCommand
+     * @phpstan-param array<string, mixed> $options
      */
+    #[DataProvider('casesGetCommand')]
     public function testGetCommand(string $expected, array $options): void
     {
         $this->task->setOptions($options);
@@ -538,7 +549,10 @@ class ESLintRunFilesTest extends TaskTestBase
         $this->tester->assertSame(3, ESLintRunFiles::EXIT_CODE_INVALID);
     }
 
-    public function casesGetTaskExitCode(): array
+    /**
+     * @phpstan-return array<string, mixed>
+     */
+    public static function casesGetTaskExitCode(): array
     {
         $o = ESLintRunFiles::EXIT_CODE_OK;
         $w = ESLintRunFiles::EXIT_CODE_WARNING;
@@ -608,15 +622,13 @@ class ESLintRunFilesTest extends TaskTestBase
         ];
     }
 
-    /**
-     * @dataProvider casesGetTaskExitCode
-     */
+    #[DataProvider('casesGetTaskExitCode')]
     public function testGetTaskExitCode(
         int $expected,
         string $failOn,
         int $numOfErrors,
         int $numOfWarnings,
-        int $lintExitCode
+        int $lintExitCode,
     ): void {
         /** @var \Sweetchuck\Robo\ESLint\Task\ESLintRunFiles $task */
         $task = Stub::construct(
@@ -631,7 +643,10 @@ class ESLintRunFilesTest extends TaskTestBase
         );
     }
 
-    public function casesRunNormal(): array
+    /**
+     * @phpstan-return array<string, mixed>
+     */
+    public static function casesRunNormal(): array
     {
         return [
             'success' => [
@@ -684,8 +699,9 @@ class ESLintRunFilesTest extends TaskTestBase
     /**
      * This way cannot be tested those cases when the lint process failed.
      *
-     * @dataProvider casesRunNormal
+     * @phpstan-param array<mixed> $expectedReport
      */
+    #[DataProvider('casesRunNormal')]
     public function testRunNormal(int $expectedExitCode, array $expectedReport): void
     {
         DummyProcess::$prophecy[] = [
@@ -709,6 +725,7 @@ class ESLintRunFilesTest extends TaskTestBase
             'Exit code',
         );
 
+        // @phpstan-ignore-next-line
         $assetNamePrefix = $options['assetNamePrefix'] ?? '';
 
         /** @var \Sweetchuck\LintReport\ReportWrapperInterface $reportWrapper */
@@ -767,6 +784,7 @@ class ESLintRunFilesTest extends TaskTestBase
 
         $this->tester->assertSame($exitCode, $result->getExitCode());
 
+        // @phpstan-ignore-next-line
         $assetNamePrefix = $options['assetNamePrefix'] ?? '';
 
         /** @var \Sweetchuck\Robo\ESLint\LintReportWrapper\ReportWrapper $reportWrapper */

@@ -3,10 +3,9 @@ namespace: 'Sweetchuck\Robo\ESLint\Tests'
 
 paths:
     tests: 'tests'
-    envs: 'tests/_envs'
     data: 'tests/_data'
-    log: 'tests/_log'
-    output: 'tests/_log'
+    envs: 'tests/_envs'
+    output: 'tests/_output'
     support: 'tests/_support'
 
 settings:

@@ -1,13 +1,19 @@
 
 /tests/_data/node_modules/
 /tests/_data/actual/
-/tests/_log/
+/tests/_output/
 /tests/_support/_generated/
 /tests/*.suite.yml
 /codeception.yml
 
 /vendor/
 
+/.git-hooks.local
+
 /phpcs.xml
 
+/phpstan.neon
+
 /robo.yml
+/RoboFileAcceptance.php
+/RoboFileLocal.php

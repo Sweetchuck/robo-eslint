@@ -51,8 +51,8 @@ class AcceptanceTester extends Actor
 
         $this->assertFileExists("$actualDir/$fileName");
         $this->assertStringContainsString(
-            file_get_contents("$expectedDir/$fileName"),
-            file_get_contents("$actualDir/$fileName"),
+            file_get_contents("$expectedDir/$fileName") ?: '',
+            file_get_contents("$actualDir/$fileName") ?: '',
         );
 
         return $this;
@@ -62,9 +62,10 @@ class AcceptanceTester extends Actor
     {
         $fileName = codecept_data_dir($fileName);
         $doc = new \DOMDocument();
-        $doc->loadXML(file_get_contents($fileName));
+        $doc->loadXML(file_get_contents($fileName) ?: '');
         $xpath = new \DOMXPath($doc);
         $rootElement = $xpath->query('/checkstyle');
+        Assert::assertInstanceOf(\DOMNodeList::class, $rootElement);
         Assert::assertSame(1, $rootElement->length, 'Root element of the Checkstyle XML is exists.');
 
         return $this;

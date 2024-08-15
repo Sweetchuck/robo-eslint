@@ -61,7 +61,7 @@ class Scripts
         return $exitCode === 0;
     }
 
-    protected static function init(ComposerEvent $event)
+    protected static function init(ComposerEvent $event): void
     {
         if (static::$event) {
             return;
@@ -73,7 +73,7 @@ class Scripts
         };
     }
 
-    protected static function processCallback(string $type, string $text)
+    protected static function processCallback(string $type, string $text): void
     {
         if ($type === Process::OUT) {
             static::$event->getIO()->write($text);

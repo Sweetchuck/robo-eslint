@@ -10,6 +10,8 @@ use Consolidation\AnnotatedCommand\Output\OutputAwareInterface;
 trait ESLintTaskLoader
 {
     /**
+     * @param array<string, mixed> $options
+     *
      * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunFiles|\Robo\Collection\CollectionBuilder
      */
     protected function taskESLintRunFiles(array $options = [])
@@ -28,6 +30,8 @@ trait ESLintTaskLoader
     }
 
     /**
+     * @param array<string, mixed> $options
+     *
      * @return \Sweetchuck\Robo\ESLint\Task\ESLintRunInput|\Robo\Collection\CollectionBuilder
      */
     protected function taskESLintRunInput(array $options = [])

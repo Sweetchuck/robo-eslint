@@ -17,7 +17,7 @@ class RunRoboTasksCest
     }
 
     // @codingStandardsIgnoreStart
-    public function _before(AcceptanceTester $i)
+    public function _before(AcceptanceTester $i): void
     {
         // @codingStandardsIgnoreEnd
         $i->clearTheReportsDir();
@@ -37,8 +37,14 @@ class RunRoboTasksCest
         $stdError = $tester->getRoboTaskStdError($id);
 
         $tester->assertSame(2, $exitCode);
-        $tester->assertStringContainsString(file_get_contents("{$this->expectedDir}/extra.verbose.txt"), $stdOutput);
-        $tester->assertStringContainsString(file_get_contents("{$this->expectedDir}/extra.summary.txt"), $stdOutput);
+        $tester->assertStringContainsString(
+            file_get_contents("{$this->expectedDir}/extra.verbose.txt") ?: '',
+            $stdOutput,
+        );
+        $tester->assertStringContainsString(
+            file_get_contents("{$this->expectedDir}/extra.summary.txt") ?: '',
+            $stdOutput,
+        );
         $tester->assertStringContainsString('One or more errors were reported (and any number of warnings)', $stdError);
         $tester->haveAFileLikeThis('extra.verbose.txt');
         $tester->haveAFileLikeThis('extra.summary.txt');
@@ -50,7 +56,7 @@ class RunRoboTasksCest
         $tester->runRoboTask(
             $id,
             ESLintRoboFile::class,
-            'lint:stylish-file'
+            'lint:stylish:file'
         );
 
         $exitCode = $tester->getRoboTaskExitCode($id);
@@ -70,7 +76,7 @@ class RunRoboTasksCest
         $tester->runRoboTask(
             $id,
             ESLintRoboFile::class,
-            'lint:stylish-std-output'
+            'lint:stylish:std-output'
         );
 
         $exitCode = $tester->getRoboTaskExitCode($id);
@@ -78,7 +84,10 @@ class RunRoboTasksCest
         $stdError = $tester->getRoboTaskStdError($id);
 
         $tester->assertSame(2, $exitCode);
-        $tester->assertStringContainsString(file_get_contents("{$this->expectedDir}/native.stylish.txt"), $stdOutput);
+        $tester->assertStringContainsString(
+            file_get_contents("{$this->expectedDir}/native.stylish.txt") ?: '',
+            $stdOutput,
+        );
         $tester->assertStringContainsString('One or more errors were reported (and any number of warnings)', $stdError);
     }
 
@@ -92,7 +101,10 @@ class RunRoboTasksCest
         $this->lintInput($i, ['lint:input', '--command-only']);
     }
 
-    protected function lintInput(AcceptanceTester $tester, array $argsAndOptions = [])
+    /**
+     * @phpstan-param array<mixed> $argsAndOptions
+     */
+    protected function lintInput(AcceptanceTester $tester, array $argsAndOptions = []): void
     {
         $id = implode(' ', $argsAndOptions);
         $tester->runRoboTask(

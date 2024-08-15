@@ -11,6 +11,9 @@ class ESLintRunInput extends ESLintRun
     // region Properties
     protected bool $addFilesToCliCommand = false;
 
+    /**
+     * @var array<string, null|string>
+     */
     protected array $currentFile = [
         'fileName' => '',
         'content' => '',
@@ -33,6 +36,9 @@ class ESLintRunInput extends ESLintRun
     }
     // endregion
 
+    /**
+     * @param array<string, mixed> $options
+     */
     public function __construct(array $options = [])
     {
         parent::__construct($options);
@@ -43,6 +49,8 @@ class ESLintRunInput extends ESLintRun
 
     /**
      * {@inheritdoc}
+     *
+     * @param array<string, mixed> $options
      */
     public function setOptions(array $options): static
     {
@@ -100,7 +108,7 @@ class ESLintRunInput extends ESLintRun
         $this->setFailOn($backupFailOn);
 
         $this->report = Utils::mergeReports($reports);
-        $this->reportRaw = json_encode($this->report);
+        $this->reportRaw = json_encode($this->report) ?: '{}';
 
         return $this;
     }
@@ -111,13 +119,16 @@ class ESLintRunInput extends ESLintRun
     public function getCommand()
     {
         // @todo Handle the different working directories.
-        $echo = $this->currentFile['content'] === null ?
-            $this->currentFile['command']
+        $echo = $this->currentFile['content'] === null
+            ? $this->currentFile['command']
             : sprintf('echo -n %s', escapeshellarg($this->currentFile['content']));
 
         return $echo . ' | ' . parent::getCommand();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function getCommandOptions(): array
     {
         return [

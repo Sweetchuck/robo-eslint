@@ -30,12 +30,18 @@ class ReportWrapper implements ReportWrapperInterface
         return static::$severityMap[$severity];
     }
 
+    /**
+     * @var array<string, mixed>
+     */
     protected array $report = [];
 
     protected ?int $numOfErrors = null;
 
     protected ?int $numOfWarnings = null;
 
+    /**
+     * @param null|array<string, mixed> $report
+     */
     public function __construct(array $report = null)
     {
         if ($report !== null) {
@@ -43,6 +49,9 @@ class ReportWrapper implements ReportWrapperInterface
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getReport(): array
     {
         return $this->report;
@@ -50,6 +59,8 @@ class ReportWrapper implements ReportWrapperInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @param array<string, mixed> $report
      */
     public function setReport(array $report)
     {
@@ -71,6 +82,7 @@ class ReportWrapper implements ReportWrapperInterface
     public function yieldFiles()
     {
         foreach ($this->getReport() as $item) {
+            // @phpstan-ignore-next-line
             yield $item['filePath'] => new FileWrapper($item);
         }
     }

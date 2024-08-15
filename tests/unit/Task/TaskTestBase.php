@@ -36,7 +36,9 @@ abstract class TaskTestBase extends Unit
     protected DummyTaskBuilder $taskBuilder;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
+     *
+     * @phpstan-return void
      */
     public function _before()
     {
@@ -56,6 +58,7 @@ abstract class TaskTestBase extends Unit
 
         Robo::configureContainer($this->container, $application, $this->config, $input, $output);
 
+        // @phpstan-ignore-next-line
         $this->builder = CollectionBuilder::create($this->container, null);
         $this->taskBuilder = new DummyTaskBuilder();
         $this->taskBuilder->setContainer($this->container);
@@ -66,6 +69,12 @@ abstract class TaskTestBase extends Unit
         $this->initTask();
     }
 
+    /**
+     * @phpstan-param array<string, mixed> $properties
+     *
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
     protected function initTask(array $properties = []): static
     {
         $cb = $this->initTaskCreate();

@@ -6,6 +6,12 @@ namespace Sweetchuck\Robo\ESLint;
 
 class Utils
 {
+
+    /**
+     * @param array<mixed> $reports
+     *
+     * @return array<mixed>
+     */
     public static function mergeReports(array $reports): array
     {
         if (func_num_args() > 1) {
@@ -32,9 +38,14 @@ class Utils
      */
     public static function ruleToOptionValue(string $id, $rule): string
     {
-        return json_encode([$id => $rule]);
+        return json_encode([$id => $rule]) ?: '{}';
     }
 
+    /**
+     * @param iterable<string, null|bool> $globalVariables
+     *
+     * @return array<string, bool>
+     */
     public static function getGlobalVariablesAsCliOptions(iterable $globalVariables): array
     {
         $vars = [];
@@ -67,8 +78,9 @@ class Utils
     {
         $item = reset($items);
 
-        return is_bool($item) ?
-            $items
+        // @phpstan-ignore-next-line
+        return is_bool($item)
+            ? $items
             : array_fill_keys($items, $defaultValue);
     }
 
@@ -81,8 +93,9 @@ class Utils
     {
         $item = reset($items);
 
-        return $item === null || is_bool($item) ?
-            $items
+        // @phpstan-ignore-next-line
+        return $item === null || is_bool($item)
+            ? $items
             : array_fill_keys($items, $defaultValue);
     }
 }

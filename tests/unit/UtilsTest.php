@@ -4,18 +4,21 @@ declare(strict_types = 1);
 
 namespace Sweetchuck\Robo\ESLint\Tests\Unit;
 
+use Codeception\Attribute\DataProvider;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Sweetchuck\Robo\ESLint\Tests\UnitTester;
 use Sweetchuck\Robo\ESLint\Utils;
 use Codeception\Test\Unit;
 
-/**
- * @covers \Sweetchuck\Robo\ESLint\Utils
- */
+#[CoversClass(Utils::class)]
 class UtilsTest extends Unit
 {
     protected UnitTester $tester;
 
-    public function casesMergeReports(): array
+    /**
+     * @phpstan-return array<string, mixed>
+     */
+    public static function casesMergeReports(): array
     {
         $a = [
             [
@@ -62,8 +65,10 @@ class UtilsTest extends Unit
     }
 
     /**
-     * @dataProvider casesMergeReports
+     * @phpstan-param array<string> $expected
+     * @phpstan-param array<mixed> $reports
      */
+    #[DataProvider('casesMergeReports')]
     public function testMergeReports(array $expected, array $reports): void
     {
         $this->tester->assertSame($expected, Utils::mergeReports($reports));

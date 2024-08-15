@@ -30,21 +30,21 @@ abstract class ESLintRun extends BaseTask implements
     /**
      * Exit code: No lints were found.
      */
-    const EXIT_CODE_OK = 0;
+    const int EXIT_CODE_OK = 0;
 
     /**
      * One or more warnings were reported (and no errors).
      */
-    const EXIT_CODE_WARNING = 1;
+    const int EXIT_CODE_WARNING = 1;
 
     /**
      * One or more errors were reported (and any number of warnings).
      */
-    const EXIT_CODE_ERROR = 2;
+    const int EXIT_CODE_ERROR = 2;
 
-    const EXIT_CODE_INVALID = 3;
+    const int EXIT_CODE_INVALID = 3;
 
-    const EXIT_CODE_UNKNOWN = 4;
+    const int EXIT_CODE_UNKNOWN = 4;
 
     /**
      * @todo Some kind of dependency injection would be awesome.
@@ -74,7 +74,10 @@ abstract class ESLintRun extends BaseTask implements
     /**
      * Exit code and error message mapping.
      *
-     * @var string[]
+     * Key: exit code.
+     * Value: Error message.
+     *
+     * @var array<int, string>
      */
     protected array $exitMessages = [
         0 => 'No lints were found',
@@ -88,10 +91,16 @@ abstract class ESLintRun extends BaseTask implements
 
     protected string $lintOutput = '';
 
+    /**
+     * @var array<string, mixed>
+     */
     protected array $report = [];
 
     protected ?ReportWrapperInterface $reportWrapper = null;
 
+    /**
+     * @var array<string, mixed>
+     */
     protected array $assets = [
         'report' => null,
     ];
@@ -216,6 +225,9 @@ abstract class ESLintRun extends BaseTask implements
         'ignorePatterns' => 'ignore-pattern',
     ];
 
+    /**
+     * @var array<string, mixed>
+     */
     protected array $multiOptionsPrepared = [
         'rules' => 'rule',
     ];
@@ -290,12 +302,12 @@ abstract class ESLintRun extends BaseTask implements
 
     // region Option - lintReporters.
     /**
-     * @var \Sweetchuck\LintReport\ReporterInterface[]
+     * @var array<null|false|string|\Sweetchuck\LintReport\ReporterInterface>
      */
     protected array $lintReporters = [];
 
     /**
-     * @return \Sweetchuck\LintReport\ReporterInterface[]
+     * @return array<null|false|string|\Sweetchuck\LintReport\ReporterInterface>
      */
     public function getLintReporters(): array
     {
@@ -303,7 +315,7 @@ abstract class ESLintRun extends BaseTask implements
     }
 
     /**
-     * @param $lintReporters \Sweetchuck\LintReport\ReporterInterface[]
+     * @param array<null|false|string|\Sweetchuck\LintReport\ReporterInterface> $lintReporters
      */
     public function setLintReporters(array $lintReporters): static
     {
@@ -312,11 +324,7 @@ abstract class ESLintRun extends BaseTask implements
         return $this;
     }
 
-    /**
-     * @param string $id
-     * @param null|string|ReporterInterface $lintReporter
-     */
-    public function addLintReporter(string $id, $lintReporter = null): static
+    public function addLintReporter(string $id, null|string|ReporterInterface $lintReporter = null): static
     {
         $this->lintReporters[$id] = $lintReporter;
 
@@ -386,8 +394,14 @@ abstract class ESLintRun extends BaseTask implements
     // endregion
 
     // region Option - environments.
+    /**
+     * @var array<string, bool>
+     */
     protected array $environments = [];
 
+    /**
+     * @return array<string, bool>
+     */
     public function getEnvironments(): array
     {
         return $this->environments;
@@ -407,14 +421,22 @@ abstract class ESLintRun extends BaseTask implements
     // region Option - extensions.
     /**
      * Specify JavaScript file extensions.
+     *
+     * @var array<string, bool>
      */
     protected array $extensions = [];
 
+    /**
+     * @return array<string, bool>
+     */
     public function getExtensions(): array
     {
         return $this->extensions;
     }
 
+    /**
+     * @param array<string>|array<string, bool> $extensions
+     */
     public function setExtensions(array $extensions, bool $include = true): static
     {
         $this->extensions = Utils::createIncludeList($extensions, $include);
@@ -448,11 +470,17 @@ abstract class ESLintRun extends BaseTask implements
      */
     protected array $globalVariables = [];
 
+    /**
+     * @return array<string, null|bool>
+     */
     public function getGlobalVariables(): array
     {
         return $this->globalVariables;
     }
 
+    /**
+     * @param array<string>|array<string, null|bool> $globalVariables
+     */
     public function setGlobalVariables(array $globalVariables): static
     {
         $this->globalVariables = Utils::createTriStateList($globalVariables, null);
@@ -467,6 +495,9 @@ abstract class ESLintRun extends BaseTask implements
         return $this;
     }
 
+    /**
+     * @param array<string>|array<string, null|bool> $names
+     */
     public function addGlobalVariables(array $names): static
     {
         foreach (Utils::createTriStateList($names, null) as $name => $state) {
@@ -483,6 +514,9 @@ abstract class ESLintRun extends BaseTask implements
         return $this;
     }
 
+    /**
+     * @param array<string>|array<string, null|bool> $names
+     */
     public function removeGlobalVariables(array $names): static
     {
         foreach (Utils::createTriStateList($names, false) as $name => $state) {
@@ -510,8 +544,14 @@ abstract class ESLintRun extends BaseTask implements
     // endregion
 
     // region Option - parserOptions.
+    /**
+     * @var array<string>
+     */
     protected array $parserOptions = [];
 
+    /**
+     * @return array<string>
+     */
     public function getParserOptions(): array
     {
         return $this->parserOptions;
@@ -523,11 +563,14 @@ abstract class ESLintRun extends BaseTask implements
 
         // NOTE: There is not enough documentation.
         // https://eslint.org/docs/latest/user-guide/command-line-interface#--parser-options
-        return $parserOptions ?
-            json_encode($parserOptions)
+        return $parserOptions
+            ? json_encode($parserOptions) ?: '{}'
             : '';
     }
 
+    /**
+     * @param array<string> $parserOptions
+     */
     public function setParserOptions(array $parserOptions): static
     {
         $this->parserOptions = $parserOptions;
@@ -554,15 +597,21 @@ abstract class ESLintRun extends BaseTask implements
 
     // region Option -  plugins.
     /**
-     * @phpstan-var array<string, bool>
+     * @var array<string, bool>
      */
     protected array $plugins = [];
 
+    /**
+     * @return array<string, bool>
+     */
     public function getPlugins(): array
     {
         return $this->plugins;
     }
 
+    /**
+     * @param array<string|bool> $plugins
+     */
     public function setPlugins(array $plugins): static
     {
         $this->plugins = Utils::createIncludeList($plugins, true);
@@ -577,6 +626,9 @@ abstract class ESLintRun extends BaseTask implements
         return $this;
     }
 
+    /**
+     * @param array<string|bool> $plugins
+     */
     public function addPlugins(array $plugins): static
     {
         foreach (Utils::createIncludeList($plugins, true) as $name => $state) {
@@ -593,6 +645,9 @@ abstract class ESLintRun extends BaseTask implements
         return $this;
     }
 
+    /**
+     * @param array<string|bool> $plugins
+     */
     public function removePlugins(array $plugins): static
     {
         foreach (Utils::createIncludeList($plugins, false) as $name => $state) {
@@ -604,13 +659,22 @@ abstract class ESLintRun extends BaseTask implements
     // endregion
 
     // region Option - rule.
+    /**
+     * @var array<string, string|array<string>>
+     */
     protected array $rules = [];
 
+    /**
+     * @return array<string, string|array<string>>
+     */
     public function getRules(): array
     {
         return $this->rules;
     }
 
+    /**
+     * @return array<string>
+     */
     protected function getRulesAsCliOptions(): array
     {
         $rules = [];
@@ -621,7 +685,10 @@ abstract class ESLintRun extends BaseTask implements
         return $rules;
     }
 
-    public function setRules(array $rules)
+    /**
+     * @param array<int|string, string|array<string>> $rules
+     */
+    public function setRules(array $rules): static
     {
         $this->rules = [];
         $this->addRules($rules);
@@ -629,7 +696,10 @@ abstract class ESLintRun extends BaseTask implements
         return $this;
     }
 
-    public function addRule(array $rule)
+    /**
+     * @param array<string> $rule
+     */
+    public function addRule(array $rule): static
     {
         $id = array_shift($rule);
         $this->rules[$id] = $rule;
@@ -637,7 +707,10 @@ abstract class ESLintRun extends BaseTask implements
         return $this;
     }
 
-    public function addRules(iterable $rules)
+    /**
+     * @param iterable<int|string, string|array<string>> $rules
+     */
+    public function addRules(iterable $rules): static
     {
         foreach ($rules as $id => $rule) {
             if (($rule[0] ?? null) !== $id) {
@@ -645,8 +718,11 @@ abstract class ESLintRun extends BaseTask implements
                 array_unshift($rule, $id);
             }
 
+            // @phpstan-ignore-next-line
             $this->addRule($rule);
         }
+
+        return $this;
     }
 
     public function removeRule(string $id): static
@@ -656,6 +732,9 @@ abstract class ESLintRun extends BaseTask implements
         return $this;
     }
 
+    /**
+     * @param iterable<int|string, string|array<string>> $rules
+     */
     public function removeRules(iterable $rules): static
     {
         foreach ($rules as $id => $rule) {
@@ -726,27 +805,39 @@ abstract class ESLintRun extends BaseTask implements
     // endregion
 
     // region Option - ignorePatterns.
+    /**
+     * @var array<string, bool>
+     */
     protected ?array $ignorePatterns = [];
 
+    /**
+     * @return array<string, bool>
+     */
     public function getIgnorePatterns(): array
     {
         return $this->ignorePatterns;
     }
 
-    public function setIgnorePatterns(array $value): static
+    /**
+     * @param array<string, bool>|array<string> $patterns
+     */
+    public function setIgnorePatterns(array $patterns): static
     {
-        $this->ignorePatterns = Utils::createIncludeList($value, true);
+        $this->ignorePatterns = Utils::createIncludeList($patterns, true);
 
         return $this;
     }
 
-    public function addIgnorePattern(string $pattern)
+    public function addIgnorePattern(string $pattern): static
     {
         $this->ignorePatterns[$pattern] = true;
 
         return $this;
     }
 
+    /**
+     * @param array<string, bool>|array<string> $patterns
+     */
     public function addIgnorePatterns(array $patterns): static
     {
         foreach (Utils::createIncludeList($patterns, true) as $pattern => $status) {
@@ -763,6 +854,9 @@ abstract class ESLintRun extends BaseTask implements
         return $this;
     }
 
+    /**
+     * @param array<string, bool>|array<string> $patterns
+     */
     public function removeIgnorePatterns(array $patterns): static
     {
         foreach (Utils::createIncludeList($patterns, false) as $pattern => $status) {
@@ -1005,9 +1099,14 @@ abstract class ESLintRun extends BaseTask implements
     // region Option - files.
     /**
      * Files to check.
+     *
+     * @var array<mixed>
      */
     protected array $files = [];
 
+    /**
+     * @return array<mixed>
+     */
     public function getFiles(): array
     {
         return $this->files;
@@ -1016,7 +1115,7 @@ abstract class ESLintRun extends BaseTask implements
     /**
      * File files to lint.
      *
-     * @param string[]|bool[] $files
+     * @param array<mixed> $files
      *   Key-value pair of file names and boolean.
      */
     public function setFiles(array $files): static
@@ -1029,8 +1128,9 @@ abstract class ESLintRun extends BaseTask implements
 
     // endregion
 
-
-
+    /**
+     * @param array<string, mixed> $options
+     */
     public function __construct(array $options = [])
     {
         $this->setOptions($options);
@@ -1038,6 +1138,8 @@ abstract class ESLintRun extends BaseTask implements
 
     /**
      * All in one configuration.
+     *
+     * @param array<string, mixed> $options
      */
     public function setOptions(array $options): static
     {
@@ -1229,7 +1331,7 @@ abstract class ESLintRun extends BaseTask implements
                 $outputFile = $this->getRealOutputFile();
                 if ($outputFile) {
                     if (is_readable($outputFile)) {
-                        $this->reportRaw = file_get_contents($outputFile);
+                        $this->reportRaw = file_get_contents($outputFile) ?: '';
                     }
                 } else {
                     $this->reportRaw = $this->lintStdOutput;
@@ -1322,6 +1424,9 @@ abstract class ESLintRun extends BaseTask implements
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function getAssetsWithPrefixedNames(): array
     {
         $prefix = $this->getAssetNamePrefix();
@@ -1416,6 +1521,9 @@ abstract class ESLintRun extends BaseTask implements
         return vsprintf($cmdPattern, $cmdArgs);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function getCommandOptions(): array
     {
         return [
@@ -1479,9 +1587,16 @@ abstract class ESLintRun extends BaseTask implements
         return $this->lintExitCode;
     }
 
+    /**
+     * @param array<mixed> $items
+     *
+     * @return array<mixed>
+     */
     protected function filterEnabled(array $items): array
     {
-        return gettype(reset($items)) === 'boolean' ? array_keys($items, true, true) : $items;
+        return gettype(reset($items)) === 'boolean'
+            ? array_keys($items, true, true)
+            : $items;
     }
 
     /**
